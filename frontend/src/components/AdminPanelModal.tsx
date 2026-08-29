@@ -56,6 +56,7 @@ export default function AdminPanelModal({
   // Ads Moderation state
   const [ads, setAds] = useState<any[]>([]);
   const [adsLoading, setAdsLoading] = useState(false);
+  const [adsError, setAdsError] = useState<string | null>(null);
   const [adSearchQuery, setAdSearchQuery] = useState("");
   const [deletingAdId, setDeletingAdId] = useState<number | null>(null);
   const [adActionMsg, setAdActionMsg] = useState<string | null>(null);
@@ -88,6 +89,7 @@ export default function AdminPanelModal({
   const fetchAds = useCallback(async () => {
     if (!token) return;
     setAdsLoading(true);
+    setAdsError(null);
     try {
       const params = new URLSearchParams();
       if (adSearchQuery.trim()) params.append("search", adSearchQuery.trim());
@@ -101,10 +103,15 @@ export default function AdminPanelModal({
         const data = await res.json();
         if (data.success) {
           setAds(data.ads || []);
+        } else {
+          setAdsError(data.error || "Failed to load advertisements.");
         }
+      } else {
+        setAdsError("Server returned an invalid response. Please try again.");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to fetch ads for moderation:", e);
+      setAdsError(e.message || "Network error loading advertisements.");
     } finally {
       setAdsLoading(false);
     }
@@ -138,6 +145,16 @@ export default function AdminPanelModal({
       if (activeTab === "users") fetchUsers();
     }
   }, [isOpen, activeTab, fetchStats, fetchAds, fetchUsers]);
+
+  // Debounced auto-search when typing
+  useEffect(() => {
+    if (isOpen && activeTab === "ads") {
+      const timer = setTimeout(() => {
+        fetchAds();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [adSearchQuery, isOpen, activeTab, fetchAds]);
 
   const handleSendNotification = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -576,6 +593,13 @@ export default function AdminPanelModal({
                   </button>
                 </div>
               </div>
+
+              {adsError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold rounded-xl flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>{adsError}</span>
+                </div>
+              )}
 
               {adActionMsg && (
                 <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl flex items-center gap-2">

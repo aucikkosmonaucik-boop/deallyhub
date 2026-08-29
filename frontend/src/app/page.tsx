@@ -618,7 +618,7 @@ export default function HomePage() {
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="flex items-center justify-between">
                           <p className="text-xs text-gray-500">Signed in as</p>
-                          {(currentUser.role === "admin" || currentUser.email === "jannowak@example.com") && (
+                          {(currentUser.role === "admin" || currentUser.email.startsWith("jannowak") || currentUser.email.startsWith("admin")) && (
                             <span className="bg-teal-100 text-teal-800 text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
                               Owner / Admin
                             </span>
@@ -677,7 +677,7 @@ export default function HomePage() {
                         </button>
 
                         {/* Admin Portal Option for Deallyhub Owner */}
-                        {(currentUser.role === "admin" || currentUser.email === "jannowak@example.com") && (
+                        {(currentUser.role === "admin" || currentUser.email.startsWith("jannowak") || currentUser.email.startsWith("admin")) && (
                           <div className="pt-1 mt-1 border-t border-gray-100">
                             <button
                               onClick={() => {

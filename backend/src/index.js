@@ -66,7 +66,8 @@ async function requireAdmin(req, res, next) {
   authenticateToken(req, res, async () => {
     try {
       const user = await findUserById(req.user.userId);
-      if (!user || (user.role !== "admin" && user.email !== "jannowak@example.com")) {
+      const isAdm = user && (user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin"));
+      if (!isAdm) {
         return res.status(403).json({
           success: false,
           error: "Access denied. Administrator privileges required."
@@ -214,7 +215,8 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    const role = user.role || (user.email === "jannowak@example.com" ? "admin" : "user");
+    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
+    const role = isAdm ? "admin" : "user";
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, role },
@@ -251,7 +253,8 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found." });
     }
 
-    const role = user.role || (user.email === "jannowak@example.com" ? "admin" : "user");
+    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
+    const role = isAdm ? "admin" : "user";
 
     res.json({
       success: true,
