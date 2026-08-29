@@ -32,8 +32,12 @@ import {
   Cog,
   Settings,
   Users,
-  Compass
+  Compass,
+  LogOut,
+  ChevronDown,
+  FileText
 } from "lucide-react";
+import AuthModal from "@/components/AuthModal";
 
 // Icon mapping dictionary
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -91,6 +95,12 @@ interface Category {
   color: string;
 }
 
+interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+}
+
 // Fallback list of categories in English
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 1, name: "Antiques & Collectibles", slug: "antiques-collectibles", icon: "Landmark", color: "amber" },
@@ -126,9 +136,26 @@ export default function HomePage() {
   const [location, setLocation] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Fetch categories from backend API if available
+  // Authentication State
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  // Load saved session on mount
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    try {
+      const savedUser = localStorage.getItem("deallyhub_user");
+      if (savedUser) {
+        setCurrentUser(JSON.parse(savedUser));
+      }
+    } catch {
+      // Ignore parse error
+    }
+  }, []);
+
+  // Fetch categories from backend API
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://deallyhub-production.up.railway.app";
     fetch(`${apiUrl}/api/categories`)
       .then((res) => res.json())
       .then((json) => {
@@ -141,10 +168,23 @@ export default function HomePage() {
       });
   }, []);
 
+  const handleAuthSuccess = (user: UserProfile, token: string) => {
+    setCurrentUser(user);
+    localStorage.setItem("deallyhub_user", JSON.stringify(user));
+    localStorage.setItem("deallyhub_token", token);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setIsProfileMenuOpen(false);
+    localStorage.removeItem("deallyhub_user");
+    localStorage.removeItem("deallyhub_token");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#002f34] font-sans antialiased">
       {/* Top Navbar */}
-      <header className="border-b border-gray-100 bg-white sticky top-0 z-50">
+      <header className="border-b border-gray-100 bg-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-2xl font-black tracking-tight text-[#002f34]">
@@ -161,10 +201,81 @@ export default function HomePage() {
               <Heart className="w-4 h-4" />
               <span>Saved</span>
             </button>
-            <button className="flex items-center gap-1.5 hover:text-teal-600 transition-colors">
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">My Profile</span>
-            </button>
+
+            {/* My Profile Button / Dropdown */}
+            <div className="relative">
+              {currentUser ? (
+                <div>
+                  <button
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    className="flex items-center gap-2 hover:text-teal-600 transition-colors bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-teal-600 text-white font-bold text-xs flex items-center justify-center">
+                      {currentUser.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="max-w-[120px] truncate font-semibold">
+                      {currentUser.name}
+                    </span>
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                  </button>
+
+                  {/* Logged-In User Dropdown Menu */}
+                  {isProfileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-xs text-gray-500">Signed in as</p>
+                        <p className="text-sm font-bold text-[#002f34] truncate">{currentUser.name}</p>
+                        <p className="text-xs text-gray-400 truncate">{currentUser.email}</p>
+                      </div>
+
+                      <div className="py-1">
+                        <button
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5"
+                        >
+                          <FileText className="w-4 h-4 text-gray-400" />
+                          <span>My Advertisements</span>
+                        </button>
+                        <button
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5"
+                        >
+                          <Heart className="w-4 h-4 text-gray-400" />
+                          <span>Saved Items</span>
+                        </button>
+                        <button
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5"
+                        >
+                          <Settings className="w-4 h-4 text-gray-400" />
+                          <span>Account Settings</span>
+                        </button>
+                      </div>
+
+                      <div className="border-t border-gray-100 pt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 font-medium"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Log Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsAuthOpen(true)}
+                  className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer py-1.5"
+                >
+                  <User className="w-4 h-4" />
+                  <span>My Profile</span>
+                </button>
+              )}
+            </div>
+
+            {/* Post Ad Button */}
             <button className="flex items-center gap-2 bg-[#002f34] hover:bg-[#003d44] text-white px-4 py-2.5 rounded-md font-semibold transition-all shadow-sm">
               <PlusCircle className="w-4 h-4" />
               <span>Post Ad</span>
@@ -275,6 +386,13 @@ export default function HomePage() {
           <p>Next.js Frontend on Vercel &bull; Node.js &amp; PostgreSQL Backend on Railway</p>
         </div>
       </footer>
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

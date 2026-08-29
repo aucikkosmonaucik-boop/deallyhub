@@ -30,6 +30,10 @@ export const INITIAL_CATEGORIES = [
   { name: "Auto Expo & Events", slug: "auto-expo-events", icon: "Compass", color: "blue" }
 ];
 
+// In-memory fallback stores if database is offline
+const inMemoryUsers = [];
+let nextUserId = 1;
+
 let pool = null;
 
 if (process.env.DATABASE_URL) {
@@ -42,13 +46,14 @@ if (process.env.DATABASE_URL) {
 
 export async function initDb() {
   if (!pool) {
-    console.log("No DATABASE_URL configured. Running with in-memory categories.");
+    console.log("No DATABASE_URL configured. Running with in-memory categories & users.");
     return;
   }
 
   try {
     const client = await pool.connect();
     try {
+      // 1. Categories Table
       await client.query(`
         CREATE TABLE IF NOT EXISTS categories (
           id SERIAL PRIMARY KEY,
@@ -60,6 +65,18 @@ export async function initDb() {
         );
       `);
 
+      // 2. Users Table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          password_hash VARCHAR(255) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      // Seed categories if empty
       const { rows } = await client.query("SELECT COUNT(*) FROM categories");
       if (parseInt(rows[0].count, 10) === 0) {
         console.log("Seeding initial English categories into database...");
@@ -95,6 +112,64 @@ export async function getCategories() {
   } catch (err) {
     console.warn("Falling back to default categories due to query error:", err.message);
     return INITIAL_CATEGORIES.map((cat, idx) => ({ id: idx + 1, ...cat }));
+  }
+}
+
+// User operations
+export async function findUserByEmail(email) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!pool) {
+    return inMemoryUsers.find(u => u.email === normalizedEmail) || null;
+  }
+
+  try {
+    const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [normalizedEmail]);
+    return rows[0] || null;
+  } catch (err) {
+    console.warn("Error querying user by email, checking memory fallback:", err.message);
+    return inMemoryUsers.find(u => u.email === normalizedEmail) || null;
+  }
+}
+
+export async function findUserById(id) {
+  if (!pool) {
+    return inMemoryUsers.find(u => u.id === id) || null;
+  }
+
+  try {
+    const { rows } = await pool.query("SELECT id, name, email, created_at FROM users WHERE id = $1", [id]);
+    return rows[0] || null;
+  } catch (err) {
+    console.warn("Error querying user by id:", err.message);
+    return inMemoryUsers.find(u => u.id === id) || null;
+  }
+}
+
+export async function createUser({ name, email, passwordHash }) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!pool) {
+    const newUser = {
+      id: nextUserId++,
+      name: name.trim(),
+      email: normalizedEmail,
+      password_hash: passwordHash,
+      created_at: new Date().toISOString()
+    };
+    inMemoryUsers.push(newUser);
+    return { id: newUser.id, name: newUser.name, email: newUser.email, created_at: newUser.created_at };
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at",
+      [name.trim(), normalizedEmail, passwordHash]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error("Error creating user in DB:", err.message);
+    throw err;
   }
 }
 
