@@ -1,0 +1,190 @@
+import nodemailer from "nodemailer";
+
+function getTransporter() {
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT, 10) || 587;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (host && user && pass) {
+    return nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass }
+    });
+  }
+  return null;
+}
+
+function getSender() {
+  return process.env.SMTP_FROM || process.env.SMTP_USER || '"Deallyhub" <no-reply@deallyhub.com>';
+}
+
+function generateDeallyEmailHtml({ title, subtitle, name, messageText, buttonText, buttonUrl, expirationNote }) {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f4f6f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #002f34;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+      <tr>
+        <td align="center" style="padding: 40px 10px;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 580px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+            <!-- Header with Deallyhub Brand -->
+            <tr>
+              <td align="center" style="background-color: #002f34; padding: 32px 24px;">
+                <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px;">
+                  Deally<span style="color: #0d9488;">hub</span>
+                </h1>
+                <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 13px; font-weight: 500;">
+                  Buy, Sell & Connect Across the Country
+                </p>
+              </td>
+            </tr>
+
+            <!-- Body Content -->
+            <tr>
+              <td style="padding: 36px 32px;">
+                <h2 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 800; color: #002f34;">
+                  ${subtitle}
+                </h2>
+                <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #334155;">
+                  Hello ${name ? `<strong>${name}</strong>` : "there"},
+                </p>
+                <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #475569;">
+                  ${messageText}
+                </p>
+
+                <!-- Action Button -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 28px 0;">
+                  <tr>
+                    <td align="center">
+                      <a href="${buttonUrl}" target="_blank" style="display: inline-block; background-color: #002f34; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 14px 36px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 47, 52, 0.25); border: 1px solid #0d9488;">
+                        ${buttonText}
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin: 20px 0 8px 0; font-size: 12px; color: #64748b; line-height: 1.5;">
+                  ${expirationNote}
+                </p>
+                <p style="margin: 0; font-size: 12px; color: #94a3b8; word-break: break-all;">
+                  If the button doesn't work, copy and paste this link into your browser:<br>
+                  <a href="${buttonUrl}" style="color: #0d9488; text-decoration: underline;">${buttonUrl}</a>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background-color: #f8fafc; padding: 24px 32px; border-top: 1px solid #e2e8f0; text-align: center;">
+                <p style="margin: 0 0 6px 0; font-size: 12px; color: #64748b;">
+                  If you didn't request this email from Deallyhub, you can safely ignore it.
+                </p>
+                <p style="margin: 0; font-size: 11px; font-weight: 600; color: #94a3b8;">
+                  Deallyhub MarketPlace Copyrights 2026
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  `;
+}
+
+export async function sendVerificationEmail({ email, name, token, clientOrigin }) {
+  const origin = (clientOrigin || "https://deallyhub.com").replace(/\/+$/, "");
+  const verifyUrl = `${origin}/?verify_email=${encodeURIComponent(token)}`;
+
+  const title = "Verify your Deallyhub Account";
+  const subtitle = "Confirm your email address";
+  const messageText = "Thank you for registering on Deallyhub! Please click the button below to verify your email address and activate your advertiser profile.";
+  const buttonText = "Verify Email Address";
+  const expirationNote = "This verification link is valid for 24 hours. Once verified, you will have full access to posting advertisements and chatting.";
+
+  const html = generateDeallyEmailHtml({
+    title,
+    subtitle,
+    name,
+    messageText,
+    buttonText,
+    buttonUrl: verifyUrl,
+    expirationNote
+  });
+
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log("==================================================");
+    console.log(`[EMAIL SIMULATION] Verification Email to: ${email}`);
+    console.log(`[VERIFICATION LINK]: ${verifyUrl}`);
+    console.log("==================================================");
+    return { success: true, simulated: true, url: verifyUrl };
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      from: getSender(),
+      to: email,
+      subject: "Verify your email address - Deallyhub",
+      html
+    });
+    console.log(`Verification email sent to ${email}: ${info.messageId}`);
+    return { success: true, messageId: info.messageId, url: verifyUrl };
+  } catch (err) {
+    console.error("Failed to send verification email:", err.message);
+    throw err;
+  }
+}
+
+export async function sendPasswordResetEmail({ email, name, token, clientOrigin }) {
+  const origin = (clientOrigin || "https://deallyhub.com").replace(/\/+$/, "");
+  const resetUrl = `${origin}/?reset_token=${encodeURIComponent(token)}`;
+
+  const title = "Reset your Deallyhub Password";
+  const subtitle = "Password Reset Request";
+  const messageText = "We received a request to reset your password for your Deallyhub account. Click the button below to choose a new password.";
+  const buttonText = "Reset My Password";
+  const expirationNote = "This reset link is valid for 1 hour for security purposes. If you didn't request a password reset, your account is safe and you can ignore this email.";
+
+  const html = generateDeallyEmailHtml({
+    title,
+    subtitle,
+    name,
+    messageText,
+    buttonText,
+    buttonUrl: resetUrl,
+    expirationNote
+  });
+
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log("==================================================");
+    console.log(`[EMAIL SIMULATION] Password Reset Email to: ${email}`);
+    console.log(`[RESET LINK]: ${resetUrl}`);
+    console.log("==================================================");
+    return { success: true, simulated: true, url: resetUrl };
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      from: getSender(),
+      to: email,
+      subject: "Reset your password - Deallyhub",
+      html
+    });
+    console.log(`Password reset email sent to ${email}: ${info.messageId}`);
+    return { success: true, messageId: info.messageId, url: resetUrl };
+  } catch (err) {
+    console.error("Failed to send password reset email:", err.message);
+    throw err;
+  }
+}

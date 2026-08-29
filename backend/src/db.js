@@ -172,9 +172,17 @@ export async function initDb() {
       // 7. Users role migration & admin accounts
       await client.query(`
         ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'user';
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token VARCHAR(255);
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token_expires TIMESTAMP;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255);
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP;
       `);
       await client.query(`
         UPDATE users SET role = 'admin' WHERE email = 'jannowak@example.com' OR email = 'jannowaktester1@gmail.com' OR email LIKE 'jannowak%' OR email LIKE 'admin%' OR id = 1;
+      `);
+      await client.query(`
+        UPDATE users SET is_verified = TRUE WHERE is_verified IS NULL;
       `);
 
       // Seed dedicated super admin account: admin@deallyhub.com / Admin2026!
@@ -1101,6 +1109,71 @@ export async function adminGetAllUsers() {
     console.error("Error in adminGetAllUsers:", err.message);
     return [];
   }
+}
+
+export async function setUserVerificationToken(userId, token, expiresAt) {
+  if (!pool) {
+    const u = inMemoryUsers.find(user => user.id === userId);
+    if (u) {
+      u.verification_token = token;
+      u.verification_token_expires = expiresAt;
+    }
+    return;
+  }
+  await pool.query(
+    "UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE id = $3",
+    [token, expiresAt, userId]
+  );
+}
+
+export async function verifyUserByToken(token) {
+  if (!pool) {
+    const u = inMemoryUsers.find(user => user.verification_token === token);
+    if (!u) return null;
+    u.is_verified = true;
+    u.verification_token = null;
+    u.verification_token_expires = null;
+    return u;
+  }
+  const { rows } = await pool.query(
+    "UPDATE users SET is_verified = TRUE, verification_token = NULL, verification_token_expires = NULL WHERE verification_token = $1 AND (verification_token_expires IS NULL OR verification_token_expires > NOW()) RETURNING id, name, email, role, is_verified",
+    [token]
+  );
+  return rows[0] || null;
+}
+
+export async function setUserResetToken(email, token, expiresAt) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!pool) {
+    const u = inMemoryUsers.find(user => user.email === normalizedEmail);
+    if (u) {
+      u.reset_token = token;
+      u.reset_token_expires = expiresAt;
+      return u;
+    }
+    return null;
+  }
+  const { rows } = await pool.query(
+    "UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE email = $3 RETURNING id, name, email",
+    [token, expiresAt, normalizedEmail]
+  );
+  return rows[0] || null;
+}
+
+export async function resetUserPasswordByToken(token, newPasswordHash) {
+  if (!pool) {
+    const u = inMemoryUsers.find(user => user.reset_token === token);
+    if (!u) return null;
+    u.password_hash = newPasswordHash;
+    u.reset_token = null;
+    u.reset_token_expires = null;
+    return u;
+  }
+  const { rows } = await pool.query(
+    "UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE reset_token = $2 AND (reset_token_expires IS NULL OR reset_token_expires > NOW()) RETURNING id, name, email",
+    [newPasswordHash, token]
+  );
+  return rows[0] || null;
 }
 
 export { pool };

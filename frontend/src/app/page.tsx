@@ -171,6 +171,9 @@ export default function HomePage() {
 
   // Authentication State
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"login" | "register" | "forgot" | "reset">("login");
+  const [authResetToken, setAuthResetToken] = useState("");
+  const [globalBanner, setGlobalBanner] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -280,6 +283,44 @@ export default function HomePage() {
       if (savedToken) setToken(savedToken);
     } catch {
       // Ignore parse error
+    }
+  }, []);
+
+  // URL parameters check for Email Verification & Password Reset
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const verifyToken = urlParams.get("verify_email");
+    const isVerified = urlParams.get("verified");
+    const verifyError = urlParams.get("verify_error");
+    const resetToken = urlParams.get("reset_token");
+
+    if (verifyToken) {
+      const apiUrl = getApiUrl();
+      fetch(`${apiUrl}/api/auth/verify-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: verifyToken })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setGlobalBanner({ text: "Email address verified successfully! 🎉 Welcome to Deallyhub.", type: "success" });
+          } else {
+            setGlobalBanner({ text: data.error || "Email verification link is invalid or expired.", type: "error" });
+          }
+        })
+        .catch(() => {
+          setGlobalBanner({ text: "Failed to verify email. Please try again.", type: "error" });
+        });
+    } else if (isVerified === "true") {
+      setGlobalBanner({ text: "Email address verified successfully! 🎉 Welcome to Deallyhub.", type: "success" });
+    } else if (verifyError) {
+      setGlobalBanner({ text: "Verification link was invalid or expired. Please request a new one.", type: "error" });
+    } else if (resetToken) {
+      setAuthResetToken(resetToken);
+      setAuthModalMode("reset");
+      setIsAuthOpen(true);
     }
   }, []);
 
@@ -738,6 +779,25 @@ export default function HomePage() {
           </div>
         </div>
       </header>
+
+      {/* Verification / Alert Banner */}
+      {globalBanner && (
+        <div
+          className={`py-3 px-4 text-center text-sm font-medium flex items-center justify-center gap-2 shadow-xs transition-all ${
+            globalBanner.type === "success"
+              ? "bg-teal-600 text-white"
+              : "bg-red-600 text-white"
+          }`}
+        >
+          <span>{globalBanner.text}</span>
+          <button
+            onClick={() => setGlobalBanner(null)}
+            className="ml-3 underline text-xs hover:opacity-80 font-bold cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Hero Search Section */}
       <section className="bg-[#f2f4f5] py-8 sm:py-12 border-b border-gray-200">
@@ -1232,8 +1292,14 @@ export default function HomePage() {
       {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
+        onClose={() => {
+          setIsAuthOpen(false);
+          setAuthModalMode("login");
+          setAuthResetToken("");
+        }}
         onAuthSuccess={handleAuthSuccess}
+        initialMode={authModalMode}
+        initialResetToken={authResetToken}
       />
 
       {/* Advertisements Manager Modal */}

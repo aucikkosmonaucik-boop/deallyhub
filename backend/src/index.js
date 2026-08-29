@@ -3,6 +3,11 @@ import cors from "cors";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail
+} from "./emailService.js";
 import {
   initDb,
   getCategories,
@@ -31,7 +36,11 @@ import {
   getAdminStats,
   adminGetAllAds,
   adminDeleteAd,
-  adminGetAllUsers
+  adminGetAllUsers,
+  setUserVerificationToken,
+  verifyUserByToken,
+  setUserResetToken,
+  resetUserPasswordByToken
 } from "./db.js";
 
 const app = express();
@@ -160,6 +169,20 @@ app.post("/api/auth/register", async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
     const newUser = await createUser({ name, email, passwordHash });
 
+    // Generate verification token (valid for 24h)
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await setUserVerificationToken(newUser.id, verificationToken, expiresAt);
+
+    // Send styled verification email in background
+    const origin = req.headers.origin || "https://deallyhub.com";
+    sendVerificationEmail({
+      email: newUser.email,
+      name: newUser.name,
+      token: verificationToken,
+      clientOrigin: origin
+    }).catch(err => console.warn("Failed to send verification email:", err.message));
+
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       JWT_SECRET,
@@ -168,12 +191,14 @@ app.post("/api/auth/register", async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Account created successfully!",
+      message: "Account created successfully! We sent a verification link to your email.",
+      requiresVerification: true,
       user: {
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role || "user"
+        role: newUser.role || "user",
+        is_verified: false
       },
       token
     });
@@ -184,6 +209,163 @@ app.post("/api/auth/register", async (req, res) => {
       error: "Registration failed due to a server error.",
       details: err.message
     });
+  }
+});
+
+// Verify Email Address (Supports GET for email link clicks and POST for programmatic API calls)
+app.all("/api/auth/verify-email", async (req, res) => {
+  try {
+    const token = req.query.token || req.body?.token;
+    if (!token) {
+      if (req.method === "GET") {
+        return res.redirect("https://deallyhub.com/?verify_error=missing_token");
+      }
+      return res.status(400).json({ success: false, error: "Verification token is required." });
+    }
+
+    const user = await verifyUserByToken(token);
+    if (!user) {
+      if (req.method === "GET") {
+        return res.redirect("https://deallyhub.com/?verify_error=invalid_or_expired");
+      }
+      return res.status(400).json({ success: false, error: "Verification token is invalid or has expired." });
+    }
+
+    // Send a welcoming system notification to the user's bell
+    await createNotification({
+      userId: user.id,
+      title: "Account Verified! 🎉",
+      message: "Your email address has been successfully verified. You now have full access to all Deallyhub features!",
+      type: "system"
+    });
+
+    if (req.method === "GET") {
+      return res.redirect("https://deallyhub.com/?verified=true");
+    }
+
+    res.json({
+      success: true,
+      message: "Email address verified successfully!",
+      user
+    });
+  } catch (err) {
+    console.error("Verification error:", err);
+    if (req.method === "GET") {
+      return res.redirect("https://deallyhub.com/?verify_error=server_error");
+    }
+    res.status(500).json({ success: false, error: "Verification failed due to a server error." });
+  }
+});
+
+// Resend Email Verification Link
+app.post("/api/auth/resend-verification", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: "Email address is required." });
+    }
+
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ success: false, error: "No account found with this email." });
+    }
+
+    if (user.is_verified) {
+      return res.json({ success: true, message: "This email address is already verified." });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await setUserVerificationToken(user.id, verificationToken, expiresAt);
+
+    const origin = req.headers.origin || "https://deallyhub.com";
+    await sendVerificationEmail({
+      email: user.email,
+      name: user.name,
+      token: verificationToken,
+      clientOrigin: origin
+    });
+
+    res.json({
+      success: true,
+      message: "Verification email sent! Please check your inbox and spam folder."
+    });
+  } catch (err) {
+    console.error("Resend verification error:", err);
+    res.status(500).json({ success: false, error: "Failed to resend verification email." });
+  }
+});
+
+// Forgot Password - Send Reset Link
+app.post("/api/auth/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: "Email address is required." });
+    }
+
+    const user = await findUserByEmail(email);
+    if (user) {
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      await setUserResetToken(user.email, resetToken, expiresAt);
+
+      const origin = req.headers.origin || "https://deallyhub.com";
+      sendPasswordResetEmail({
+        email: user.email,
+        name: user.name,
+        token: resetToken,
+        clientOrigin: origin
+      }).catch(err => console.warn("Failed to send reset email:", err.message));
+    }
+
+    // Always respond with success to protect privacy
+    res.json({
+      success: true,
+      message: "If an account exists with that email, a password reset link has been sent."
+    });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.status(500).json({ success: false, error: "Failed to process password reset request." });
+  }
+});
+
+// Reset Password with Token
+app.post("/api/auth/reset-password", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: "Reset token and new password are required."
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: "Password must be at least 6 characters long."
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword, salt);
+
+    const user = await resetUserPasswordByToken(token, newHash);
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: "Password reset link is invalid or has expired. Please request a new one."
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Password reset successfully! You can now log in with your new password."
+    });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({ success: false, error: "Failed to reset password." });
   }
 });
 

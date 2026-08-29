@@ -1,5 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../api/api_service.dart';
+import '../widgets/app_image.dart';
 
 class PostAdScreen extends StatefulWidget {
   final VoidCallback? onAdCreated;
@@ -17,9 +20,11 @@ class PostAdScreen extends StatefulWidget {
 
 class _PostAdScreenState extends State<PostAdScreen> {
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker _picker = ImagePicker();
 
   bool _isLoggedIn = false;
   bool _checkingAuth = true;
+  bool _pickingImage = false;
 
   String _title = '';
   String _description = '';
@@ -74,6 +79,34 @@ class _PostAdScreenState extends State<PostAdScreen> {
         _images.add(url);
         _imgUrlController.clear();
       });
+    }
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      setState(() => _pickingImage = true);
+      final XFile? photo = await _picker.pickImage(
+        source: source,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        imageQuality: 80,
+      );
+
+      if (photo != null) {
+        final bytes = await photo.readAsBytes();
+        final base64String = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+        setState(() {
+          _images.add(base64String);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load photo: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _pickingImage = false);
     }
   }
 
@@ -382,65 +415,144 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Photos URL
-                  const Text('Photos (Image URLs)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                  const SizedBox(height: 6),
+                  // Photos Section (Gallery, Camera, or URL)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Photos / Zdjęcia',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002F34)),
+                      ),
+                      Text(
+                        '${_images.length}/10',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Add photos from your phone memory or camera',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Pick Image Buttons (Gallery & Camera)
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
-                          controller: _imgUrlController,
-                          decoration: InputDecoration(
-                            hintText: 'https://images.unsplash.com/...',
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            filled: true,
-                            fillColor: const Color(0xFFF9FAFB),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                        child: OutlinedButton.icon(
+                          onPressed: (_pickingImage || _images.length >= 10)
+                              ? null
+                              : () => _pickImage(ImageSource.gallery),
+                          icon: const Icon(Icons.photo_library_rounded, size: 20, color: Color(0xFF002F34)),
+                          label: const Text(
+                            'Gallery',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            side: const BorderSide(color: Color(0xFF002F34)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: Colors.white,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _addImageUrl,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF002F34),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: (_pickingImage || _images.length >= 10)
+                              ? null
+                              : () => _pickImage(ImageSource.camera),
+                          icon: const Icon(Icons.camera_alt_rounded, size: 20, color: Color(0xFF0D9488)),
+                          label: const Text(
+                            'Camera',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0D9488)),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            side: const BorderSide(color: Color(0xFF0D9488)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: const Color(0xFFF0FDFA),
+                          ),
                         ),
-                        child: const Text('Add'),
                       ),
                     ],
                   ),
 
-                  // Image previews
+                  if (_pickingImage) ...[
+                    const SizedBox(height: 12),
+                    const Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D9488)),
+                          ),
+                          SizedBox(width: 8),
+                          Text('Loading photo...', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Image Previews Grid
                   if (_images.isNotEmpty) ...[
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 10,
+                      runSpacing: 10,
                       children: _images.asMap().entries.map((entry) {
                         final idx = entry.key;
-                        final url = entry.value;
+                        final imgData = entry.value;
                         return Stack(
+                          clipBehavior: Clip.none,
                           children: [
                             Container(
-                              width: 70,
-                              height: 70,
+                              width: 80,
+                              height: 80,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                image: DecorationImage(image: networkErrorSafeImage(url), fit: BoxFit.cover),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFE5E7EB)),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: AppImage(
+                                imageUrl: imgData,
+                                fit: BoxFit.cover,
                               ),
                             ),
+                            if (idx == 0)
+                              Positioned(
+                                bottom: 4,
+                                left: 4,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xCC002F34),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'COVER',
+                                    style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w900),
+                                  ),
+                                ),
+                              ),
                             Positioned(
-                              top: 2,
-                              right: 2,
-                              child: InkWell(
+                              top: -6,
+                              right: -6,
+                              child: GestureDetector(
                                 onTap: () => setState(() => _images.removeAt(idx)),
                                 child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                  child: const Icon(Icons.close, size: 12, color: Colors.white),
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFE11D48),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black26, blurRadius: 3),
+                                    ],
+                                  ),
+                                  child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
                                 ),
                               ),
                             ),
@@ -449,6 +561,48 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       }).toList(),
                     ),
                   ],
+
+                  const SizedBox(height: 12),
+
+                  // Optional Image URL Input
+                  ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    dense: true,
+                    title: const Text(
+                      'Or add image by URL (optional)',
+                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w600),
+                    ),
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _imgUrlController,
+                              decoration: InputDecoration(
+                                hintText: 'https://images.unsplash.com/...',
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                filled: true,
+                                fillColor: const Color(0xFFF9FAFB),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: _addImageUrl,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF002F34),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Add'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
                   const SizedBox(height: 16),
 
                   // Description
@@ -486,9 +640,5 @@ class _PostAdScreenState extends State<PostAdScreen> {
               ),
             ),
     );
-  }
-
-  ImageProvider networkErrorSafeImage(String url) {
-    return NetworkImage(url);
   }
 }
