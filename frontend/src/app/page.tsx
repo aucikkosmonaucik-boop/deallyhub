@@ -36,7 +36,11 @@ import {
   LogOut,
   ChevronDown,
   FileText,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Download,
+  HelpCircle,
+  ExternalLink,
+  ShieldCheck
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import AdsManagerModal from "@/components/AdsManagerModal";
@@ -759,6 +763,121 @@ export default function HomePage() {
               })}
             </div>
           )}
+        </section>
+
+        {/* Mobile App & APK Download Section with English Q&A */}
+        <section className="mt-20 pt-12 border-t border-gray-200">
+          <div className="bg-gradient-to-br from-[#002f34] to-[#004a52] rounded-3xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden">
+            {/* Background glow decoration */}
+            <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="max-w-3xl space-y-6 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold tracking-wide uppercase border border-teal-500/30">
+                <Smartphone className="w-4 h-4" />
+                <span>Official Mobile App</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Download Deallyhub for Android (APK)
+              </h2>
+
+              <p className="text-sm sm:text-base text-gray-200 leading-relaxed">
+                Take your local marketplace with you wherever you go. Browse 25 categories, post ads in seconds using your phone camera, receive chat messages from buyers in real time, and manage your wishlist.
+              </p>
+
+              {/* Download Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <a
+                  href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest/download/app-release.apk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-[#002f34] px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all shadow-md flex items-center gap-2.5 cursor-pointer"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>Download APK (Latest Release v1.0.0)</span>
+                </a>
+
+                <a
+                  href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/10 hover:bg-white/20 text-white px-5 py-3.5 rounded-xl font-bold text-sm transition-all border border-white/20 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>View Release on GitHub</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+
+              <div className="flex items-center gap-4 text-xs text-gray-300 pt-1">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-teal-400" />
+                  <span>Direct GitHub Actions Build</span>
+                </span>
+                <span>&bull;</span>
+                <span>Android 7.0+</span>
+                <span>&bull;</span>
+                <span>Free &amp; Ad-Free</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Installation Guide & Q&A */}
+          <div className="mt-12">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-[#002f34] flex items-center justify-center gap-2">
+                <HelpCircle className="w-6 h-6 text-teal-600" />
+                <span>Frequently Asked Questions &amp; Installation Guide (Q&amp;A)</span>
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Everything you need to know about installing and using the Deallyhub Android app.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Q1 */}
+              <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
+                <h4 className="font-bold text-[#002f34] text-base mb-2">
+                  Q: How do I install the Deallyhub APK on my Android phone?
+                </h4>
+                <div className="text-xs text-gray-600 space-y-1.5 leading-relaxed">
+                  <p><strong>1. Download:</strong> Tap the &quot;Download APK&quot; button above to save <code>app-release.apk</code>.</p>
+                  <p><strong>2. Open file:</strong> Swipe down your notification shade or open your <em>Files / Downloads</em> folder and tap the downloaded file.</p>
+                  <p><strong>3. Grant permission:</strong> If Android asks <em>&quot;Install unknown apps&quot;</em>, tap <strong>Settings</strong> and enable <strong>&quot;Allow from this source&quot;</strong>.</p>
+                  <p><strong>4. Confirm &amp; Launch:</strong> Tap <strong>Install</strong>, then tap <strong>Open</strong> to start exploring Deallyhub!</p>
+                </div>
+              </div>
+
+              {/* Q2 */}
+              <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
+                <h4 className="font-bold text-[#002f34] text-base mb-2">
+                  Q: Is it safe to install this APK directly?
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Yes, 100% safe. The APK is compiled directly from our open-source GitHub repository by automated GitHub Actions build runners. It has zero third-party adware, malware, or tracking scripts, and communicates exclusively with our secure HTTPS API.
+                </p>
+              </div>
+
+              {/* Q3 */}
+              <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
+                <h4 className="font-bold text-[#002f34] text-base mb-2">
+                  Q: Will my listings, messages, and saved items sync?
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Yes, instantly. Both the website and the Flutter Android app are connected to the exact same PostgreSQL database. When you log in with your account, your published advertisements, wishlist items, and buyer-seller chat conversations will sync automatically in real time.
+                </p>
+              </div>
+
+              {/* Q4 */}
+              <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
+                <h4 className="font-bold text-[#002f34] text-base mb-2">
+                  Q: Is an iOS / iPhone version available?
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  An iOS release for the Apple App Store is currently in development. In the meantime, iPhone users can enjoy the full experience by visiting <a href="https://deallyhub.com" className="text-teal-600 font-bold underline">deallyhub.com</a> in Safari and tapping <strong>Share &rarr; Add to Home Screen</strong> for a full-screen app-like web app!
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
       </main>
 
