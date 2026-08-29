@@ -41,6 +41,8 @@ import {
   HelpCircle,
   ExternalLink,
   ShieldCheck,
+  Shield,
+  Bell,
   Loader2
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
@@ -49,6 +51,8 @@ import SavedItemsModal from "@/components/SavedItemsModal";
 import AccountSettingsModal from "@/components/AccountSettingsModal";
 import AdDetailsModal from "@/components/AdDetailsModal";
 import MessagesModal from "@/components/MessagesModal";
+import NotificationsModal, { NotificationItem } from "@/components/NotificationsModal";
+import AdminPanelModal from "@/components/AdminPanelModal";
 import { getApiUrl } from "@/lib/api";
 
 // Icon mapping dictionary
@@ -111,6 +115,7 @@ interface UserProfile {
   id: number;
   name: string;
   email: string;
+  role?: string;
 }
 
 interface Advertisement {
@@ -182,6 +187,14 @@ export default function HomePage() {
   const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+
+  // Notifications State
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+
+  // Admin Portal State (Portal Owner)
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
 
   // Live Search Dropdown State
   const [liveSearchResults, setLiveSearchResults] = useState<Advertisement[]>([]);
@@ -433,6 +446,67 @@ export default function HomePage() {
     }
   };
 
+  // Notifications fetch & polling
+  const fetchNotifications = useCallback(async () => {
+    if (!token) return;
+    try {
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotifications(data.notifications || []);
+        setUnreadNotificationsCount(data.unreadCount || 0);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch notifications:", err);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 25000);
+      return () => clearInterval(interval);
+    } else {
+      setNotifications([]);
+      setUnreadNotificationsCount(0);
+    }
+  }, [token, fetchNotifications]);
+
+  const handleMarkNotificationRead = async (id: number) => {
+    if (!token) return;
+    try {
+      const apiUrl = getApiUrl();
+      await fetch(`${apiUrl}/api/notifications/${id}/read`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      );
+      setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
+  };
+
+  const handleMarkAllNotificationsRead = async () => {
+    if (!token) return;
+    try {
+      const apiUrl = getApiUrl();
+      await fetch(`${apiUrl}/api/notifications/read-all`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      setUnreadNotificationsCount(0);
+    } catch (err) {
+      console.error("Failed to mark all notifications read:", err);
+    }
+  };
+
   const handleStartChat = async (adId: number) => {
     if (!token) {
       setIsAuthOpen(true);
@@ -505,6 +579,22 @@ export default function HomePage() {
               <span>Saved {savedAdIds.length > 0 && `(${savedAdIds.length})`}</span>
             </button>
 
+            {/* Notification Bell Nav Button */}
+            {currentUser && (
+              <button
+                onClick={() => setIsNotificationsOpen(true)}
+                className="relative p-2 text-[#002f34] hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+                title="Notifications"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadNotificationsCount > 0 && (
+                  <span className="absolute 0 top-0.5 right-0.5 min-w-[18px] h-[18px] bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-xs">
+                    {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             {/* My Profile Button / Dropdown */}
             <div className="relative">
               {currentUser ? (
@@ -526,15 +616,40 @@ export default function HomePage() {
                   {isProfileMenuOpen && (
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                       <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-xs text-gray-500">Signed in as</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-500">Signed in as</p>
+                          {(currentUser.role === "admin" || currentUser.email === "jannowak@example.com") && (
+                            <span className="bg-teal-100 text-teal-800 text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
+                              Owner / Admin
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm font-bold text-[#002f34] truncate">{currentUser.name}</p>
                         <p className="text-xs text-gray-400 truncate">{currentUser.email}</p>
                       </div>
 
                       <div className="py-1">
                         <button
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            setIsNotificationsOpen(true);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Bell className="w-4 h-4 text-teal-600" />
+                            <span>Notifications</span>
+                          </div>
+                          {unreadNotificationsCount > 0 && (
+                            <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+                              {unreadNotificationsCount}
+                            </span>
+                          )}
+                        </button>
+
+                        <button
                           onClick={handleOpenMessages}
-                          className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] hover:bg-teal-50 flex items-center gap-2.5 font-semibold transition-colors cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer"
                         >
                           <MessageSquare className="w-4 h-4 text-teal-600" />
                           <span>Messages</span>
@@ -560,6 +675,22 @@ export default function HomePage() {
                           <Settings className="w-4 h-4 text-gray-400" />
                           <span>Account Settings</span>
                         </button>
+
+                        {/* Admin Portal Option for Deallyhub Owner */}
+                        {(currentUser.role === "admin" || currentUser.email === "jannowak@example.com") && (
+                          <div className="pt-1 mt-1 border-t border-gray-100">
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                setIsAdminPanelOpen(true);
+                              }}
+                              className="w-full text-left px-4 py-2.5 text-sm font-bold text-teal-900 bg-teal-50 hover:bg-teal-100 flex items-center gap-2.5 cursor-pointer transition-colors"
+                            >
+                              <Shield className="w-4 h-4 text-teal-700" />
+                              <span>Admin Portal (Owner)</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <div className="border-t border-gray-100 pt-1">
@@ -1149,6 +1280,24 @@ export default function HomePage() {
         onClose={() => setIsMessagesOpen(false)}
         token={token}
         initialConversationId={activeConversationId}
+      />
+
+      {/* Notifications Modal (Dzwonek Powiadomień) */}
+      <NotificationsModal
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        notifications={notifications}
+        unreadCount={unreadNotificationsCount}
+        onMarkAsRead={handleMarkNotificationRead}
+        onMarkAllAsRead={handleMarkAllNotificationsRead}
+      />
+
+      {/* Admin Panel Modal (Panel Administratora dla Właściciela Portalu) */}
+      <AdminPanelModal
+        isOpen={isAdminPanelOpen}
+        onClose={() => setIsAdminPanelOpen(false)}
+        token={token}
+        onAdDeleted={fetchAds}
       />
     </div>
   );

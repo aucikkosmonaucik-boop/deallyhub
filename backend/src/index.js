@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -23,7 +23,15 @@ import {
   getOrCreateConversation,
   getUserConversations,
   getConversationMessages,
-  sendMessage
+  sendMessage,
+  getUserNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  createNotification,
+  getAdminStats,
+  adminGetAllAds,
+  adminDeleteAd,
+  adminGetAllUsers
 } from "./db.js";
 
 const app = express();
@@ -51,6 +59,25 @@ function authenticateToken(req, res, next) {
   } catch (err) {
     return res.status(401).json({ success: false, error: "Invalid or expired session token." });
   }
+}
+
+// Admin authorization middleware
+async function requireAdmin(req, res, next) {
+  authenticateToken(req, res, async () => {
+    try {
+      const user = await findUserById(req.user.userId);
+      if (!user || (user.role !== "admin" && user.email !== "jannowak@example.com")) {
+        return res.status(403).json({
+          success: false,
+          error: "Access denied. Administrator privileges required."
+        });
+      }
+      req.adminUser = user;
+      next();
+    } catch (err) {
+      return res.status(500).json({ success: false, error: "Failed to verify admin privileges." });
+    }
+  });
 }
 
 // Root & Health
@@ -144,7 +171,8 @@ app.post("/api/auth/register", async (req, res) => {
       user: {
         id: newUser.id,
         name: newUser.name,
-        email: newUser.email
+        email: newUser.email,
+        role: newUser.role || "user"
       },
       token
     });
@@ -186,8 +214,10 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
+    const role = user.role || (user.email === "jannowak@example.com" ? "admin" : "user");
+
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, role },
       JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -198,7 +228,8 @@ app.post("/api/auth/login", async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role
       },
       token
     });
@@ -220,12 +251,15 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found." });
     }
 
+    const role = user.role || (user.email === "jannowak@example.com" ? "admin" : "user");
+
     res.json({
       success: true,
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role
       }
     });
   } catch (err) {
@@ -536,6 +570,138 @@ app.post("/api/conversations/:id/messages", authenticateToken, async (req, res) 
       success: false,
       error: err.message
     });
+  }
+});
+
+// ==========================================
+// NOTIFICATIONS API
+// ==========================================
+
+// 1. Get Notifications for current user (includes unread count)
+app.get("/api/notifications", authenticateToken, async (req, res) => {
+  try {
+    const notifications = await getUserNotifications(req.user.userId);
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+    res.json({
+      success: true,
+      unreadCount,
+      notifications
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to fetch notifications." });
+  }
+});
+
+// 2. Mark single notification as read
+app.post("/api/notifications/:id/read", authenticateToken, async (req, res) => {
+  try {
+    const success = await markNotificationRead(req.user.userId, parseInt(req.params.id, 10));
+    res.json({ success });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to mark notification as read." });
+  }
+});
+
+// 3. Mark all notifications as read
+app.post("/api/notifications/read-all", authenticateToken, async (req, res) => {
+  try {
+    const success = await markAllNotificationsRead(req.user.userId);
+    res.json({ success });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to mark all notifications as read." });
+  }
+});
+
+// ==========================================
+// ADMIN PORTAL API (Owner of Deallyhub)
+// ==========================================
+
+// 1. Get Admin Platform Overview / Stats
+app.get("/api/admin/stats", requireAdmin, async (req, res) => {
+  try {
+    const stats = await getAdminStats();
+    res.json({ success: true, stats });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to retrieve platform stats." });
+  }
+});
+
+// 2. Get All Advertisements for Moderation (Search, Filter, Paginate)
+app.get("/api/admin/ads", requireAdmin, async (req, res) => {
+  try {
+    const { search = "", category = "", limit = 50, offset = 0 } = req.query;
+    const result = await adminGetAllAds({
+      search,
+      category,
+      limit: parseInt(limit, 10) || 50,
+      offset: parseInt(offset, 10) || 0
+    });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to retrieve advertisements for moderation." });
+  }
+});
+
+// 3. Delete any advertisement from portal (Moderation / Content Removal)
+app.delete("/api/admin/ads/:id", requireAdmin, async (req, res) => {
+  try {
+    const deleted = await adminDeleteAd(req.params.id);
+    res.json({
+      success: true,
+      message: `Advertisement #${req.params.id} deleted successfully.`,
+      ad: deleted
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message || "Failed to delete advertisement." });
+  }
+});
+
+// 4. Send Notification (Broadcast to all or target specific user)
+app.post("/api/admin/notifications", requireAdmin, async (req, res) => {
+  try {
+    const { target = "all", targetUserId, targetEmail, title, message, type = "system" } = req.body;
+
+    if (!title || !title.trim() || !message || !message.trim()) {
+      return res.status(400).json({ success: false, error: "Title and message content are required." });
+    }
+
+    let finalUserId = null;
+    if (target === "specific") {
+      if (targetUserId) {
+        finalUserId = parseInt(targetUserId, 10);
+      } else if (targetEmail && targetEmail.trim()) {
+        const u = await findUserByEmail(targetEmail.trim());
+        if (!u) {
+          return res.status(404).json({ success: false, error: `User with email ${targetEmail} not found.` });
+        }
+        finalUserId = u.id;
+      }
+    }
+
+    const created = await createNotification({
+      userId: finalUserId,
+      title,
+      message,
+      type
+    });
+
+    res.status(201).json({
+      success: true,
+      message: finalUserId ? "Direct notification sent successfully." : "Broadcast notification sent to all users.",
+      notification: created
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to send notification: " + err.message });
+  }
+});
+
+// 5. Get Users List for Admin
+app.get("/api/admin/users", requireAdmin, async (req, res) => {
+  try {
+    const users = await adminGetAllUsers();
+    res.json({ success: true, count: users.length, users });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to retrieve users." });
   }
 });
 

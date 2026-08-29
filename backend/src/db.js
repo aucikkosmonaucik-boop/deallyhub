@@ -1,4 +1,4 @@
-﻿import pg from "pg";
+import pg from "pg";
 import bcrypt from "bcryptjs";
 
 const { Pool } = pg;
@@ -42,6 +42,9 @@ const inMemoryConversations = [];
 let nextConvId = 1;
 const inMemoryMessages = [];
 let nextMsgId = 1;
+const inMemoryNotifications = [];
+let nextNotifId = 1;
+const inMemoryNotificationReads = [];
 
 let pool = null;
 
@@ -156,6 +159,37 @@ export async function initDb() {
         );
       `);
 
+      // 7. Users role migration
+      await client.query(`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'user';
+      `);
+      await client.query(`
+        UPDATE users SET role = 'admin' WHERE email = 'jannowak@example.com' OR id = 1;
+      `);
+
+      // 8. Notifications Table (user_id NULL means broadcast to all users)
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS notifications (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          title VARCHAR(255) NOT NULL,
+          message TEXT NOT NULL,
+          type VARCHAR(50) DEFAULT 'system',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      // 9. Notification Reads Table (tracks read status per user)
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS notification_reads (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          notification_id INTEGER REFERENCES notifications(id) ON DELETE CASCADE,
+          read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, notification_id)
+        );
+      `);
+
       // Seed categories if empty
       const { rows } = await client.query("SELECT COUNT(*) FROM categories");
       if (parseInt(rows[0].count, 10) === 0) {
@@ -212,19 +246,24 @@ export async function findUserByEmail(email) {
 
 export async function findUserById(id) {
   if (!pool) {
-    return inMemoryUsers.find(u => u.id === id) || null;
+    const u = inMemoryUsers.find(user => user.id === id);
+    if (!u) return null;
+    return { id: u.id, name: u.name, email: u.email, role: u.role || (u.email === 'jannowak@example.com' ? 'admin' : 'user'), created_at: u.created_at };
   }
 
   try {
-    const { rows } = await pool.query("SELECT id, name, email, created_at FROM users WHERE id = $1", [id]);
+    const { rows } = await pool.query("SELECT id, name, email, COALESCE(role, 'user') as role, created_at FROM users WHERE id = $1", [id]);
     return rows[0] || null;
   } catch (err) {
-    return inMemoryUsers.find(u => u.id === id) || null;
+    const u = inMemoryUsers.find(user => user.id === id);
+    if (!u) return null;
+    return { id: u.id, name: u.name, email: u.email, role: u.role || (u.email === 'jannowak@example.com' ? 'admin' : 'user'), created_at: u.created_at };
   }
 }
 
 export async function createUser({ name, email, passwordHash }) {
   const normalizedEmail = email.trim().toLowerCase();
+  const initialRole = normalizedEmail === "jannowak@example.com" ? "admin" : "user";
 
   if (!pool) {
     const newUser = {
@@ -232,16 +271,17 @@ export async function createUser({ name, email, passwordHash }) {
       name: name.trim(),
       email: normalizedEmail,
       password_hash: passwordHash,
+      role: initialRole,
       created_at: new Date().toISOString()
     };
     inMemoryUsers.push(newUser);
-    return { id: newUser.id, name: newUser.name, email: newUser.email, created_at: newUser.created_at };
+    return { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, created_at: newUser.created_at };
   }
 
   try {
     const { rows } = await pool.query(
-      "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at",
-      [name.trim(), normalizedEmail, passwordHash]
+      "INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, created_at",
+      [name.trim(), normalizedEmail, passwordHash, initialRole]
     );
     return rows[0];
   } catch (err) {
@@ -762,6 +802,272 @@ export async function sendMessage(conversationId, senderId, content) {
   } catch (err) {
     console.error("Error sending message:", err.message);
     throw err;
+  }
+}
+
+// ==========================================
+// NOTIFICATIONS API
+// ==========================================
+
+export async function getUserNotifications(userId) {
+  if (!pool) {
+    const list = inMemoryNotifications.filter(n => n.user_id === null || n.user_id === userId);
+    return list.map(n => {
+      const isRead = inMemoryNotificationReads.some(r => r.user_id === userId && r.notification_id === n.id);
+      return { ...n, is_read: isRead };
+    }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+
+  try {
+    const query = `
+      SELECT 
+        n.id,
+        n.user_id,
+        n.title,
+        n.message,
+        n.type,
+        n.created_at,
+        CASE WHEN nr.id IS NOT NULL THEN true ELSE false END AS is_read
+      FROM notifications n
+      LEFT JOIN notification_reads nr 
+        ON nr.notification_id = n.id AND nr.user_id = $1
+      WHERE n.user_id IS NULL OR n.user_id = $1
+      ORDER BY n.created_at DESC
+      LIMIT 50;
+    `;
+    const { rows } = await pool.query(query, [userId]);
+    return rows;
+  } catch (err) {
+    console.error("Error getting user notifications:", err.message);
+    return [];
+  }
+}
+
+export async function markNotificationRead(userId, notificationId) {
+  if (!pool) {
+    if (!inMemoryNotificationReads.some(r => r.user_id === userId && r.notification_id === notificationId)) {
+      inMemoryNotificationReads.push({ user_id: userId, notification_id: notificationId, read_at: new Date().toISOString() });
+    }
+    return true;
+  }
+
+  try {
+    await pool.query(
+      "INSERT INTO notification_reads (user_id, notification_id) VALUES ($1, $2) ON CONFLICT (user_id, notification_id) DO NOTHING",
+      [userId, notificationId]
+    );
+    return true;
+  } catch (err) {
+    console.error("Error marking notification read:", err.message);
+    return false;
+  }
+}
+
+export async function markAllNotificationsRead(userId) {
+  if (!pool) {
+    const notifs = inMemoryNotifications.filter(n => n.user_id === null || n.user_id === userId);
+    for (const n of notifs) {
+      if (!inMemoryNotificationReads.some(r => r.user_id === userId && r.notification_id === n.id)) {
+        inMemoryNotificationReads.push({ user_id: userId, notification_id: n.id, read_at: new Date().toISOString() });
+      }
+    }
+    return true;
+  }
+
+  try {
+    await pool.query(`
+      INSERT INTO notification_reads (user_id, notification_id)
+      SELECT $1, n.id
+      FROM notifications n
+      WHERE n.user_id IS NULL OR n.user_id = $1
+      ON CONFLICT (user_id, notification_id) DO NOTHING;
+    `, [userId]);
+    return true;
+  } catch (err) {
+    console.error("Error marking all notifications read:", err.message);
+    return false;
+  }
+}
+
+export async function createNotification({ userId = null, title, message, type = "system" }) {
+  if (!pool) {
+    const newNotif = {
+      id: nextNotifId++,
+      user_id: userId,
+      title: title.trim(),
+      message: message.trim(),
+      type: type || "system",
+      created_at: new Date().toISOString()
+    };
+    inMemoryNotifications.unshift(newNotif);
+    return newNotif;
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "INSERT INTO notifications (user_id, title, message, type) VALUES ($1, $2, $3, $4) RETURNING *",
+      [userId, title.trim(), message.trim(), type || "system"]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error("Error creating notification:", err.message);
+    throw err;
+  }
+}
+
+// ==========================================
+// ADMIN PORTAL API
+// ==========================================
+
+export async function getAdminStats() {
+  if (!pool) {
+    return {
+      totalUsers: inMemoryUsers.length,
+      totalAds: inMemoryAds.length,
+      totalConversations: inMemoryConversations.length,
+      totalMessages: inMemoryMessages.length,
+      totalNotifications: inMemoryNotifications.length
+    };
+  }
+
+  try {
+    const [usersRes, adsRes, convsRes, msgsRes, notifsRes] = await Promise.all([
+      pool.query("SELECT COUNT(*) FROM users"),
+      pool.query("SELECT COUNT(*) FROM advertisements"),
+      pool.query("SELECT COUNT(*) FROM conversations"),
+      pool.query("SELECT COUNT(*) FROM messages"),
+      pool.query("SELECT COUNT(*) FROM notifications")
+    ]);
+
+    return {
+      totalUsers: parseInt(usersRes.rows[0].count, 10),
+      totalAds: parseInt(adsRes.rows[0].count, 10),
+      totalConversations: parseInt(convsRes.rows[0].count, 10),
+      totalMessages: parseInt(msgsRes.rows[0].count, 10),
+      totalNotifications: parseInt(notifsRes.rows[0].count, 10)
+    };
+  } catch (err) {
+    console.error("Error getting admin stats:", err.message);
+    return {
+      totalUsers: 0,
+      totalAds: 0,
+      totalConversations: 0,
+      totalMessages: 0,
+      totalNotifications: 0
+    };
+  }
+}
+
+export async function adminGetAllAds({ search = "", category = "", limit = 50, offset = 0 } = {}) {
+  if (!pool) {
+    let list = [...inMemoryAds];
+    if (category) list = list.filter(a => a.category_slug === category);
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
+    }
+    return {
+      ads: list.slice(offset, offset + limit),
+      total: list.length
+    };
+  }
+
+  try {
+    const conditions = [];
+    const values = [];
+
+    if (category) {
+      values.push(category);
+      conditions.push(`a.category_slug = $${values.length}`);
+    }
+
+    if (search && search.trim()) {
+      values.push(`%${search.trim().toLowerCase()}%`);
+      conditions.push(`(LOWER(a.title) LIKE $${values.length} OR LOWER(a.description) LIKE $${values.length} OR LOWER(u.name) LIKE $${values.length} OR LOWER(u.email) LIKE $${values.length})`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    const countRes = await pool.query(
+      `SELECT COUNT(*) FROM advertisements a LEFT JOIN users u ON a.user_id = u.id ${whereClause}`,
+      values
+    );
+    const total = parseInt(countRes.rows[0].count, 10);
+
+    values.push(limit);
+    values.push(offset);
+    const limitOffsetClause = `LIMIT $${values.length - 1} OFFSET $${values.length}`;
+
+    const query = `
+      SELECT 
+        a.id,
+        a.user_id,
+        a.category_slug,
+        a.title,
+        a.description,
+        a.price,
+        a.currency,
+        a.location,
+        a.phone,
+        a.images,
+        a.status,
+        a.created_at,
+        u.name AS seller_name,
+        u.email AS seller_email,
+        c.name AS category_name
+      FROM advertisements a
+      LEFT JOIN users u ON a.user_id = u.id
+      LEFT JOIN categories c ON a.category_slug = c.slug
+      ${whereClause}
+      ORDER BY a.created_at DESC
+      ${limitOffsetClause}
+    `;
+
+    const { rows } = await pool.query(query, values);
+    return { ads: rows, total };
+  } catch (err) {
+    console.error("Error in adminGetAllAds:", err.message);
+    throw err;
+  }
+}
+
+export async function adminDeleteAd(adId) {
+  const parsedId = parseInt(adId, 10);
+  if (!pool) {
+    const idx = inMemoryAds.findIndex(a => a.id === parsedId);
+    if (idx === -1) throw new Error("Advertisement not found.");
+    const deleted = inMemoryAds.splice(idx, 1)[0];
+    return deleted;
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "DELETE FROM advertisements WHERE id = $1 RETURNING id, title",
+      [parsedId]
+    );
+    if (rows.length === 0) {
+      throw new Error("Advertisement not found.");
+    }
+    return rows[0];
+  } catch (err) {
+    console.error("Error in adminDeleteAd:", err.message);
+    throw err;
+  }
+}
+
+export async function adminGetAllUsers() {
+  if (!pool) {
+    return inMemoryUsers.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role || 'user', created_at: u.created_at }));
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "SELECT id, name, email, COALESCE(role, 'user') as role, created_at FROM users ORDER BY created_at DESC LIMIT 100"
+    );
+    return rows;
+  } catch (err) {
+    console.error("Error in adminGetAllUsers:", err.message);
+    return [];
   }
 }
 
