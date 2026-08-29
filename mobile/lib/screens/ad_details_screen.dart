@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_service.dart';
+import '../widgets/app_image.dart';
 import 'chat_screen.dart';
 
 class AdDetailsScreen extends StatefulWidget {
@@ -132,12 +133,9 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                       itemBuilder: (ctx, idx) {
                         return Container(
                           color: const Color(0xFFF2F4F5),
-                          child: Image.network(
-                            images[idx],
+                          child: AppImage(
+                            imageUrl: images[idx],
                             fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) => const Center(
-                              child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                            ),
                           ),
                         );
                       },

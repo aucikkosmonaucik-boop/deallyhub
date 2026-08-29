@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../api/api_service.dart';
+import '../widgets/app_image.dart';
 import 'ad_details_screen.dart';
 
 class SavedScreen extends StatefulWidget {
@@ -146,9 +147,10 @@ class _SavedScreenState extends State<SavedScreen> {
                                     width: 110,
                                     height: 110,
                                     color: Colors.grey.shade100,
-                                    child: cover != null
-                                        ? Image.network(cover, fit: BoxFit.cover)
-                                        : const Icon(Icons.image_outlined, color: Colors.grey),
+                                    child: AppImage(
+                                      imageUrl: cover,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                   Expanded(
                                     child: Padding(

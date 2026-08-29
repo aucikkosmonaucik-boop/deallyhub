@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
+import '../widgets/app_image.dart';
 import 'chat_screen.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -127,13 +128,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                 width: 52,
                                 height: 52,
                                 color: Colors.grey.shade100,
-                                child: imgUrl != null
-                                    ? Image.network(
-                                        imgUrl,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_outlined, color: Colors.grey),
-                                      )
-                                    : const Icon(Icons.image_outlined, color: Colors.grey),
+                                child: AppImage(
+                                  imageUrl: imgUrl,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                             title: Row(

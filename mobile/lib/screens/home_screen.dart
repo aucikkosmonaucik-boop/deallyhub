@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
+import '../widgets/app_image.dart';
 import 'ad_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -470,14 +471,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             aspectRatio: 1.25,
                                             child: Container(
                                               color: Colors.grey.shade100,
-                                              child: cover != null
-                                                  ? Image.network(
-                                                      cover,
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (context, error, stackTrace) =>
-                                                          const Center(child: Icon(Icons.image_outlined, color: Colors.grey)),
-                                                    )
-                                                  : const Center(child: Icon(Icons.image_outlined, color: Colors.grey)),
+                                              child: AppImage(
+                                                imageUrl: cover,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                           ),
                                           Positioned(
