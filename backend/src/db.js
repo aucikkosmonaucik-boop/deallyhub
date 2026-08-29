@@ -1,4 +1,4 @@
-﻿import pg from "pg";
+import pg from "pg";
 import bcrypt from "bcryptjs";
 
 const { Pool } = pg;
@@ -350,13 +350,17 @@ export async function getUserAds(userId) {
   }
 }
 
-export async function getAllAds({ category, search, limit = 50 }) {
+export async function getAllAds({ category, search, location, limit = 50 }) {
   if (!pool) {
     let list = [...inMemoryAds];
     if (category) list = list.filter(a => a.category_slug === category);
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
+    }
+    if (location && location.trim() && !/entire country/i.test(location)) {
+      const loc = location.toLowerCase();
+      list = list.filter(a => a.location.toLowerCase().includes(loc));
     }
     return list.slice(0, limit);
   }
@@ -375,9 +379,14 @@ export async function getAllAds({ category, search, limit = 50 }) {
       query += ` AND a.category_slug = $${params.length}`;
     }
 
-    if (search) {
-      params.push(`%${search}%`);
+    if (search && search.trim()) {
+      params.push(`%${search.trim()}%`);
       query += ` AND (a.title ILIKE $${params.length} OR a.description ILIKE $${params.length})`;
+    }
+
+    if (location && location.trim() && !/entire country/i.test(location)) {
+      params.push(`%${location.trim()}%`);
+      query += ` AND a.location ILIKE $${params.length}`;
     }
 
     params.push(limit);

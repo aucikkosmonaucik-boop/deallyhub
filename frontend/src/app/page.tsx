@@ -215,6 +215,9 @@ export default function HomePage() {
     const params = new URLSearchParams();
     if (activeCategory) params.append("category", activeCategory);
     if (searchQuery.trim()) params.append("search", searchQuery.trim());
+    if (location.trim() && !/entire country/i.test(location.trim())) {
+      params.append("location", location.trim());
+    }
     if (params.toString()) url += `?${params.toString()}`;
 
     fetch(url)
@@ -233,7 +236,14 @@ export default function HomePage() {
       .catch((err) => {
         console.log("Could not fetch advertisements:", err.message);
       });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, location]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchAds();
+    const el = document.getElementById("listings-section");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     fetchAds();
@@ -453,7 +463,10 @@ export default function HomePage() {
       {/* Hero Search Section */}
       <section className="bg-[#f2f4f5] py-8 sm:py-12 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row items-stretch">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row items-stretch"
+          >
             {/* Search Input */}
             <div className="flex-1 flex items-center px-4 py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
               <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
@@ -461,7 +474,7 @@ export default function HomePage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Find something for yourself..."
+                placeholder="Find something for yourself... (e.g. kocur, iphone, watch)"
                 className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
               />
             </div>
@@ -473,20 +486,20 @@ export default function HomePage() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="Entire Country / Location"
+                placeholder="Entire Country / Location (e.g. Warsaw)"
                 className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
               />
             </div>
 
             {/* Search Button */}
             <button
-              onClick={fetchAds}
+              type="submit"
               className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <span>Search</span>
               <Search className="w-4 h-4" />
             </button>
-          </div>
+          </form>
         </div>
       </section>
 
@@ -548,26 +561,44 @@ export default function HomePage() {
         )}
 
         {/* Recent & Featured Advertisements Section */}
-        <section className="mt-16 pt-12 border-t border-gray-100">
-          <div className="flex items-center justify-between mb-8">
+        <section id="listings-section" className="mt-16 pt-12 border-t border-gray-100 scroll-mt-24">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h2 className="text-2xl font-bold text-[#002f34]">
                 {activeCategory
                   ? `${categories.find((c) => c.slug === activeCategory)?.name} Listings`
+                  : searchQuery.trim()
+                  ? `Search Results for "${searchQuery}"`
                   : "Recent Advertisements"}
               </h2>
               <p className="text-xs text-gray-500 mt-1">
-                Latest offers published by members of Deallyhub
+                {searchQuery.trim()
+                  ? `Found ${ads.length} result${ads.length === 1 ? "" : "s"}${location.trim() && !/entire country/i.test(location) ? ` in ${location}` : ""}`
+                  : "Latest offers published by members of Deallyhub"}
               </p>
             </div>
 
-            <button
-              onClick={handlePostAdClick}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Post an Ad</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {(searchQuery.trim() || (location.trim() && !/entire country/i.test(location))) && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setLocation("");
+                  }}
+                  className="text-xs font-semibold text-gray-500 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                >
+                  Clear search ✕
+                </button>
+              )}
+
+              <button
+                onClick={handlePostAdClick}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Post an Ad</span>
+              </button>
+            </div>
           </div>
 
           {/* Advertisements Grid */}

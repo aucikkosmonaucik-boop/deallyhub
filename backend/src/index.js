@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -348,10 +348,11 @@ app.get("/api/ads/my", authenticateToken, async (req, res) => {
 // 3. Get Public Advertisements
 app.get("/api/ads", async (req, res) => {
   try {
-    const { category, search, limit } = req.query;
+    const { category, search, location, limit } = req.query;
     const ads = await getAllAds({
       category,
       search,
+      location,
       limit: limit ? parseInt(limit, 10) : 50
     });
 
