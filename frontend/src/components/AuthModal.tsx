@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
@@ -42,7 +42,13 @@ export default function AuthModal({
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        throw new Error("The backend service is currently updating. Please wait a few seconds and try again.");
+      }
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Authentication failed. Please check your credentials.");

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -157,7 +157,13 @@ export default function HomePage() {
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://deallyhub-production.up.railway.app";
     fetch(`${apiUrl}/api/categories`)
-      .then((res) => res.json())
+      .then((res) => {
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          return res.json();
+        }
+        throw new Error("Non-JSON response");
+      })
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           setCategories(json.data);
