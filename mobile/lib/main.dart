@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'screens/main_navigation.dart';
 
 void main() {
@@ -11,7 +11,7 @@ class DeallyhubApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Deallyhub',
+      title: 'Deally',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

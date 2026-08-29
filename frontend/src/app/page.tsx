@@ -477,6 +477,11 @@ export default function HomePage() {
       <header className="border-b border-gray-100 bg-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt="Deally"
+              className="w-9 h-9 rounded-xl shadow-sm object-cover"
+            />
             <span className="text-2xl font-black tracking-tight text-[#002f34]">
               Deally<span className="text-teal-600">hub</span>
             </span>
@@ -959,13 +964,20 @@ export default function HomePage() {
             <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
 
             <div className="max-w-3xl space-y-6 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold tracking-wide uppercase border border-teal-500/30">
-                <Smartphone className="w-4 h-4" />
-                <span>Official Mobile App</span>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/logo.png"
+                  alt="Deally Logo"
+                  className="w-12 h-12 rounded-2xl shadow-md object-cover border border-teal-400/30"
+                />
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold tracking-wide uppercase border border-teal-500/30">
+                  <Smartphone className="w-4 h-4" />
+                  <span>Official Mobile App</span>
+                </div>
               </div>
 
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                Download Deallyhub for Android (APK)
+                Download Deally for Android (APK)
               </h2>
 
               <p className="text-sm sm:text-base text-gray-200 leading-relaxed">
@@ -975,13 +987,13 @@ export default function HomePage() {
               {/* Download Buttons */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <a
-                  href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest/download/app-release.apk"
+                  href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest/download/Deally.apk"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-[#002f34] px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all shadow-md flex items-center gap-2.5 cursor-pointer"
                 >
                   <Download className="w-5 h-5" />
-                  <span>Download APK (Latest Release v1.0.0)</span>
+                  <span>Download Deally.apk (v1.0.0)</span>
                 </a>
 
                 <a
@@ -1016,7 +1028,7 @@ export default function HomePage() {
                 <span>Frequently Asked Questions &amp; Installation Guide (Q&amp;A)</span>
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                Everything you need to know about installing and using the Deallyhub Android app.
+                Everything you need to know about installing and using the Deally Android app.
               </p>
             </div>
 
@@ -1024,13 +1036,13 @@ export default function HomePage() {
               {/* Q1 */}
               <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
                 <h4 className="font-bold text-[#002f34] text-base mb-2">
-                  Q: How do I install the Deallyhub APK on my Android phone?
+                  Q: How do I install the Deally APK on my Android phone?
                 </h4>
                 <div className="text-xs text-gray-600 space-y-1.5 leading-relaxed">
-                  <p><strong>1. Download:</strong> Tap the &quot;Download APK&quot; button above to save <code>app-release.apk</code>.</p>
+                  <p><strong>1. Download:</strong> Tap the &quot;Download Deally.apk&quot; button above to save <code>Deally.apk</code>.</p>
                   <p><strong>2. Open file:</strong> Swipe down your notification shade or open your <em>Files / Downloads</em> folder and tap the downloaded file.</p>
                   <p><strong>3. Grant permission:</strong> If Android asks <em>&quot;Install unknown apps&quot;</em>, tap <strong>Settings</strong> and enable <strong>&quot;Allow from this source&quot;</strong>.</p>
-                  <p><strong>4. Confirm &amp; Launch:</strong> Tap <strong>Install</strong>, then tap <strong>Open</strong> to start exploring Deallyhub!</p>
+                  <p><strong>4. Confirm &amp; Launch:</strong> Tap <strong>Install</strong>, then tap <strong>Open</strong> to start exploring Deally!</p>
                 </div>
               </div>
 
