@@ -49,6 +49,12 @@ class _PostAdScreenState extends State<PostAdScreen> {
     _loadCategories();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkAuth();
+  }
+
   Future<void> _checkAuth() async {
     final token = await ApiService.getToken();
     if (mounted) {
@@ -239,6 +245,15 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton.icon(
+                  onPressed: _checkAuth,
+                  icon: const Icon(Icons.refresh, size: 16, color: Color(0xFF0D9488)),
+                  label: const Text(
+                    'Already signed in? Refresh status',
+                    style: TextStyle(color: Color(0xFF0D9488), fontWeight: FontWeight.w600),
                   ),
                 ),
               ],

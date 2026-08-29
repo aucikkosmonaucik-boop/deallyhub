@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import 'home_screen.dart';
 import 'saved_screen.dart';
@@ -15,24 +15,12 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+  int _authVersion = 0;
 
-  late final List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      const HomeScreen(),
-      const SavedScreen(),
-      PostAdScreen(
-        onAdCreated: () => setState(() => _currentIndex = 0),
-        onGoToAccount: () => setState(() => _currentIndex = 4),
-      ),
-      const MessagesScreen(),
-      ProfileScreen(
-        onAuthChanged: () => setState(() {}),
-      ),
-    ];
+  void _onAuthChanged() {
+    setState(() {
+      _authVersion++;
+    });
   }
 
   Future<void> _handleTabTapped(int idx) async {
@@ -61,10 +49,26 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      const HomeScreen(),
+      const SavedScreen(),
+      PostAdScreen(
+        key: ValueKey('post_ad_$_authVersion'),
+        onAdCreated: () => setState(() => _currentIndex = 0),
+        onGoToAccount: () => setState(() => _currentIndex = 4),
+      ),
+      const MessagesScreen(),
+      ProfileScreen(
+        key: ValueKey('profile_$_authVersion'),
+        onAuthChanged: _onAuthChanged,
+        onNavigateTab: (targetIdx) => setState(() => _currentIndex = targetIdx),
+      ),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

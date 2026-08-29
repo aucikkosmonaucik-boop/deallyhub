@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
+import '../widgets/app_image.dart';
+import 'ad_details_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onAuthChanged;
+  final Function(int tabIndex)? onNavigateTab;
 
-  const ProfileScreen({super.key, this.onAuthChanged});
+  const ProfileScreen({
+    super.key,
+    this.onAuthChanged,
+    this.onNavigateTab,
+  });
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -13,6 +20,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? _user;
   bool _loading = true;
+  int _savedCount = 0;
+  int _unreadNotifications = 0;
 
   // Auth form states
   bool _isLogin = true;
@@ -31,13 +40,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _checkUser() async {
     setState(() => _loading = true);
-    final user = await ApiService.getCurrentUser();
+    final user = await ApiService.fetchCurrentUserFromServer();
     if (mounted) {
       setState(() {
         _user = user;
         _loading = false;
       });
+      if (user != null) {
+        _loadCounts();
+      }
     }
+  }
+
+  Future<void> _loadCounts() async {
+    try {
+      final saved = await ApiService.getSavedAds();
+      final notifications = await ApiService.getNotifications();
+      if (mounted) {
+        setState(() {
+          _savedCount = saved.length;
+          _unreadNotifications = notifications.where((n) => n['is_read'] != true).length;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _handleAuth() async {
@@ -246,6 +271,624 @@ class _ProfileScreenState extends State<ProfileScreen> {
     widget.onAuthChanged?.call();
   }
 
+  void _showLogoutConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34))),
+        content: const Text('Are you sure you want to sign out of your Deallyhub account?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _logout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 1. Notifications Modal
+  void _showNotificationsDialog() async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (ctx, scrollController) => FutureBuilder<List<dynamic>>(
+          future: ApiService.getNotifications(),
+          builder: (ctx, snapshot) {
+            final items = snapshot.data ?? [];
+            return Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB)))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.notifications_active_rounded, color: Color(0xFF0D9488)),
+                          SizedBox(width: 8),
+                          Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                        ],
+                      ),
+                      if (items.isNotEmpty)
+                        TextButton(
+                          onPressed: () async {
+                            await ApiService.markAllNotificationsRead();
+                            _loadCounts();
+                            if (ctx.mounted) Navigator.pop(ctx);
+                          },
+                          child: const Text('Mark all read', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: snapshot.connectionState == ConnectionState.waiting
+                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
+                      : items.isEmpty
+                          ? const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.notifications_none, size: 48, color: Colors.grey),
+                                  SizedBox(height: 12),
+                                  Text('No notifications yet', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            )
+                          : ListView.separated(
+                              controller: scrollController,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: items.length,
+                              separatorBuilder: (context, index) => const Divider(height: 1),
+                              itemBuilder: (ctx, idx) {
+                                final n = items[idx];
+                                final isRead = n['is_read'] == true;
+                                return ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                  leading: CircleAvatar(
+                                    backgroundColor: isRead ? Colors.grey.shade100 : const Color(0xFFE6FFFA),
+                                    child: Icon(
+                                      Icons.notifications,
+                                      size: 20,
+                                      color: isRead ? Colors.grey : const Color(0xFF0D9488),
+                                    ),
+                                  ),
+                                  title: Text(n['title'] ?? '', style: TextStyle(fontWeight: isRead ? FontWeight.normal : FontWeight.bold, fontSize: 14)),
+                                  subtitle: Text(n['message'] ?? '', style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                                );
+                              },
+                            ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // 3. My Advertisements Modal
+  void _showMyAdsDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (ctx, scrollController) => FutureBuilder<List<dynamic>>(
+            future: ApiService.getUserAds(),
+            builder: (ctx, snapshot) {
+              final ads = snapshot.data ?? [];
+              return Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB)))),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.description_outlined, color: Color(0xFF002F34)),
+                        SizedBox(width: 8),
+                        Text('My Advertisements', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: snapshot.connectionState == ConnectionState.waiting
+                        ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
+                        : ads.isEmpty
+                            ? const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
+                                    SizedBox(height: 12),
+                                    Text('You have not published any ads yet.', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
+                              )
+                            : ListView.separated(
+                                controller: scrollController,
+                                padding: const EdgeInsets.all(16),
+                                itemCount: ads.length,
+                                separatorBuilder: (context, index) => const Divider(height: 16),
+                                itemBuilder: (ctx, idx) {
+                                  final ad = ads[idx];
+                                  final images = (ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
+                                  final cover = images.isNotEmpty ? images[0] : null;
+
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => AdDetailsScreen(ad: ad)),
+                                      );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: SizedBox(
+                                            width: 70,
+                                            height: 70,
+                                            child: AppImage(imageUrl: cover, fit: BoxFit.cover),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(ad['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                              const SizedBox(height: 4),
+                                              Text('${ad['price']} ${ad['currency']}', style: const TextStyle(color: Color(0xFF0D9488), fontWeight: FontWeight.bold, fontSize: 13)),
+                                            ],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                                          onPressed: () async {
+                                            final confirm = await showDialog<bool>(
+                                              context: context,
+                                              builder: (c) => AlertDialog(
+                                                title: const Text('Delete Advertisement'),
+                                                content: const Text('Are you sure you want to delete this ad?'),
+                                                actions: [
+                                                  TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                                  ElevatedButton(
+                                                    onPressed: () => Navigator.pop(c, true),
+                                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                                    child: const Text('Delete'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                            if (confirm == true) {
+                                              await ApiService.deleteAd(ad['id'] as int);
+                                              setSheetState(() {});
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 5. Account Settings Modal
+  void _showAccountSettingsDialog() {
+    final nameController = TextEditingController(text: _user?['name'] ?? '');
+    final currentPassController = TextEditingController();
+    final newPassController = TextEditingController();
+    bool saving = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.settings_outlined, color: Color(0xFF002F34)),
+                    SizedBox(width: 8),
+                    Text('Account Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Name update
+                const Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final newName = nameController.text.trim();
+                            if (newName.isEmpty) return;
+                            final messenger = ScaffoldMessenger.of(context);
+                            final nav = Navigator.of(ctx);
+                            setSheetState(() => saving = true);
+                            final res = await ApiService.updateProfile(newName);
+                            setSheetState(() => saving = false);
+                            if (!mounted) return;
+                            if (res['success'] == true) {
+                              await _checkUser();
+                              nav.pop();
+                              messenger.showSnackBar(
+                                const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Profile name updated!')),
+                              );
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF002F34)),
+                    child: const Text('Save Name', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+
+                // Password change
+                const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: currentPassController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Current Password',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: newPassController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'New Password (min 6 chars)',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final currentPass = currentPassController.text;
+                            final newPass = newPassController.text;
+                            if (currentPass.isEmpty || newPass.length < 6) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please check your password inputs.')),
+                              );
+                              return;
+                            }
+                            setSheetState(() => saving = true);
+                            final res = await ApiService.updatePassword(currentPass, newPass);
+                            setSheetState(() => saving = false);
+                            if (!mounted) return;
+                            if (res['success'] == true) {
+                              if (ctx.mounted) Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Password changed successfully!')),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(res['error'] ?? 'Failed to update password.')),
+                              );
+                            }
+                          },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF002F34)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Update Password', style: TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 6. Admin Portal (Owner) Modal
+  void _showAdminPortalDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => DefaultTabController(
+        length: 3,
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          minChildSize: 0.6,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (ctx, scrollController) => Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF0FDF4),
+                  border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.shield_outlined, color: Color(0xFF0D9488)),
+                            SizedBox(width: 8),
+                            Text('Admin Portal (Owner)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                          ],
+                        ),
+                        IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                      ],
+                    ),
+                    const TabBar(
+                      labelColor: Color(0xFF002F34),
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Color(0xFF0D9488),
+                      tabs: [
+                        Tab(text: 'Overview'),
+                        Tab(text: 'Broadcast'),
+                        Tab(text: 'Manage Ads'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    // Tab 1: Stats Overview
+                    FutureBuilder<Map<String, dynamic>?>(
+                      future: ApiService.getAdminStats(),
+                      builder: (ctx, snap) {
+                        if (snap.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)));
+                        }
+                        final stats = snap.data ?? {};
+                        return ListView(
+                          padding: const EdgeInsets.all(20),
+                          children: [
+                            _buildAdminStatCard('Total Users', '${stats['totalUsers'] ?? 0}', Icons.people_outline, Colors.blue),
+                            const SizedBox(height: 12),
+                            _buildAdminStatCard('Active Advertisements', '${stats['totalAds'] ?? 0}', Icons.inventory_2_outlined, const Color(0xFF0D9488)),
+                            const SizedBox(height: 12),
+                            _buildAdminStatCard('Conversations', '${stats['totalConversations'] ?? 0}', Icons.chat_bubble_outline, Colors.purple),
+                          ],
+                        );
+                      },
+                    ),
+
+                    // Tab 2: Broadcast Notification
+                    _buildAdminBroadcastTab(ctx),
+
+                    // Tab 3: Moderation / Manage Ads
+                    _buildAdminAdsTab(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdminStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: color.withValues(alpha: 0.12),
+            radius: 24,
+            child: Icon(icon, color: color),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Color(0xFF002F34))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdminBroadcastTab(BuildContext ctx) {
+    final titleCtrl = TextEditingController();
+    final msgCtrl = TextEditingController();
+    bool sending = false;
+
+    return StatefulBuilder(
+      builder: (ctx, setBState) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Send Notification to All Users', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF002F34))),
+            const SizedBox(height: 6),
+            const Text('Sends an instant bell notification across Deallyhub.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: titleCtrl,
+              decoration: InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: msgCtrl,
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: 'Message Content',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: sending
+                    ? null
+                    : () async {
+                        final t = titleCtrl.text.trim();
+                        final m = msgCtrl.text.trim();
+                        if (t.isEmpty || m.isEmpty) return;
+                        setBState(() => sending = true);
+                        final res = await ApiService.sendAdminNotification(title: t, message: m);
+                        setBState(() => sending = false);
+                        if (res['success'] == true) {
+                          titleCtrl.clear();
+                          msgCtrl.clear();
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Broadcast notification sent!')),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF002F34)),
+                child: sending
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Send Broadcast', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdminAdsTab() {
+    return FutureBuilder<List<dynamic>>(
+      future: ApiService.adminGetAllAds(),
+      builder: (ctx, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)));
+        }
+        final allAds = snap.data ?? [];
+        if (allAds.isEmpty) {
+          return const Center(child: Text('No ads found in database.', style: TextStyle(color: Colors.grey)));
+        }
+        return StatefulBuilder(
+          builder: (ctx, setAdState) => ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: allAds.length,
+            separatorBuilder: (context, index) => const Divider(height: 16),
+            itemBuilder: (ctx, idx) {
+              final ad = allAds[idx];
+              final images = (ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
+              final cover = images.isNotEmpty ? images[0] : null;
+
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: AppImage(imageUrl: cover, fit: BoxFit.cover),
+                  ),
+                ),
+                title: Text(ad['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: Text('ID: ${ad['id']} • ${ad['price']} ${ad['currency']}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete_forever, color: Colors.redAccent),
+                  onPressed: () async {
+                    final ok = await ApiService.adminDeleteAd(ad['id'] as int);
+                    if (ok) {
+                      setAdState(() {
+                        allAds.removeAt(idx);
+                      });
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -272,55 +915,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileView() {
     final name = _user!['name'] ?? 'User';
     final email = _user!['email'] ?? '';
+    final role = _user!['role'] ?? 'user';
+    final isAdmin = role == 'admin' || email.startsWith('jannowak') || email.startsWith('admin');
 
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        // Avatar Card
+        // 1. Signed in as Header Card (Matches Screenshot media_1788016230579.png)
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFFE5E7EB)),
+            boxShadow: const [
+              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+            ],
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 32,
-                backgroundColor: const Color(0xFF0D9488),
-                child: Text(
-                  name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                  style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF002F34),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Signed in as',
+                    style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                  if (isAdmin)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCCFBF1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'OWNER / ADMIN',
+                        style: TextStyle(
+                          color: Color(0xFF0F766E),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 10,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      email,
-                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 26,
+                    backgroundColor: const Color(0xFF0D9488),
+                    child: Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF002F34),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          email,
+                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
-        const SizedBox(height: 24),
 
-        // Settings / Logout
+        const SizedBox(height: 20),
+
+        // 2. Options Menu Card (Matches the 7 items from the web screenshot)
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -329,13 +1010,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           child: Column(
             children: [
+              // 1. Notifications
               ListTile(
-                leading: const Icon(Icons.logout, color: Colors.redAccent),
+                leading: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0D9488)),
+                title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_unreadNotifications > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(10)),
+                        child: Text('$_unreadNotifications', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                      ),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                  ],
+                ),
+                onTap: _showNotificationsDialog,
+              ),
+              const Divider(height: 1, indent: 56),
+
+              // 2. Messages
+              ListTile(
+                leading: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF0D9488)),
+                title: const Text('Messages', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                onTap: () => widget.onNavigateTab?.call(3),
+              ),
+              const Divider(height: 1, indent: 56),
+
+              // 3. My Advertisements
+              ListTile(
+                leading: const Icon(Icons.description_outlined, color: Colors.blueGrey),
+                title: const Text('My Advertisements', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                onTap: _showMyAdsDialog,
+              ),
+              const Divider(height: 1, indent: 56),
+
+              // 4. Saved Items
+              ListTile(
+                leading: const Icon(Icons.favorite_outline_rounded, color: Colors.redAccent),
+                title: Text('Saved Items ($_savedCount)', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                onTap: () => widget.onNavigateTab?.call(1),
+              ),
+              const Divider(height: 1, indent: 56),
+
+              // 5. Account Settings
+              ListTile(
+                leading: const Icon(Icons.settings_outlined, color: Colors.grey),
+                title: const Text('Account Settings', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                onTap: _showAccountSettingsDialog,
+              ),
+
+              // 6. Admin Portal (Owner) - Only visible if admin!
+              if (isAdmin) ...[
+                const Divider(height: 1),
+                Container(
+                  color: const Color(0xFFF0FDF4),
+                  child: ListTile(
+                    leading: const Icon(Icons.shield_outlined, color: Color(0xFF0D9488)),
+                    title: const Text(
+                      'Admin Portal (Owner)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34)),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF0D9488)),
+                    onTap: _showAdminPortalDialog,
+                  ),
+                ),
+              ],
+
+              const Divider(height: 1),
+
+              // 7. Log Out
+              ListTile(
+                leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
                 title: const Text(
                   'Log Out',
-                  style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 15),
                 ),
-                onTap: _logout,
+                onTap: _showLogoutConfirmDialog,
               ),
             ],
           ),
@@ -410,9 +1167,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 24),
 
-            if (_authError != null) ...[
+            if (_authError != null)
               Container(
                 padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -423,20 +1181,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(color: Colors.red.shade800, fontSize: 13),
                 ),
               ),
-              const SizedBox(height: 16),
-            ],
 
             if (!_isLogin) ...[
               const Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
               const SizedBox(height: 6),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'John Doe',
+                  hintText: 'e.g. Jan Kowalski',
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Name required' : null,
+                validator: (val) => val == null || val.trim().isEmpty ? 'Name is required' : null,
                 onSaved: (val) => _name = val?.trim() ?? '',
               ),
               const SizedBox(height: 16),

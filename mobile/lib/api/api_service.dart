@@ -32,6 +32,27 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>?> fetchCurrentUserFromServer() async {
+    final token = await getToken();
+    if (token == null) return null;
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/api/auth/me'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 10));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['success'] == true && data['user'] != null) {
+          final user = data['user'] as Map<String, dynamic>;
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_userKey, jsonEncode(user));
+          return user;
+        }
+      }
+    } catch (_) {}
+    return await getCurrentUser();
+  }
+
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
@@ -304,5 +325,204 @@ class ApiService {
     );
 
     return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+
+  // ================= USER ADS & MANAGEMENT ================= //
+
+  static Future<List<dynamic>> getUserAds() async {
+    final token = await getToken();
+    if (token == null) return [];
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/api/user/ads'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['success'] == true && data['ads'] is List) {
+          return data['ads'] as List<dynamic>;
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<bool> deleteAd(int adId) async {
+    final token = await getToken();
+    if (token == null) return false;
+    try {
+      final res = await http.delete(
+        Uri.parse('$baseUrl/api/ads/$adId'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        return data['success'] == true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  // ================= NOTIFICATIONS API ================= //
+
+  static Future<List<dynamic>> getNotifications() async {
+    final token = await getToken();
+    if (token == null) return [];
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/api/notifications'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['success'] == true && data['notifications'] is List) {
+          return data['notifications'] as List<dynamic>;
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<void> markAllNotificationsRead() async {
+    final token = await getToken();
+    if (token == null) return;
+    try {
+      await http.post(
+        Uri.parse('$baseUrl/api/notifications/read-all'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 8));
+    } catch (_) {}
+  }
+
+  // ================= ACCOUNT SETTINGS API ================= //
+
+  static Future<Map<String, dynamic>> updateProfile(String name) async {
+    final token = await getToken();
+    if (token == null) return {'success': false, 'error': 'Not logged in'};
+    try {
+      final res = await http.put(
+        Uri.parse('$baseUrl/api/user/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'name': name}),
+      ).timeout(const Duration(seconds: 12));
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      if (data['success'] == true && data['user'] != null) {
+        await saveSession(token, data['user'] as Map<String, dynamic>);
+      }
+      return data;
+    } catch (e) {
+      return {'success': false, 'error': 'Connection error: $e'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> updatePassword(String currentPassword, String newPassword) async {
+    final token = await getToken();
+    if (token == null) return {'success': false, 'error': 'Not logged in'};
+    try {
+      final res = await http.put(
+        Uri.parse('$baseUrl/api/user/password'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        }),
+      ).timeout(const Duration(seconds: 12));
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    } catch (e) {
+      return {'success': false, 'error': 'Connection error: $e'};
+    }
+  }
+
+  // ================= ADMIN PORTAL API ================= //
+
+  static Future<Map<String, dynamic>?> getAdminStats() async {
+    final token = await getToken();
+    if (token == null) return null;
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/api/admin/stats'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['success'] == true && data['stats'] != null) {
+          return data['stats'] as Map<String, dynamic>;
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<List<dynamic>> adminGetAllAds({String? search}) async {
+    final token = await getToken();
+    if (token == null) return [];
+    try {
+      final uri = Uri.parse('$baseUrl/api/admin/ads').replace(
+        queryParameters: (search != null && search.isNotEmpty) ? {'search': search} : null,
+      );
+      final res = await http.get(
+        uri,
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['success'] == true && data['ads'] is List) {
+          return data['ads'] as List<dynamic>;
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<bool> adminDeleteAd(int adId) async {
+    final token = await getToken();
+    if (token == null) return false;
+    try {
+      final res = await http.delete(
+        Uri.parse('$baseUrl/api/admin/ads/$adId'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        return data['success'] == true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  static Future<Map<String, dynamic>> sendAdminNotification({
+    required String title,
+    required String message,
+    int? targetUserId,
+  }) async {
+    final token = await getToken();
+    if (token == null) return {'success': false, 'error': 'Not logged in'};
+    try {
+      final payload = <String, dynamic>{
+        'title': title,
+        'message': message,
+      };
+      if (targetUserId != null) {
+        payload['targetUserId'] = targetUserId;
+      }
+
+      final res = await http.post(
+        Uri.parse('$baseUrl/api/admin/notifications'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(payload),
+      ).timeout(const Duration(seconds: 12));
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    } catch (e) {
+      return {'success': false, 'error': 'Connection error: $e'};
+    }
   }
 }
