@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Search,
   MapPin,
@@ -40,7 +40,8 @@ import {
   Download,
   HelpCircle,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Loader2
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import AdsManagerModal from "@/components/AdsManagerModal";
@@ -181,6 +182,81 @@ export default function HomePage() {
   const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+
+  // Live Search Dropdown State
+  const [liveSearchResults, setLiveSearchResults] = useState<Advertisement[]>([]);
+  const [isLiveDropdownOpen, setIsLiveDropdownOpen] = useState(false);
+  const [isLiveSearching, setIsLiveSearching] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Debounced Live Search Effect
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (trimmed.length < 1) {
+      setLiveSearchResults([]);
+      setIsLiveDropdownOpen(false);
+      return;
+    }
+
+    setIsLiveSearching(true);
+    const timer = setTimeout(() => {
+      const apiUrl = getApiUrl();
+      const params = new URLSearchParams();
+      params.append("search", trimmed);
+      if (location.trim() && !/entire country/i.test(location.trim())) {
+        params.append("location", location.trim());
+      }
+      params.append("limit", "8");
+
+      fetch(`${apiUrl}/api/ads?${params.toString()}`)
+        .then((res) => {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            return res.json();
+          }
+          throw new Error("Non-JSON response");
+        })
+        .then((data) => {
+          if (data.success && Array.isArray(data.ads)) {
+            setLiveSearchResults(data.ads);
+            setIsLiveDropdownOpen(true);
+          }
+        })
+        .catch((err) => {
+          console.warn("Live search error:", err);
+        })
+        .finally(() => {
+          setIsLiveSearching(false);
+        });
+    }, 220);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, location]);
+
+  // Click Outside & Escape key to close live dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsLiveDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsLiveDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   // Load saved session on mount
   useEffect(() => {
@@ -519,43 +595,154 @@ export default function HomePage() {
       {/* Hero Search Section */}
       <section className="bg-[#f2f4f5] py-8 sm:py-12 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <form
-            onSubmit={handleSearchSubmit}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row items-stretch"
-          >
-            {/* Search Input */}
-            <div className="flex-1 flex items-center px-4 py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
-              <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Find something for yourself... (e.g. kocur, iphone, watch)"
-                className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
-              />
-            </div>
-
-            {/* Location Input */}
-            <div className="flex-1 flex items-center px-4 py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
-              <MapPin className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Entire Country / Location (e.g. Warsaw)"
-                className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
-              />
-            </div>
-
-            {/* Search Button */}
-            <button
-              type="submit"
-              className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          <div ref={searchContainerRef} className="relative">
+            <form
+              onSubmit={(e) => {
+                setIsLiveDropdownOpen(false);
+                handleSearchSubmit(e);
+              }}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row items-stretch"
             >
-              <span>Search</span>
-              <Search className="w-4 h-4" />
-            </button>
-          </form>
+              {/* Search Input */}
+              <div className="flex-1 flex items-center px-4 py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
+                <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onFocus={() => {
+                    if (searchQuery.trim().length >= 1) setIsLiveDropdownOpen(true);
+                  }}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Find something for yourself... (e.g. kocur, iphone, watch)"
+                  className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
+                />
+              </div>
+
+              {/* Location Input */}
+              <div className="flex-1 flex items-center px-4 py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
+                <MapPin className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Entire Country / Location (e.g. Warsaw)"
+                  className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
+                />
+              </div>
+
+              {/* Search Button */}
+              <button
+                type="submit"
+                className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <span>Search</span>
+                <Search className="w-4 h-4" />
+              </button>
+            </form>
+
+            {/* Live Search Autocomplete Tree Dropdown */}
+            {isLiveDropdownOpen && searchQuery.trim().length >= 1 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden max-h-[460px] flex flex-col animate-in fade-in slide-in-from-top-2 duration-150">
+                {/* Dropdown Header */}
+                <div className="px-4 py-2.5 bg-gray-50/90 border-b border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#002f34]">
+                    <Search className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Matching Offers ({liveSearchResults.length})</span>
+                  </div>
+                  {isLiveSearching && (
+                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                      <Loader2 className="w-3 h-3 animate-spin text-teal-600" />
+                      <span>Searching...</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Dropdown Cards List */}
+                <div className="overflow-y-auto divide-y divide-gray-100 flex-1">
+                  {liveSearchResults.length === 0 && !isLiveSearching ? (
+                    <div className="py-8 text-center px-4">
+                      <p className="text-sm font-semibold text-[#002f34]">No offers found</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        No advertisements match &quot;{searchQuery}&quot;
+                      </p>
+                    </div>
+                  ) : (
+                    liveSearchResults.map((ad) => {
+                      const cat = categories.find((c) => c.slug === ad.category_slug);
+                      const cover = ad.images && ad.images.length > 0 ? ad.images[0] : null;
+                      const isFree = parseFloat(ad.price as string) === 0;
+
+                      return (
+                        <div
+                          key={ad.id}
+                          onClick={() => {
+                            setSelectedAd(ad);
+                            setIsLiveDropdownOpen(false);
+                          }}
+                          className="p-3 hover:bg-teal-50/70 transition-colors flex items-center gap-3.5 cursor-pointer group"
+                        >
+                          {/* Card Thumbnail */}
+                          <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden shrink-0 border border-gray-200 flex items-center justify-center">
+                            {cover ? (
+                              <img src={cover} alt={ad.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageIcon className="w-5 h-5 text-gray-400" />
+                            )}
+                          </div>
+
+                          {/* Title & Info */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold text-[#002f34] group-hover:text-teal-700 transition-colors truncate">
+                              {ad.title}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                              {cat && (
+                                <span className="bg-gray-100 text-[#002f34] text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                                  {cat.name}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-0.5 text-[11px] text-gray-400 truncate">
+                                <MapPin className="w-3 h-3" />
+                                <span>{ad.location}</span>
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Price & Action */}
+                          <div className="text-right shrink-0">
+                            <div className="text-sm font-extrabold text-[#002f34]">
+                              {isFree ? (
+                                <span className="text-teal-600">Free</span>
+                              ) : (
+                                `${ad.price} ${ad.currency}`
+                              )}
+                            </div>
+                            <span className="text-[10px] text-teal-600 font-semibold group-hover:underline">
+                              View offer &rarr;
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Dropdown Footer Action */}
+                <div className="p-2.5 bg-gray-50 border-t border-gray-100 text-center">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      setIsLiveDropdownOpen(false);
+                      handleSearchSubmit(e);
+                    }}
+                    className="text-xs font-bold text-[#002f34] hover:text-teal-700 transition-colors cursor-pointer py-1"
+                  >
+                    View all matching results in listings &rarr;
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
