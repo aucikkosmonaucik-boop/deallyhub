@@ -3,18 +3,47 @@ import cors from "cors";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { initDb, getCategories, pool, findUserByEmail, findUserById, createUser } from "./db.js";
+import {
+  initDb,
+  getCategories,
+  pool,
+  findUserByEmail,
+  findUserById,
+  createUser,
+  createAd,
+  getUserAds,
+  getAllAds,
+  deleteAd
+} from "./db.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
 const JWT_SECRET = process.env.JWT_SECRET || "deallyhub_jwt_super_secret_key_2026";
 
-// Middleware
+// Middleware - allow up to 15MB for image payloads
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "15mb" }));
+app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
-// Routes
+// Auth middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ success: false, error: "Authentication token is required." });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false, error: "Invalid or expired session token." });
+  }
+}
+
+// Root & Health
 app.get("/", (req, res) => {
   res.json({
     status: "ok",
@@ -81,7 +110,6 @@ app.post("/api/auth/register", async (req, res) => {
       });
     }
 
-    // Check duplicate
     const existing = await findUserByEmail(email);
     if (existing) {
       return res.status(400).json({
@@ -90,14 +118,10 @@ app.post("/api/auth/register", async (req, res) => {
       });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
-
-    // Save to database
     const newUser = await createUser({ name, email, passwordHash });
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       JWT_SECRET,
@@ -152,7 +176,6 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    // Generate JWT
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       JWT_SECRET,
@@ -179,17 +202,10 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// 3. Current User Profile (/api/auth/me)
-app.get("/api/auth/me", async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ success: false, error: "Missing or invalid authorization token." });
-  }
-
-  const token = authHeader.split(" ")[1];
+// 3. Current User Profile
+app.get("/api/auth/me", authenticateToken, async (req, res) => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await findUserById(decoded.userId);
+    const user = await findUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ success: false, error: "User not found." });
     }
@@ -203,7 +219,118 @@ app.get("/api/auth/me", async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(401).json({ success: false, error: "Invalid or expired token." });
+    res.status(500).json({ success: false, error: "Failed to fetch user profile." });
+  }
+});
+
+// ================= ADVERTISEMENTS API ================= //
+
+// 1. Create Advertisement (Protected)
+app.post("/api/ads", authenticateToken, async (req, res) => {
+  try {
+    const { categorySlug, title, description, price, currency, location, images } = req.body;
+
+    if (!title || !categorySlug || !description) {
+      return res.status(400).json({
+        success: false,
+        error: "Title, category, and description are required."
+      });
+    }
+
+    const ad = await createAd({
+      userId: req.user.userId,
+      categorySlug,
+      title,
+      description,
+      price: price ?? 0,
+      currency: currency || "USD",
+      location: location || "Entire Country",
+      images: Array.isArray(images) ? images : []
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Advertisement published successfully!",
+      ad
+    });
+  } catch (err) {
+    console.error("Create ad error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to create advertisement.",
+      details: err.message
+    });
+  }
+});
+
+// 2. Get My Advertisements (Protected)
+app.get("/api/ads/my", authenticateToken, async (req, res) => {
+  try {
+    const ads = await getUserAds(req.user.userId);
+    res.json({
+      success: true,
+      count: ads.length,
+      ads
+    });
+  } catch (err) {
+    console.error("Get user ads error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch your advertisements.",
+      details: err.message
+    });
+  }
+});
+
+// 3. Get Public Advertisements (Optional filters: ?category=...&search=...)
+app.get("/api/ads", async (req, res) => {
+  try {
+    const { category, search, limit } = req.query;
+    const ads = await getAllAds({
+      category,
+      search,
+      limit: limit ? parseInt(limit, 10) : 50
+    });
+
+    res.json({
+      success: true,
+      count: ads.length,
+      ads
+    });
+  } catch (err) {
+    console.error("Get all ads error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch advertisements.",
+      details: err.message
+    });
+  }
+});
+
+// 4. Delete Advertisement (Protected)
+app.delete("/api/ads/:id", authenticateToken, async (req, res) => {
+  try {
+    const adId = req.params.id;
+    const success = await deleteAd(adId, req.user.userId);
+
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        error: "Advertisement not found or you are not authorized to delete it."
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Advertisement deleted successfully."
+    });
+  } catch (err) {
+    console.error("Delete ad error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete advertisement.",
+      details: err.message
+    });
   }
 });
 

@@ -30,9 +30,11 @@ export const INITIAL_CATEGORIES = [
   { name: "Auto Expo & Events", slug: "auto-expo-events", icon: "Compass", color: "blue" }
 ];
 
-// In-memory fallback stores if database is offline
+// In-memory fallbacks
 const inMemoryUsers = [];
 let nextUserId = 1;
+const inMemoryAds = [];
+let nextAdId = 1;
 
 let pool = null;
 
@@ -46,7 +48,7 @@ if (process.env.DATABASE_URL) {
 
 export async function initDb() {
   if (!pool) {
-    console.log("No DATABASE_URL configured. Running with in-memory categories & users.");
+    console.log("No DATABASE_URL configured. Running with in-memory storage.");
     return;
   }
 
@@ -76,6 +78,23 @@ export async function initDb() {
         );
       `);
 
+      // 3. Advertisements Table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS advertisements (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          category_slug VARCHAR(255) NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          description TEXT NOT NULL,
+          price NUMERIC(12, 2) NOT NULL DEFAULT 0,
+          currency VARCHAR(10) NOT NULL DEFAULT 'USD',
+          location VARCHAR(255) NOT NULL DEFAULT 'Entire Country',
+          images TEXT[] NOT NULL DEFAULT '{}',
+          status VARCHAR(50) NOT NULL DEFAULT 'active',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
       // Seed categories if empty
       const { rows } = await client.query("SELECT COUNT(*) FROM categories");
       if (parseInt(rows[0].count, 10) === 0) {
@@ -87,9 +106,8 @@ export async function initDb() {
           );
         }
         console.log("Database seeded successfully with 25 categories.");
-      } else {
-        console.log(`Database connected. Found ${rows[0].count} categories in database.`);
       }
+      console.log("Database connected and all tables verified.");
     } finally {
       client.release();
     }
@@ -110,7 +128,7 @@ export async function getCategories() {
     }
     return rows;
   } catch (err) {
-    console.warn("Falling back to default categories due to query error:", err.message);
+    console.warn("Falling back to default categories:", err.message);
     return INITIAL_CATEGORIES.map((cat, idx) => ({ id: idx + 1, ...cat }));
   }
 }
@@ -127,7 +145,6 @@ export async function findUserByEmail(email) {
     const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [normalizedEmail]);
     return rows[0] || null;
   } catch (err) {
-    console.warn("Error querying user by email, checking memory fallback:", err.message);
     return inMemoryUsers.find(u => u.email === normalizedEmail) || null;
   }
 }
@@ -141,7 +158,6 @@ export async function findUserById(id) {
     const { rows } = await pool.query("SELECT id, name, email, created_at FROM users WHERE id = $1", [id]);
     return rows[0] || null;
   } catch (err) {
-    console.warn("Error querying user by id:", err.message);
     return inMemoryUsers.find(u => u.id === id) || null;
   }
 }
@@ -169,6 +185,123 @@ export async function createUser({ name, email, passwordHash }) {
     return rows[0];
   } catch (err) {
     console.error("Error creating user in DB:", err.message);
+    throw err;
+  }
+}
+
+// ================= ADVERTISEMENTS OPERATIONS ================= //
+
+export async function createAd({ userId, categorySlug, title, description, price, currency = "USD", location = "Entire Country", images = [] }) {
+  if (!pool) {
+    const newAd = {
+      id: nextAdId++,
+      user_id: userId,
+      category_slug: categorySlug,
+      title: title.trim(),
+      description: description.trim(),
+      price: parseFloat(price) || 0,
+      currency: currency || "USD",
+      location: location.trim() || "Entire Country",
+      images: Array.isArray(images) ? images : [],
+      status: "active",
+      created_at: new Date().toISOString()
+    };
+    inMemoryAds.unshift(newAd);
+    return newAd;
+  }
+
+  try {
+    const { rows } = await pool.query(`
+      INSERT INTO advertisements (user_id, category_slug, title, description, price, currency, location, images)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *
+    `, [userId, categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images]);
+    return rows[0];
+  } catch (err) {
+    console.error("Error creating advertisement in DB:", err.message);
+    throw err;
+  }
+}
+
+export async function getUserAds(userId) {
+  if (!pool) {
+    return inMemoryAds.filter(a => a.user_id === userId);
+  }
+
+  try {
+    const { rows } = await pool.query(`
+      SELECT a.*, u.name as author_name, u.email as author_email
+      FROM advertisements a
+      JOIN users u ON a.user_id = u.id
+      WHERE a.user_id = $1
+      ORDER BY a.created_at DESC
+    `, [userId]);
+    return rows;
+  } catch (err) {
+    console.warn("Error fetching user ads:", err.message);
+    return inMemoryAds.filter(a => a.user_id === userId);
+  }
+}
+
+export async function getAllAds({ category, search, limit = 50 }) {
+  if (!pool) {
+    let list = [...inMemoryAds];
+    if (category) list = list.filter(a => a.category_slug === category);
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
+    }
+    return list.slice(0, limit);
+  }
+
+  try {
+    let query = `
+      SELECT a.*, u.name as author_name, u.email as author_email
+      FROM advertisements a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.status = 'active'
+    `;
+    const params = [];
+
+    if (category) {
+      params.push(category);
+      query += ` AND a.category_slug = $${params.length}`;
+    }
+
+    if (search) {
+      params.push(`%${search}%`);
+      query += ` AND (a.title ILIKE $${params.length} OR a.description ILIKE $${params.length})`;
+    }
+
+    params.push(limit);
+    query += ` ORDER BY a.created_at DESC LIMIT $${params.length}`;
+
+    const { rows } = await pool.query(query, params);
+    return rows;
+  } catch (err) {
+    console.warn("Error fetching all ads:", err.message);
+    return inMemoryAds.slice(0, limit);
+  }
+}
+
+export async function deleteAd(adId, userId) {
+  if (!pool) {
+    const idx = inMemoryAds.findIndex(a => a.id === parseInt(adId, 10) && a.user_id === userId);
+    if (idx !== -1) {
+      inMemoryAds.splice(idx, 1);
+      return true;
+    }
+    return false;
+  }
+
+  try {
+    const { rowCount } = await pool.query(
+      "DELETE FROM advertisements WHERE id = $1 AND user_id = $2",
+      [adId, userId]
+    );
+    return rowCount > 0;
+  } catch (err) {
+    console.error("Error deleting advertisement:", err.message);
     throw err;
   }
 }

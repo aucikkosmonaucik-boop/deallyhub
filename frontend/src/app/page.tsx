@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
   MapPin,
@@ -35,9 +35,11 @@ import {
   Compass,
   LogOut,
   ChevronDown,
-  FileText
+  FileText,
+  Image as ImageIcon
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
+import AdsManagerModal from "@/components/AdsManagerModal";
 import { getApiUrl } from "@/lib/api";
 
 // Icon mapping dictionary
@@ -102,6 +104,21 @@ interface UserProfile {
   email: string;
 }
 
+interface Advertisement {
+  id: number;
+  user_id: number;
+  category_slug: string;
+  title: string;
+  description: string;
+  price: number | string;
+  currency: string;
+  location: string;
+  images: string[];
+  status: string;
+  created_at: string;
+  author_name?: string;
+}
+
 // Fallback list of categories in English
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 1, name: "Antiques & Collectibles", slug: "antiques-collectibles", icon: "Landmark", color: "amber" },
@@ -140,15 +157,21 @@ export default function HomePage() {
   // Authentication State
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  // Advertisements State
+  const [ads, setAds] = useState<Advertisement[]>([]);
+  const [isAdsModalOpen, setIsAdsModalOpen] = useState(false);
+  const [adsModalTab, setAdsModalTab] = useState<"my-ads" | "create">("my-ads");
 
   // Load saved session on mount
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem("deallyhub_user");
-      if (savedUser) {
-        setCurrentUser(JSON.parse(savedUser));
-      }
+      const savedToken = localStorage.getItem("deallyhub_token");
+      if (savedUser) setCurrentUser(JSON.parse(savedUser));
+      if (savedToken) setToken(savedToken);
     } catch {
       // Ignore parse error
     }
@@ -175,17 +198,65 @@ export default function HomePage() {
       });
   }, []);
 
-  const handleAuthSuccess = (user: UserProfile, token: string) => {
+  // Fetch Public Advertisements
+  const fetchAds = useCallback(() => {
+    const apiUrl = getApiUrl();
+    let url = `${apiUrl}/api/ads`;
+    const params = new URLSearchParams();
+    if (activeCategory) params.append("category", activeCategory);
+    if (searchQuery.trim()) params.append("search", searchQuery.trim());
+    if (params.toString()) url += `?${params.toString()}`;
+
+    fetch(url)
+      .then((res) => {
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          return res.json();
+        }
+        throw new Error("Non-JSON response");
+      })
+      .then((json) => {
+        if (json.success && Array.isArray(json.ads)) {
+          setAds(json.ads);
+        }
+      })
+      .catch((err) => {
+        console.log("Could not fetch advertisements:", err.message);
+      });
+  }, [activeCategory, searchQuery]);
+
+  useEffect(() => {
+    fetchAds();
+  }, [fetchAds]);
+
+  const handleAuthSuccess = (user: UserProfile, receivedToken: string) => {
     setCurrentUser(user);
+    setToken(receivedToken);
     localStorage.setItem("deallyhub_user", JSON.stringify(user));
-    localStorage.setItem("deallyhub_token", token);
+    localStorage.setItem("deallyhub_token", receivedToken);
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
+    setToken(null);
     setIsProfileMenuOpen(false);
     localStorage.removeItem("deallyhub_user");
     localStorage.removeItem("deallyhub_token");
+  };
+
+  const handleOpenMyAds = () => {
+    setIsProfileMenuOpen(false);
+    setAdsModalTab("my-ads");
+    setIsAdsModalOpen(true);
+  };
+
+  const handlePostAdClick = () => {
+    if (!currentUser) {
+      setIsAuthOpen(true);
+    } else {
+      setAdsModalTab("create");
+      setIsAdsModalOpen(true);
+    }
   };
 
   return (
@@ -237,10 +308,10 @@ export default function HomePage() {
 
                       <div className="py-1">
                         <button
-                          onClick={() => setIsProfileMenuOpen(false)}
-                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5"
+                          onClick={handleOpenMyAds}
+                          className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] hover:bg-teal-50 flex items-center gap-2.5 font-semibold transition-colors"
                         >
-                          <FileText className="w-4 h-4 text-gray-400" />
+                          <FileText className="w-4 h-4 text-teal-600" />
                           <span>My Advertisements</span>
                         </button>
                         <button
@@ -283,7 +354,10 @@ export default function HomePage() {
             </div>
 
             {/* Post Ad Button */}
-            <button className="flex items-center gap-2 bg-[#002f34] hover:bg-[#003d44] text-white px-4 py-2.5 rounded-md font-semibold transition-all shadow-sm">
+            <button
+              onClick={handlePostAdClick}
+              className="flex items-center gap-2 bg-[#002f34] hover:bg-[#003d44] text-white px-4 py-2.5 rounded-md font-semibold transition-all shadow-sm cursor-pointer"
+            >
               <PlusCircle className="w-4 h-4" />
               <span>Post Ad</span>
             </button>
@@ -321,7 +395,7 @@ export default function HomePage() {
 
             {/* Search Button */}
             <button
-              onClick={() => alert(`Searching for "${searchQuery}" in "${location || "Entire Country"}"`)}
+              onClick={fetchAds}
               className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <span>Search</span>
@@ -342,7 +416,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Categories Grid (approx 9 items per row on large desktop matching original UI) */}
+        {/* Categories Grid */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-x-4 gap-y-8 sm:gap-y-10 justify-items-center">
           {categories.map((cat) => {
             const IconComponent = ICON_MAP[cat.icon] || Sparkles;
@@ -352,13 +426,13 @@ export default function HomePage() {
             return (
               <button
                 key={cat.id || cat.slug}
-                onClick={() => setActiveCategory(cat.slug)}
+                onClick={() => setActiveCategory(isSelected ? null : cat.slug)}
                 className="group flex flex-col items-center text-center cursor-pointer max-w-[105px] focus:outline-none"
               >
                 {/* Circle Icon Badge */}
                 <div
                   className={`w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center transition-all duration-200 transform group-hover:scale-108 group-hover:shadow-md mb-2.5 ${colorClass} ${
-                    isSelected ? "ring-4 ring-teal-500 scale-105" : ""
+                    isSelected ? "ring-4 ring-teal-500 scale-105 shadow-md" : ""
                   }`}
                 >
                   <IconComponent className="w-9 h-9 stroke-[2]" />
@@ -373,17 +447,129 @@ export default function HomePage() {
           })}
         </div>
 
-        {/* Active category details notification banner */}
+        {/* Filter Indicator */}
         {activeCategory && (
-          <div className="mt-12 p-4 bg-teal-50 border border-teal-200 rounded-lg text-center max-w-md mx-auto">
-            <span className="text-sm font-medium text-teal-900">
-              Selected category:{" "}
-              <strong>
-                {categories.find((c) => c.slug === activeCategory)?.name}
-              </strong>
-            </span>
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-sm font-semibold text-teal-900">
+              <span>Category: {categories.find((c) => c.slug === activeCategory)?.name}</span>
+              <button
+                onClick={() => setActiveCategory(null)}
+                className="text-teal-600 hover:text-teal-900 ml-1 p-0.5 rounded-full hover:bg-teal-100"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         )}
+
+        {/* Recent & Featured Advertisements Section */}
+        <section className="mt-16 pt-12 border-t border-gray-100">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-[#002f34]">
+                {activeCategory
+                  ? `${categories.find((c) => c.slug === activeCategory)?.name} Listings`
+                  : "Recent Advertisements"}
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Latest offers published by members of Deallyhub
+              </p>
+            </div>
+
+            <button
+              onClick={handlePostAdClick}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3.5 py-2 rounded-lg transition-colors"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Post an Ad</span>
+            </button>
+          </div>
+
+          {/* Advertisements Grid */}
+          {ads.length === 0 ? (
+            <div className="p-12 text-center bg-gray-50/70 rounded-2xl border border-gray-200/60 max-w-lg mx-auto">
+              <ImageIcon className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+              <h3 className="text-base font-bold text-[#002f34]">No advertisements found</h3>
+              <p className="text-xs text-gray-500 mt-1 mb-4">
+                Be the first to post an offer in this category!
+              </p>
+              <button
+                onClick={handlePostAdClick}
+                className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs"
+              >
+                Post New Advertisement
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {ads.map((ad) => {
+                const cat = categories.find((c) => c.slug === ad.category_slug);
+                const coverImg = ad.images && ad.images.length > 0 ? ad.images[0] : null;
+
+                return (
+                  <div
+                    key={ad.id}
+                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group cursor-pointer"
+                  >
+                    {/* Thumbnail Image */}
+                    <div className="h-48 bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                      {coverImg ? (
+                        <img
+                          src={coverImg}
+                          alt={ad.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="text-gray-400 flex flex-col items-center">
+                          <ImageIcon className="w-10 h-10 mb-1" />
+                          <span className="text-xs">No image provided</span>
+                        </div>
+                      )}
+
+                      {/* Category Badge */}
+                      {cat && (
+                        <span className="absolute top-3 left-3 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-xs">
+                          {cat.name}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Listing Content */}
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="text-xl font-black text-[#002f34] mb-1">
+                          {parseFloat(ad.price as string) === 0 ? (
+                            <span className="text-teal-600">Free</span>
+                          ) : (
+                            `${ad.price} ${ad.currency}`
+                          )}
+                        </div>
+
+                        <h3 className="font-bold text-[#002f34] text-base line-clamp-1 group-hover:text-teal-600 transition-colors">
+                          {ad.title}
+                        </h3>
+
+                        <p className="text-xs text-gray-500 line-clamp-2 mt-1 mb-3">
+                          {ad.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                        <div className="flex items-center gap-1 truncate">
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{ad.location}</span>
+                        </div>
+                        <span className="shrink-0 text-gray-400">
+                          {new Date(ad.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </main>
 
       {/* Footer */}
@@ -394,11 +580,21 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* Authentication Modal */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         onAuthSuccess={handleAuthSuccess}
+      />
+
+      {/* Advertisements Manager Modal */}
+      <AdsManagerModal
+        isOpen={isAdsModalOpen}
+        onClose={() => setIsAdsModalOpen(false)}
+        initialTab={adsModalTab}
+        categories={categories}
+        token={token}
+        onAdCreated={fetchAds}
       />
     </div>
   );
