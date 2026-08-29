@@ -29,35 +29,49 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadInitialData() async {
     setState(() => _loading = true);
-    final catsFuture = ApiService.getCategories();
-    final adsFuture = ApiService.getAds();
-    final savedFuture = ApiService.getSavedAds();
+    try {
+      final catsFuture = ApiService.getCategories();
+      final adsFuture = ApiService.getAds();
+      final savedFuture = ApiService.getSavedAds();
 
-    final results = await Future.wait([catsFuture, adsFuture, savedFuture]);
+      final results = await Future.wait([catsFuture, adsFuture, savedFuture]);
 
-    if (mounted) {
-      final savedList = results[2];
-      setState(() {
-        _categories = results[0];
-        _ads = results[1];
-        _savedAdIds = savedList.map<int>((e) => e['id'] as int).toSet();
-        _loading = false;
-      });
+      if (mounted) {
+        final savedList = results[2];
+        setState(() {
+          _categories = results[0];
+          _ads = results[1];
+          _savedAdIds = savedList.map<int>((e) => e['id'] as int).toSet();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading initial data: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
   Future<void> _fetchAds() async {
     setState(() => _loading = true);
-    final ads = await ApiService.getAds(
-      category: _selectedCategory,
-      search: _searchController.text.trim(),
-      location: _locationController.text.trim(),
-    );
-    if (mounted) {
-      setState(() {
-        _ads = ads;
-        _loading = false;
-      });
+    try {
+      final ads = await ApiService.getAds(
+        category: _selectedCategory,
+        search: _searchController.text.trim(),
+        location: _locationController.text.trim(),
+      );
+      if (mounted) {
+        setState(() {
+          _ads = ads;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching ads: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -372,11 +386,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(child: CircularProgressIndicator(color: Color(0xFF0D9488))),
                   )
                 : _ads.isEmpty
-                    ? const SliverFillRemaining(
+                    ? SliverFillRemaining(
                         child: Center(
-                          child: Text(
-                            'No advertisements found',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.search_off_rounded, size: 48, color: Colors.grey),
+                              const SizedBox(height: 10),
+                              const Text(
+                                'No advertisements found',
+                                style: TextStyle(color: Color(0xFF002F34), fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Pull down or tap below to refresh',
+                                style: TextStyle(color: Colors.grey, fontSize: 13),
+                              ),
+                              const SizedBox(height: 14),
+                              ElevatedButton.icon(
+                                onPressed: _loadInitialData,
+                                icon: const Icon(Icons.refresh, size: 18),
+                                label: const Text('Refresh'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF002F34),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       )

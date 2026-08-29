@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,32 +92,40 @@ class ApiService {
   // ================= ADVERTISEMENTS API ================= //
 
   static Future<List<dynamic>> getAds({String? category, String? search, String? location}) async {
-    final queryParams = <String, String>{};
-    if (category != null && category.isNotEmpty) queryParams['category'] = category;
-    if (search != null && search.isNotEmpty) queryParams['search'] = search;
-    if (location != null && location.isNotEmpty && !location.toLowerCase().contains('entire country')) {
-      queryParams['location'] = location;
-    }
-
-    final uri = Uri.parse('$baseUrl/api/ads').replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['success'] == true && data['ads'] is List) {
-        return data['ads'] as List<dynamic>;
+    try {
+      final queryParams = <String, String>{};
+      if (category != null && category.isNotEmpty) queryParams['category'] = category;
+      if (search != null && search.isNotEmpty) queryParams['search'] = search;
+      if (location != null && location.isNotEmpty && !location.toLowerCase().contains('entire country')) {
+        queryParams['location'] = location;
       }
+
+      final uri = Uri.parse('$baseUrl/api/ads').replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
+      final response = await http.get(uri).timeout(const Duration(seconds: 12));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['ads'] is List) {
+          return data['ads'] as List<dynamic>;
+        }
+      }
+    } catch (e) {
+      // network fallback
     }
     return [];
   }
 
   static Future<Map<String, dynamic>?> getAdById(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/api/ads/$id'));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['success'] == true && data['ad'] != null) {
-        return data['ad'] as Map<String, dynamic>;
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/api/ads/$id')).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['ad'] != null) {
+          return data['ad'] as Map<String, dynamic>;
+        }
       }
+    } catch (e) {
+      // network fallback
     }
     return null;
   }
@@ -159,19 +167,23 @@ class ApiService {
   // ================= WISHLIST / SAVED API ================= //
 
   static Future<List<dynamic>> getSavedAds() async {
-    final token = await getToken();
-    if (token == null) return [];
+    try {
+      final token = await getToken();
+      if (token == null) return [];
 
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/saved'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/saved'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 10));
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['success'] == true && data['saved'] is List) {
-        return data['saved'] as List<dynamic>;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['saved'] is List) {
+          return data['saved'] as List<dynamic>;
+        }
       }
+    } catch (e) {
+      // network fallback
     }
     return [];
   }
