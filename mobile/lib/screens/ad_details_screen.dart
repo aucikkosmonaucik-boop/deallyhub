@@ -33,8 +33,12 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
 
   Future<void> _toggleSaved() async {
     final adId = widget.ad['id'] as int;
-    final newState = await ApiService.toggleSavedAd(adId);
-    setState(() => _isSaved = newState);
+    final willBeSaved = !_isSaved;
+    setState(() => _isSaved = willBeSaved);
+    final newState = await ApiService.toggleSavedAd(adId, widget.ad);
+    if (mounted && newState != willBeSaved) {
+      setState(() => _isSaved = newState);
+    }
     widget.onSavedChanged?.call();
   }
 

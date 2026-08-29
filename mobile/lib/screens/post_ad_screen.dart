@@ -26,21 +26,33 @@ class _PostAdScreenState extends State<PostAdScreen> {
   bool _checkingAuth = true;
   bool _pickingImage = false;
 
-  String _title = '';
-  String _description = '';
-  String _price = '';
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController(text: 'Entire Country');
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _imgUrlController = TextEditingController();
+
   String _currency = 'USD';
-  String _location = 'Entire Country';
-  String _phone = '';
   String _categorySlug = 'antiques-collectibles';
   bool _isFree = false;
 
   final List<String> _images = [];
-  final TextEditingController _imgUrlController = TextEditingController();
 
   List<dynamic> _categories = [];
   bool _loadingCategories = true;
   bool _submitting = false;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descController.dispose();
+    _priceController.dispose();
+    _locationController.dispose();
+    _phoneController.dispose();
+    _imgUrlController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -133,16 +145,21 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
     setState(() => _submitting = true);
 
+    final title = _titleController.text.trim();
+    final description = _descController.text.trim();
+    final parsedPrice = _isFree ? 0.0 : (double.tryParse(_priceController.text.trim()) ?? 0.0);
+    final locationVal = _locationController.text.trim().isEmpty ? 'Entire Country' : _locationController.text.trim();
+    final phoneVal = _phoneController.text.trim();
+
     try {
-      final parsedPrice = _isFree ? 0.0 : (double.tryParse(_price) ?? 0.0);
       final res = await ApiService.createAd(
         categorySlug: _categorySlug,
-        title: _title,
-        description: _description,
+        title: title,
+        description: description,
         price: parsedPrice,
         currency: _currency,
-        location: _location,
-        phone: _phone,
+        location: locationVal,
+        phone: phoneVal,
         images: _images,
       );
 
@@ -157,10 +174,13 @@ class _PostAdScreenState extends State<PostAdScreen> {
         widget.onAdCreated?.call();
         // Reset form
         setState(() {
-          _title = '';
-          _description = '';
-          _price = '';
+          _titleController.clear();
+          _descController.clear();
+          _priceController.clear();
+          _phoneController.clear();
+          _locationController.text = 'Entire Country';
           _images.clear();
+          _isFree = false;
         });
       } else {
         if (!mounted) return;
@@ -277,6 +297,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
           : Form(
               key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
@@ -284,7 +305,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   const Text('Category *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
-                    initialValue: _categorySlug,
+                    initialValue: _categories.any((c) => c['slug'] == _categorySlug)
+                        ? _categorySlug
+                        : (_categories.isNotEmpty ? _categories[0]['slug'] : _categorySlug),
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       filled: true,
@@ -307,7 +330,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   const Text('Title *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                   const SizedBox(height: 6),
                   TextFormField(
-                    initialValue: _title,
+                    controller: _titleController,
                     decoration: InputDecoration(
                       hintText: 'e.g. iPhone 15 Pro, Vintage Jacket, Kitten...',
                       filled: true,
@@ -315,7 +338,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                     ),
                     validator: (val) => val == null || val.trim().isEmpty ? 'Title is required' : null,
-                    onSaved: (val) => _title = val?.trim() ?? '',
                   ),
                   const SizedBox(height: 16),
 
@@ -330,8 +352,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
                             const Text('Price *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                             const SizedBox(height: 6),
                             TextFormField(
+                              controller: _priceController,
                               enabled: !_isFree,
-                              keyboardType: TextInputType.number,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               decoration: InputDecoration(
                                 hintText: _isFree ? 'Free' : '0.00',
                                 filled: true,
@@ -342,7 +365,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
                                 if (!_isFree && (val == null || val.trim().isEmpty)) return 'Required';
                                 return null;
                               },
-                              onSaved: (val) => _price = val?.trim() ?? '0',
                             ),
                           ],
                         ),
@@ -394,14 +416,13 @@ class _PostAdScreenState extends State<PostAdScreen> {
                             const Text('Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                             const SizedBox(height: 6),
                             TextFormField(
-                              initialValue: _location,
+                              controller: _locationController,
                               decoration: InputDecoration(
                                 hintText: 'e.g. Warsaw',
                                 filled: true,
                                 fillColor: const Color(0xFFF9FAFB),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                               ),
-                              onSaved: (val) => _location = val?.trim().isNotEmpty == true ? val!.trim() : 'Entire Country',
                             ),
                           ],
                         ),
@@ -414,6 +435,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                             const Text('Phone Number', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                             const SizedBox(height: 6),
                             TextFormField(
+                              controller: _phoneController,
                               keyboardType: TextInputType.phone,
                               decoration: InputDecoration(
                                 hintText: '+48 ...',
@@ -421,7 +443,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
                                 fillColor: const Color(0xFFF9FAFB),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                               ),
-                              onSaved: (val) => _phone = val?.trim() ?? '',
                             ),
                           ],
                         ),
@@ -624,6 +645,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   const Text('Description *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                   const SizedBox(height: 6),
                   TextFormField(
+                    controller: _descController,
                     maxLines: 4,
                     decoration: InputDecoration(
                       hintText: 'Describe details, condition, terms of sale and meetup...',
@@ -632,7 +654,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                     ),
                     validator: (val) => val == null || val.trim().isEmpty ? 'Description is required' : null,
-                    onSaved: (val) => _description = val?.trim() ?? '',
                   ),
                   const SizedBox(height: 24),
 

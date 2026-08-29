@@ -516,18 +516,25 @@ app.post("/api/ads", authenticateToken, async (req, res) => {
   try {
     const { categorySlug, title, description, price, currency, location, images, phone } = req.body;
 
-    if (!title || !categorySlug || !description) {
-      return res.status(400).json({
-        success: false,
-        error: "Title, category, and description are required."
-      });
+    const trimmedTitle = typeof title === "string" ? title.trim() : "";
+    const trimmedCategory = typeof categorySlug === "string" ? categorySlug.trim() : "";
+    const trimmedDesc = typeof description === "string" ? description.trim() : "";
+
+    if (!trimmedTitle) {
+      return res.status(400).json({ success: false, error: "Title is required." });
+    }
+    if (!trimmedCategory) {
+      return res.status(400).json({ success: false, error: "Category is required." });
+    }
+    if (!trimmedDesc) {
+      return res.status(400).json({ success: false, error: "Description is required." });
     }
 
     const ad = await createAd({
       userId: req.user.userId,
-      categorySlug,
-      title,
-      description,
+      categorySlug: trimmedCategory,
+      title: trimmedTitle,
+      description: trimmedDesc,
       price: price ?? 0,
       currency: currency || "USD",
       location: location || "Entire Country",

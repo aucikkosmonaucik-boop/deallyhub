@@ -921,130 +921,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
+        builder: (ctx, setSheetState) => DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (ctx, scrollController) => Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.settings_outlined, color: Color(0xFF002F34)),
-                    SizedBox(width: 8),
-                    Text('Account Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                    const Row(
+                      children: [
+                        Icon(Icons.settings_outlined, color: Color(0xFF002F34), size: 22),
+                        SizedBox(width: 8),
+                        Text('Account Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                      ],
+                    ),
+                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                   ],
                 ),
-                const SizedBox(height: 20),
+              ),
 
-                // Name update
-                const Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: saving
-                        ? null
-                        : () async {
-                            final newName = nameController.text.trim();
-                            if (newName.isEmpty) return;
-                            final messenger = ScaffoldMessenger.of(context);
-                            final nav = Navigator.of(ctx);
-                            setSheetState(() => saving = true);
-                            final res = await ApiService.updateProfile(newName);
-                            setSheetState(() => saving = false);
-                            if (!mounted) return;
-                            if (res['success'] == true) {
-                              await _checkUser();
-                              nav.pop();
-                              messenger.showSnackBar(
-                                const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Profile name updated!')),
-                              );
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF002F34)),
-                    child: const Text('Save Name', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 16),
-
-                // Password change
-                const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: currentPassController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Current Password',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: newPassController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'New Password (min 6 chars)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: saving
-                        ? null
-                        : () async {
-                            final currentPass = currentPassController.text;
-                            final newPass = newPassController.text;
-                            if (currentPass.isEmpty || newPass.length < 6) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Please check your password inputs.')),
-                              );
-                              return;
-                            }
-                            setSheetState(() => saving = true);
-                            final res = await ApiService.updatePassword(currentPass, newPass);
-                            setSheetState(() => saving = false);
-                            if (!mounted) return;
-                            if (res['success'] == true) {
-                              if (ctx.mounted) Navigator.pop(ctx);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Password changed successfully!')),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(res['error'] ?? 'Failed to update password.')),
-                              );
-                            }
-                          },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF002F34)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              // Body
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 40),
+                  children: [
+                    // Name update
+                    const Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
                     ),
-                    child: const Text('Update Password', style: TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
-                  ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: saving
+                            ? null
+                            : () async {
+                                final newName = nameController.text.trim();
+                                if (newName.isEmpty) return;
+                                final messenger = ScaffoldMessenger.of(context);
+                                final nav = Navigator.of(ctx);
+                                setSheetState(() => saving = true);
+                                final res = await ApiService.updateProfile(newName);
+                                setSheetState(() => saving = false);
+                                if (!mounted) return;
+                                if (res['success'] == true) {
+                                  await _checkUser();
+                                  nav.pop();
+                                  messenger.showSnackBar(
+                                    const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Profile name updated!')),
+                                  );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF002F34),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: saving
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text('Save Name', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+
+                    // Password change
+                    const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: currentPassController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Current Password',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: newPassController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'New Password (min 6 chars)',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: OutlinedButton(
+                        onPressed: saving
+                            ? null
+                            : () async {
+                                final currentPass = currentPassController.text;
+                                final newPass = newPassController.text;
+                                if (currentPass.isEmpty || newPass.length < 6) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please check your password inputs.')),
+                                  );
+                                  return;
+                                }
+                                setSheetState(() => saving = true);
+                                final res = await ApiService.updatePassword(currentPass, newPass);
+                                setSheetState(() => saving = false);
+                                if (!mounted) return;
+                                if (res['success'] == true) {
+                                  if (ctx.mounted) Navigator.pop(ctx);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Password changed successfully!')),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(res['error'] ?? 'Failed to update password.')),
+                                  );
+                                }
+                              },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF002F34)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Update Password', style: TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -7,6 +7,8 @@ class ApiService {
 
   static const String _tokenKey = 'deallyhub_jwt_token';
   static const String _userKey = 'deallyhub_user_profile';
+  static const String _savedIdsKey = 'deallyhub_saved_ids';
+  static const String _savedAdsCacheKey = 'deallyhub_saved_ads_cache';
 
   // ================= AUTH TOKEN HELPERS ================= //
 
@@ -219,42 +221,119 @@ class ApiService {
 
   // ================= WISHLIST / SAVED API ================= //
 
-  static Future<List<dynamic>> getSavedAds() async {
-    try {
-      final token = await getToken();
-      if (token == null) return [];
+  static Future<Set<int>> getSavedAdIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_savedIdsKey) ?? [];
+    final idSet = list.map((id) => int.tryParse(id)).whereType<int>().toSet();
 
-      final response = await http.get(
-        Uri.parse('$baseUrl/api/saved'),
-        headers: {'Authorization': 'Bearer $token'},
-      ).timeout(const Duration(seconds: 10));
+    final token = await getToken();
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('$baseUrl/api/saved'),
+          headers: {'Authorization': 'Bearer $token'},
+        ).timeout(const Duration(seconds: 8));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true && data['saved'] is List) {
-          return data['saved'] as List<dynamic>;
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['success'] == true && data['saved'] is List) {
+            final serverList = data['saved'] as List<dynamic>;
+            final serverIds = serverList.map((e) => int.tryParse('${e['id']}')).whereType<int>().toSet();
+            idSet.addAll(serverIds);
+            await prefs.setStringList(_savedIdsKey, idSet.map((id) => id.toString()).toList());
+            await prefs.setString(_savedAdsCacheKey, jsonEncode(serverList));
+          }
         }
-      }
-    } catch (e) {
-      // network fallback
+      } catch (_) {}
+    }
+
+    return idSet;
+  }
+
+  static Future<List<dynamic>> getSavedAds() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = await getToken();
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('$baseUrl/api/saved'),
+          headers: {'Authorization': 'Bearer $token'},
+        ).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['success'] == true && data['saved'] is List) {
+            final list = data['saved'] as List<dynamic>;
+            await prefs.setString(_savedAdsCacheKey, jsonEncode(list));
+            final idList = list.map((e) => e['id'].toString()).toList();
+            await prefs.setStringList(_savedIdsKey, idList);
+            return list;
+          }
+        }
+      } catch (_) {}
+    }
+
+    // Fallback to local cached ads
+    final cachedStr = prefs.getString(_savedAdsCacheKey);
+    if (cachedStr != null && cachedStr.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(cachedStr);
+        if (decoded is List) return decoded;
+      } catch (_) {}
     }
     return [];
   }
 
-  static Future<bool> toggleSavedAd(int adId) async {
+  static Future<bool> toggleSavedAd(int adId, [Map<String, dynamic>? adData]) async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedIds = (prefs.getStringList(_savedIdsKey) ?? []).toSet();
     final token = await getToken();
-    if (token == null) return false;
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/saved/$adId'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
+    final willBeSaved = !savedIds.contains(adId.toString());
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['isSaved'] == true;
+    if (willBeSaved) {
+      savedIds.add(adId.toString());
+    } else {
+      savedIds.remove(adId.toString());
     }
-    return false;
+    await prefs.setStringList(_savedIdsKey, savedIds.toList());
+
+    final cachedStr = prefs.getString(_savedAdsCacheKey);
+    List<dynamic> cachedAds = [];
+    if (cachedStr != null && cachedStr.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(cachedStr);
+        if (decoded is List) cachedAds = decoded;
+      } catch (_) {}
+    }
+
+    if (willBeSaved) {
+      if (adData != null && !cachedAds.any((a) => a['id'] == adId)) {
+        cachedAds.insert(0, adData);
+      }
+    } else {
+      cachedAds.removeWhere((a) => a['id'] == adId);
+    }
+    await prefs.setString(_savedAdsCacheKey, jsonEncode(cachedAds));
+
+    if (token != null) {
+      try {
+        final response = await http.post(
+          Uri.parse('$baseUrl/api/saved/$adId'),
+          headers: {'Authorization': 'Bearer $token'},
+        ).timeout(const Duration(seconds: 8));
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['success'] == true && data['isSaved'] != null) {
+            return data['isSaved'] as bool;
+          }
+        }
+      } catch (_) {}
+    }
+
+    return willBeSaved;
   }
 
   // ================= CONVERSATIONS & CHAT API ================= //

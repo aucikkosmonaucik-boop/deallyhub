@@ -33,16 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final catsFuture = ApiService.getCategories();
       final adsFuture = ApiService.getAds();
-      final savedFuture = ApiService.getSavedAds();
+      final savedIdsFuture = ApiService.getSavedAdIds();
 
-      final results = await Future.wait([catsFuture, adsFuture, savedFuture]);
+      final results = await Future.wait([catsFuture, adsFuture, savedIdsFuture]);
 
       if (mounted) {
-        final savedList = results[2];
         setState(() {
-          _categories = results[0];
-          _ads = results[1];
-          _savedAdIds = savedList.map<int>((e) => e['id'] as int).toSet();
+          _categories = results[0] as List<dynamic>;
+          _ads = results[1] as List<dynamic>;
+          _savedAdIds = results[2] as Set<int>;
         });
       }
     } catch (e) {
@@ -76,15 +75,43 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _toggleSaved(int adId) async {
-    final isSaved = await ApiService.toggleSavedAd(adId);
+  Future<void> _toggleSaved(Map<String, dynamic> ad) async {
+    final adId = ad['id'] as int;
+    final willBeSaved = !_savedAdIds.contains(adId);
+
+    // Optimistic UI update immediately
     setState(() {
-      if (isSaved) {
+      if (willBeSaved) {
         _savedAdIds.add(adId);
       } else {
         _savedAdIds.remove(adId);
       }
     });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 1),
+          backgroundColor: willBeSaved ? const Color(0xFF0D9488) : Colors.grey.shade800,
+          content: Text(
+            willBeSaved ? 'Added to Saved Items!' : 'Removed from Saved Items',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+
+    final actualState = await ApiService.toggleSavedAd(adId, ad);
+    if (mounted && actualState != willBeSaved) {
+      setState(() {
+        if (actualState) {
+          _savedAdIds.add(adId);
+        } else {
+          _savedAdIds.remove(adId);
+        }
+      });
+    }
   }
 
   void _selectCategory(String? slug, String? name) {
@@ -478,23 +505,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           ),
                                           Positioned(
-                                            top: 6,
-                                            right: 6,
+                                            top: 4,
+                                            right: 4,
                                             child: GestureDetector(
-                                              onTap: () => _toggleSaved(adId),
+                                              behavior: HitTestBehavior.opaque,
+                                              onTap: () => _toggleSaved(ad),
                                               child: Container(
-                                                padding: const EdgeInsets.all(5),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xE6FFFFFF),
+                                                width: 36,
+                                                height: 36,
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xE6FFFFFF),
                                                   shape: BoxShape.circle,
-                                                  boxShadow: const [
+                                                  boxShadow: [
                                                     BoxShadow(color: Colors.black12, blurRadius: 4),
                                                   ],
                                                 ),
-                                                child: Icon(
-                                                  isSaved ? Icons.favorite : Icons.favorite_border,
-                                                  size: 15,
-                                                  color: isSaved ? Colors.redAccent : Colors.grey.shade600,
+                                                child: Center(
+                                                  child: Icon(
+                                                    isSaved ? Icons.favorite : Icons.favorite_border,
+                                                    size: 18,
+                                                    color: isSaved ? Colors.redAccent : Colors.grey.shade600,
+                                                  ),
                                                 ),
                                               ),
                                             ),

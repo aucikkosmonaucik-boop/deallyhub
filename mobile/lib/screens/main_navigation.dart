@@ -16,10 +16,12 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
   int _authVersion = 0;
+  int _savedVersion = 0;
 
   void _onAuthChanged() {
     setState(() {
       _authVersion++;
+      _savedVersion++;
     });
   }
 
@@ -44,6 +46,10 @@ class _MainNavigationState extends State<MainNavigation> {
       }
     }
 
+    if (idx == 1) {
+      _savedVersion++;
+    }
+
     setState(() => _currentIndex = idx);
   }
 
@@ -51,7 +57,10 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     final screens = [
       const HomeScreen(),
-      const SavedScreen(),
+      SavedScreen(
+        key: ValueKey('saved_${_authVersion}_$_savedVersion'),
+        onGoToAccount: () => setState(() => _currentIndex = 4),
+      ),
       PostAdScreen(
         key: ValueKey('post_ad_$_authVersion'),
         onAdCreated: () => setState(() => _currentIndex = 0),
@@ -61,7 +70,10 @@ class _MainNavigationState extends State<MainNavigation> {
       ProfileScreen(
         key: ValueKey('profile_$_authVersion'),
         onAuthChanged: _onAuthChanged,
-        onNavigateTab: (targetIdx) => setState(() => _currentIndex = targetIdx),
+        onNavigateTab: (targetIdx) {
+          if (targetIdx == 1) _savedVersion++;
+          setState(() => _currentIndex = targetIdx);
+        },
       ),
     ];
 
