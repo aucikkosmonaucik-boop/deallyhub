@@ -73,6 +73,9 @@ app.get("/health", async (req, res) => {
   res.json({
     status: "healthy",
     database: dbStatus,
+    poolIsNull: pool === null,
+    dbUrlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+    dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 15) : "none",
     dbEnvKeys,
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
