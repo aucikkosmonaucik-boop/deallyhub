@@ -1,0 +1,21 @@
+﻿{
+  "name": "Deallyhub Marketplace",
+  "short_name": "Deally",
+  "description": "Your modern marketplace to buy, sell, and discover local deals across 25 categories.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#002f34",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
