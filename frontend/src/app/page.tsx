@@ -1,69 +1,280 @@
-import Image from "next/image";
+﻿"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  MapPin,
+  Heart,
+  MessageSquare,
+  User,
+  PlusCircle,
+  Landmark,
+  Hammer,
+  Factory,
+  Car,
+  Home as HomeIcon,
+  Briefcase,
+  Armchair,
+  Smartphone,
+  Shirt,
+  Tractor,
+  Dog,
+  Baby,
+  Trophy,
+  Music,
+  Sparkles,
+  Wrench,
+  Bed,
+  CalendarCheck,
+  Gift,
+  PackageCheck,
+  BookOpen,
+  Cog,
+  Settings,
+  Users,
+  Compass
+} from "lucide-react";
+
+// Icon mapping dictionary
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Landmark,
+  Hammer,
+  Factory,
+  Car,
+  Home: HomeIcon,
+  Briefcase,
+  Armchair,
+  Smartphone,
+  Shirt,
+  Tractor,
+  Dog,
+  Baby,
+  Trophy,
+  Music,
+  Sparkles,
+  Wrench,
+  Bed,
+  CalendarCheck,
+  Gift,
+  PackageCheck,
+  BookOpen,
+  Cog,
+  Settings,
+  Users,
+  Compass
+};
+
+// Color styles matching the vibrant/pastel circles from the design
+const COLOR_STYLES: Record<string, string> = {
+  amber: "bg-amber-400 text-amber-950 hover:bg-amber-500",
+  orange: "bg-orange-500 text-white hover:bg-orange-600",
+  cyan: "bg-cyan-300 text-cyan-950 hover:bg-cyan-400",
+  red: "bg-rose-500 text-white hover:bg-rose-600",
+  yellow: "bg-yellow-200 text-yellow-900 hover:bg-yellow-300",
+  stone: "bg-stone-700 text-white hover:bg-stone-800",
+  blue: "bg-sky-200 text-sky-900 hover:bg-sky-300",
+  pink: "bg-pink-200 text-pink-900 hover:bg-pink-300",
+  indigo: "bg-indigo-500 text-white hover:bg-indigo-600",
+  sky: "bg-blue-100 text-blue-900 hover:bg-blue-200",
+  emerald: "bg-emerald-100 text-emerald-900 hover:bg-emerald-200",
+  rose: "bg-rose-200 text-rose-900 hover:bg-rose-300",
+  slate: "bg-slate-100 text-slate-800 border border-slate-300 hover:bg-slate-200",
+  teal: "bg-teal-300 text-teal-950 hover:bg-teal-400",
+  violet: "bg-violet-200 text-violet-900 hover:bg-violet-300"
+};
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string;
+  color: string;
+}
+
+// Fallback list of categories in English
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: 1, name: "Antiques & Collectibles", slug: "antiques-collectibles", icon: "Landmark", color: "amber" },
+  { id: 2, name: "Construction & Renovation", slug: "construction-renovation", icon: "Hammer", color: "orange" },
+  { id: 3, name: "Business & Industry", slug: "business-industry", icon: "Factory", color: "cyan" },
+  { id: 4, name: "Automotive & Vehicles", slug: "automotive-vehicles", icon: "Car", color: "red" },
+  { id: 5, name: "Real Estate", slug: "real-estate", icon: "Home", color: "yellow" },
+  { id: 6, name: "Jobs & Careers", slug: "jobs-careers", icon: "Briefcase", color: "stone" },
+  { id: 7, name: "Home & Garden", slug: "home-garden", icon: "Armchair", color: "blue" },
+  { id: 8, name: "Electronics", slug: "electronics", icon: "Smartphone", color: "pink" },
+  { id: 9, name: "Fashion & Apparel", slug: "fashion-apparel", icon: "Shirt", color: "indigo" },
+  { id: 10, name: "Agriculture & Farming", slug: "agriculture-farming", icon: "Tractor", color: "sky" },
+  { id: 11, name: "Pets & Animals", slug: "pets-animals", icon: "Dog", color: "emerald" },
+  { id: 12, name: "Baby & Kids", slug: "baby-kids", icon: "Baby", color: "rose" },
+  { id: 13, name: "Sports & Hobbies", slug: "sports-hobbies", icon: "Trophy", color: "slate" },
+  { id: 14, name: "Music & Education", slug: "music-education", icon: "Music", color: "blue" },
+  { id: 15, name: "Health & Beauty", slug: "health-beauty", icon: "Sparkles", color: "teal" },
+  { id: 16, name: "Services", slug: "services", icon: "Wrench", color: "orange" },
+  { id: 17, name: "Accommodations & Stays", slug: "accommodations-stays", icon: "Bed", color: "emerald" },
+  { id: 18, name: "Rentals & Hire", slug: "rentals-hire", icon: "CalendarCheck", color: "violet" },
+  { id: 19, name: "Free Stuff (Giveaway)", slug: "free-stuff", icon: "Gift", color: "teal" },
+  { id: 20, name: "Delivery Deals", slug: "delivery-deals", icon: "PackageCheck", color: "amber" },
+  { id: 21, name: "Books & Textbooks", slug: "books-textbooks", icon: "BookOpen", color: "yellow" },
+  { id: 22, name: "Auto Parts", slug: "auto-parts", icon: "Cog", color: "blue" },
+  { id: 23, name: "Machinery Parts", slug: "machinery-parts", icon: "Settings", color: "cyan" },
+  { id: 24, name: "Featured Employers", slug: "featured-employers", icon: "Users", color: "orange" },
+  { id: 25, name: "Auto Expo & Events", slug: "auto-expo-events", icon: "Compass", color: "blue" }
+];
+
+export default function HomePage() {
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [location, setLocation] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // Fetch categories from backend API if available
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    fetch(`${apiUrl}/api/categories`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          setCategories(json.data);
+        }
+      })
+      .catch((err) => {
+        console.log("Using local default categories:", err.message);
+      });
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="min-h-screen flex flex-col bg-white text-[#002f34] font-sans antialiased">
+      {/* Top Navbar */}
+      <header className="border-b border-gray-100 bg-white sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl font-black tracking-tight text-[#002f34]">
+              Deally<span className="text-teal-600">hub</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6 text-sm font-medium text-[#002f34]">
+            <button className="hidden sm:flex items-center gap-1.5 hover:text-teal-600 transition-colors">
+              <MessageSquare className="w-4 h-4" />
+              <span>Messages</span>
+            </button>
+            <button className="hidden sm:flex items-center gap-1.5 hover:text-teal-600 transition-colors">
+              <Heart className="w-4 h-4" />
+              <span>Saved</span>
+            </button>
+            <button className="flex items-center gap-1.5 hover:text-teal-600 transition-colors">
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">My Profile</span>
+            </button>
+            <button className="flex items-center gap-2 bg-[#002f34] hover:bg-[#003d44] text-white px-4 py-2.5 rounded-md font-semibold transition-all shadow-sm">
+              <PlusCircle className="w-4 h-4" />
+              <span>Post Ad</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Search Section */}
+      <section className="bg-[#f2f4f5] py-8 sm:py-12 border-b border-gray-200">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row items-stretch">
+            {/* Search Input */}
+            <div className="flex-1 flex items-center px-4 py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
+              <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Find something for yourself..."
+                className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
+              />
+            </div>
+
+            {/* Location Input */}
+            <div className="flex-1 flex items-center px-4 py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
+              <MapPin className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Entire Country / Location"
+                className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
+              />
+            </div>
+
+            {/* Search Button */}
+            <button
+              onClick={() => alert(`Searching for "${searchQuery}" in "${location || "Entire Country"}"`)}
+              className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <span>Search</span>
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Categories Section */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 flex-1 w-full">
+        <div className="text-center mb-10 sm:mb-14">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002f34] tracking-tight">
+            Main Categories
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
+            Browse through verified local classifieds, goods, vehicles, and services
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Categories Grid (approx 9 items per row on large desktop matching original UI) */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-x-4 gap-y-8 sm:gap-y-10 justify-items-center">
+          {categories.map((cat) => {
+            const IconComponent = ICON_MAP[cat.icon] || Sparkles;
+            const colorClass = COLOR_STYLES[cat.color] || "bg-teal-100 text-teal-800";
+            const isSelected = activeCategory === cat.slug;
+
+            return (
+              <button
+                key={cat.id || cat.slug}
+                onClick={() => setActiveCategory(cat.slug)}
+                className="group flex flex-col items-center text-center cursor-pointer max-w-[105px] focus:outline-none"
+              >
+                {/* Circle Icon Badge */}
+                <div
+                  className={`w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center transition-all duration-200 transform group-hover:scale-108 group-hover:shadow-md mb-2.5 ${colorClass} ${
+                    isSelected ? "ring-4 ring-teal-500 scale-105" : ""
+                  }`}
+                >
+                  <IconComponent className="w-9 h-9 stroke-[2]" />
+                </div>
+
+                {/* Category Label in English */}
+                <span className="text-xs sm:text-[13px] font-semibold text-[#002f34] leading-snug line-clamp-2 group-hover:text-teal-700 transition-colors">
+                  {cat.name}
+                </span>
+              </button>
+            );
+          })}
         </div>
+
+        {/* Active category details notification banner */}
+        {activeCategory && (
+          <div className="mt-12 p-4 bg-teal-50 border border-teal-200 rounded-lg text-center max-w-md mx-auto">
+            <span className="text-sm font-medium text-teal-900">
+              Selected category:{" "}
+              <strong>
+                {categories.find((c) => c.slug === activeCategory)?.name}
+              </strong>
+            </span>
+          </div>
+        )}
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 bg-[#f2f4f5] text-gray-500 text-xs py-8 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-2">
+          <p className="font-semibold text-[#002f34]">Deallyhub Marketplace &copy; 2026</p>
+          <p>Next.js Frontend on Vercel &bull; Node.js &amp; PostgreSQL Backend on Railway</p>
+        </div>
+      </footer>
     </div>
   );
 }
