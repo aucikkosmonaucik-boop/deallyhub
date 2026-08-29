@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -19,7 +19,11 @@ import {
   getSavedAds,
   updateUserProfile,
   updateUserPassword,
-  deleteUserAccount
+  deleteUserAccount,
+  getOrCreateConversation,
+  getUserConversations,
+  getConversationMessages,
+  sendMessage
 } from "./db.js";
 
 const app = express();
@@ -451,6 +455,86 @@ app.post("/api/saved/:adId", authenticateToken, async (req, res) => {
       success: false,
       error: "Failed to toggle saved status.",
       details: err.message
+    });
+  }
+});
+
+// ================= CONVERSATIONS & CHAT API ================= //
+
+// 1. Get All Conversations for Current User
+app.get("/api/conversations", authenticateToken, async (req, res) => {
+  try {
+    const conversations = await getUserConversations(req.user.userId);
+    res.json({
+      success: true,
+      count: conversations.length,
+      conversations
+    });
+  } catch (err) {
+    console.error("Error fetching conversations:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch conversations.",
+      details: err.message
+    });
+  }
+});
+
+// 2. Start or Open Conversation for an Ad
+app.post("/api/conversations", authenticateToken, async (req, res) => {
+  try {
+    const { adId } = req.body;
+    if (!adId) {
+      return res.status(400).json({ success: false, error: "adId is required." });
+    }
+
+    const conversation = await getOrCreateConversation(req.user.userId, adId);
+    res.json({
+      success: true,
+      conversation
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
+// 3. Get Messages for a Conversation
+app.get("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
+  try {
+    const messages = await getConversationMessages(req.params.id, req.user.userId);
+    res.json({
+      success: true,
+      count: messages.length,
+      messages
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
+// 4. Send Message in Conversation
+app.post("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content || !content.trim()) {
+      return res.status(400).json({ success: false, error: "Message content cannot be empty." });
+    }
+
+    const message = await sendMessage(req.params.id, req.user.userId, content);
+    res.status(201).json({
+      success: true,
+      message
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: err.message
     });
   }
 });

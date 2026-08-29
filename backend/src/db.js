@@ -1,4 +1,4 @@
-import pg from "pg";
+﻿import pg from "pg";
 import bcrypt from "bcryptjs";
 
 const { Pool } = pg;
@@ -38,6 +38,10 @@ const inMemoryAds = [];
 let nextAdId = 1;
 const inMemorySaved = [];
 let nextSavedId = 1;
+const inMemoryConversations = [];
+let nextConvId = 1;
+const inMemoryMessages = [];
+let nextMsgId = 1;
 
 let pool = null;
 
@@ -113,7 +117,7 @@ export async function initDb() {
         );
       `);
 
-      // Add phone column if it doesn't exist
+      // Phone column migration
       await client.query(`
         ALTER TABLE advertisements ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
       `);
@@ -129,6 +133,29 @@ export async function initDb() {
         );
       `);
 
+      // 5. Conversations Table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS conversations (
+          id SERIAL PRIMARY KEY,
+          ad_id INTEGER REFERENCES advertisements(id) ON DELETE CASCADE,
+          buyer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          seller_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(ad_id, buyer_id)
+        );
+      `);
+
+      // 6. Messages Table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS messages (
+          id SERIAL PRIMARY KEY,
+          conversation_id INTEGER REFERENCES conversations(id) ON DELETE CASCADE,
+          sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          content TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
       // Seed categories if empty
       const { rows } = await client.query("SELECT COUNT(*) FROM categories");
       if (parseInt(rows[0].count, 10) === 0) {
@@ -141,7 +168,7 @@ export async function initDb() {
         }
         console.log("Database seeded successfully with 25 categories.");
       }
-      console.log("Database connected and all tables verified (including phone column).");
+      console.log("Database connected and all tables verified (including conversations & messages).");
     } finally {
       client.release();
     }
@@ -277,12 +304,6 @@ export async function deleteUserAccount(userId) {
   if (!pool) {
     const uIdx = inMemoryUsers.findIndex(u => u.id === userId);
     if (uIdx !== -1) inMemoryUsers.splice(uIdx, 1);
-    for (let i = inMemoryAds.length - 1; i >= 0; i--) {
-      if (inMemoryAds[i].user_id === userId) inMemoryAds.splice(i, 1);
-    }
-    for (let i = inMemorySaved.length - 1; i >= 0; i--) {
-      if (inMemorySaved[i].user_id === userId) inMemorySaved.splice(i, 1);
-    }
     return true;
   }
 
@@ -499,6 +520,248 @@ export async function getSavedAds(userId) {
   } catch (err) {
     console.warn("Error fetching saved ads:", err.message);
     return [];
+  }
+}
+
+// ================= CONVERSATIONS & MESSAGING OPERATIONS ================= //
+
+export async function getOrCreateConversation(buyerId, adId) {
+  const parsedAdId = parseInt(adId, 10);
+  const ad = await getAdById(parsedAdId);
+  if (!ad) throw new Error("Advertisement not found.");
+
+  if (ad.user_id === buyerId) {
+    throw new Error("You cannot send messages to yourself on your own advertisement.");
+  }
+
+  const sellerId = ad.user_id;
+
+  if (!pool) {
+    let conv = inMemoryConversations.find(c => c.ad_id === parsedAdId && c.buyer_id === buyerId);
+    if (!conv) {
+      conv = {
+        id: nextConvId++,
+        ad_id: parsedAdId,
+        buyer_id: buyerId,
+        seller_id: sellerId,
+        updated_at: new Date().toISOString()
+      };
+      inMemoryConversations.unshift(conv);
+    }
+    return conv;
+  }
+
+  try {
+    // Check if exists
+    const check = await pool.query(
+      "SELECT * FROM conversations WHERE ad_id = $1 AND buyer_id = $2",
+      [parsedAdId, buyerId]
+    );
+    if (check.rows.length > 0) {
+      return check.rows[0];
+    }
+
+    // Create new
+    const { rows } = await pool.query(
+      "INSERT INTO conversations (ad_id, buyer_id, seller_id) VALUES ($1, $2, $3) RETURNING *",
+      [parsedAdId, buyerId, sellerId]
+    );
+    return rows[0];
+  } catch (err) {
+    console.error("Error getOrCreateConversation:", err.message);
+    throw err;
+  }
+}
+
+export async function getUserConversations(userId) {
+  if (!pool) {
+    const userConvs = inMemoryConversations.filter(c => c.buyer_id === userId || c.seller_id === userId);
+    return userConvs.map(c => {
+      const ad = inMemoryAds.find(a => a.id === c.ad_id) || {};
+      const otherUserId = c.buyer_id === userId ? c.seller_id : c.buyer_id;
+      const otherUser = inMemoryUsers.find(u => u.id === otherUserId) || {};
+      const msgs = inMemoryMessages.filter(m => m.conversation_id === c.id);
+      const lastMsg = msgs[msgs.length - 1] || null;
+
+      return {
+        id: c.id,
+        ad_id: c.ad_id,
+        ad_title: ad.title || "Advertisement",
+        ad_price: ad.price || 0,
+        ad_currency: ad.currency || "USD",
+        ad_image: ad.images && ad.images[0] ? ad.images[0] : null,
+        other_user_id: otherUserId,
+        other_user_name: otherUser.name || "User",
+        last_message: lastMsg ? lastMsg.content : "Conversation started",
+        last_message_at: lastMsg ? lastMsg.created_at : c.updated_at,
+        is_buyer: c.buyer_id === userId
+      };
+    });
+  }
+
+  try {
+    const query = `
+      SELECT 
+        c.id,
+        c.ad_id,
+        c.updated_at,
+        c.buyer_id,
+        c.seller_id,
+        a.title as ad_title,
+        a.price as ad_price,
+        a.currency as ad_currency,
+        a.images as ad_images,
+        CASE WHEN c.buyer_id = $1 THEN u_seller.name ELSE u_buyer.name END as other_user_name,
+        CASE WHEN c.buyer_id = $1 THEN u_seller.id ELSE u_buyer.id END as other_user_id,
+        (
+          SELECT content FROM messages m 
+          WHERE m.conversation_id = c.id 
+          ORDER BY m.created_at DESC LIMIT 1
+        ) as last_message,
+        (
+          SELECT created_at FROM messages m 
+          WHERE m.conversation_id = c.id 
+          ORDER BY m.created_at DESC LIMIT 1
+        ) as last_message_at
+      FROM conversations c
+      JOIN advertisements a ON c.ad_id = a.id
+      JOIN users u_buyer ON c.buyer_id = u_buyer.id
+      JOIN users u_seller ON c.seller_id = u_seller.id
+      WHERE c.buyer_id = $1 OR c.seller_id = $1
+      ORDER BY COALESCE(
+        (SELECT created_at FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC LIMIT 1),
+        c.updated_at
+      ) DESC
+    `;
+
+    const { rows } = await pool.query(query, [userId]);
+    return rows.map(r => ({
+      id: r.id,
+      ad_id: r.ad_id,
+      ad_title: r.ad_title,
+      ad_price: r.ad_price,
+      ad_currency: r.ad_currency,
+      ad_image: r.ad_images && r.ad_images.length > 0 ? r.ad_images[0] : null,
+      other_user_id: r.other_user_id,
+      other_user_name: r.other_user_name,
+      last_message: r.last_message || "No messages yet",
+      last_message_at: r.last_message_at || r.updated_at,
+      is_buyer: r.buyer_id === userId
+    }));
+  } catch (err) {
+    console.error("Error fetching user conversations:", err.message);
+    return [];
+  }
+}
+
+export async function getConversationMessages(conversationId, userId) {
+  const parsedConvId = parseInt(conversationId, 10);
+
+  if (!pool) {
+    const conv = inMemoryConversations.find(c => c.id === parsedConvId);
+    if (!conv) throw new Error("Conversation not found.");
+    if (conv.buyer_id !== userId && conv.seller_id !== userId) {
+      throw new Error("Access denied.");
+    }
+    const msgs = inMemoryMessages.filter(m => m.conversation_id === parsedConvId);
+    return msgs.map(m => {
+      const sender = inMemoryUsers.find(u => u.id === m.sender_id);
+      return {
+        id: m.id,
+        conversation_id: m.conversation_id,
+        sender_id: m.sender_id,
+        sender_name: sender ? sender.name : "User",
+        content: m.content,
+        created_at: m.created_at,
+        is_mine: m.sender_id === userId
+      };
+    });
+  }
+
+  try {
+    // Check membership
+    const check = await pool.query(
+      "SELECT * FROM conversations WHERE id = $1 AND (buyer_id = $2 OR seller_id = $2)",
+      [parsedConvId, userId]
+    );
+    if (check.rows.length === 0) {
+      throw new Error("Conversation not found or access denied.");
+    }
+
+    const { rows } = await pool.query(`
+      SELECT m.id, m.conversation_id, m.sender_id, m.content, m.created_at, u.name as sender_name
+      FROM messages m
+      JOIN users u ON m.sender_id = u.id
+      WHERE m.conversation_id = $1
+      ORDER BY m.created_at ASC
+    `, [parsedConvId]);
+
+    return rows.map(r => ({
+      ...r,
+      is_mine: r.sender_id === userId
+    }));
+  } catch (err) {
+    console.error("Error fetching messages:", err.message);
+    throw err;
+  }
+}
+
+export async function sendMessage(conversationId, senderId, content) {
+  const parsedConvId = parseInt(conversationId, 10);
+  const cleanContent = content ? content.trim() : "";
+  if (!cleanContent) throw new Error("Message content cannot be empty.");
+
+  if (!pool) {
+    const conv = inMemoryConversations.find(c => c.id === parsedConvId);
+    if (!conv) throw new Error("Conversation not found.");
+    if (conv.buyer_id !== senderId && conv.seller_id !== senderId) {
+      throw new Error("Access denied.");
+    }
+
+    const newMsg = {
+      id: nextMsgId++,
+      conversation_id: parsedConvId,
+      sender_id: senderId,
+      content: cleanContent,
+      created_at: new Date().toISOString()
+    };
+    inMemoryMessages.push(newMsg);
+    conv.updated_at = newMsg.created_at;
+    const sender = inMemoryUsers.find(u => u.id === senderId);
+    return {
+      ...newMsg,
+      sender_name: sender ? sender.name : "User",
+      is_mine: true
+    };
+  }
+
+  try {
+    // Verify membership
+    const check = await pool.query(
+      "SELECT * FROM conversations WHERE id = $1 AND (buyer_id = $2 OR seller_id = $2)",
+      [parsedConvId, senderId]
+    );
+    if (check.rows.length === 0) {
+      throw new Error("Conversation not found or access denied.");
+    }
+
+    const { rows } = await pool.query(
+      "INSERT INTO messages (conversation_id, sender_id, content) VALUES ($1, $2, $3) RETURNING *",
+      [parsedConvId, senderId, cleanContent]
+    );
+
+    // Update conversation timestamp
+    await pool.query("UPDATE conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = $1", [parsedConvId]);
+
+    const sender = await findUserById(senderId);
+    return {
+      ...rows[0],
+      sender_name: sender ? sender.name : "User",
+      is_mine: true
+    };
+  } catch (err) {
+    console.error("Error sending message:", err.message);
+    throw err;
   }
 }
 

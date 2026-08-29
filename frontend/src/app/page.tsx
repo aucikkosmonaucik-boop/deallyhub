@@ -43,6 +43,7 @@ import AdsManagerModal from "@/components/AdsManagerModal";
 import SavedItemsModal from "@/components/SavedItemsModal";
 import AccountSettingsModal from "@/components/AccountSettingsModal";
 import AdDetailsModal from "@/components/AdDetailsModal";
+import MessagesModal from "@/components/MessagesModal";
 import { getApiUrl } from "@/lib/api";
 
 // Icon mapping dictionary
@@ -174,6 +175,8 @@ export default function HomePage() {
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
+  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
 
   // Load saved session on mount
   useEffect(() => {
@@ -340,6 +343,45 @@ export default function HomePage() {
     setIsSettingsModalOpen(true);
   };
 
+  const handleOpenMessages = () => {
+    if (!currentUser) {
+      setIsAuthOpen(true);
+    } else {
+      setIsProfileMenuOpen(false);
+      setActiveConversationId(null);
+      setIsMessagesOpen(true);
+    }
+  };
+
+  const handleStartChat = async (adId: number) => {
+    if (!token) {
+      setIsAuthOpen(true);
+      return;
+    }
+
+    try {
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}/api/conversations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ adId })
+      });
+
+      const data = await res.json();
+      if (data.success && data.conversation) {
+        setActiveConversationId(data.conversation.id);
+        setIsMessagesOpen(true);
+      } else {
+        alert(data.error || "Could not start conversation.");
+      }
+    } catch (err) {
+      console.error("Error starting chat:", err);
+    }
+  };
+
   const handlePostAdClick = () => {
     if (!currentUser) {
       setIsAuthOpen(true);
@@ -361,7 +403,10 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6 text-sm font-medium text-[#002f34]">
-            <button className="hidden sm:flex items-center gap-1.5 hover:text-teal-600 transition-colors">
+            <button
+              onClick={handleOpenMessages}
+              className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer"
+            >
               <MessageSquare className="w-4 h-4" />
               <span>Messages</span>
             </button>
@@ -403,10 +448,17 @@ export default function HomePage() {
 
                       <div className="py-1">
                         <button
-                          onClick={handleOpenMyAds}
+                          onClick={handleOpenMessages}
                           className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] hover:bg-teal-50 flex items-center gap-2.5 font-semibold transition-colors cursor-pointer"
                         >
-                          <FileText className="w-4 h-4 text-teal-600" />
+                          <MessageSquare className="w-4 h-4 text-teal-600" />
+                          <span>Messages</span>
+                        </button>
+                        <button
+                          onClick={handleOpenMyAds}
+                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 cursor-pointer"
+                        >
+                          <FileText className="w-4 h-4 text-gray-400" />
                           <span>My Advertisements</span>
                         </button>
                         <button
@@ -771,6 +823,15 @@ export default function HomePage() {
         }
         isSaved={selectedAd ? savedAdIds.includes(selectedAd.id) : false}
         onToggleSave={handleToggleSave}
+        onStartChat={handleStartChat}
+      />
+
+      {/* Messages (Buyer/Seller Chat) Modal */}
+      <MessagesModal
+        isOpen={isMessagesOpen}
+        onClose={() => setIsMessagesOpen(false)}
+        token={token}
+        initialConversationId={activeConversationId}
       />
     </div>
   );

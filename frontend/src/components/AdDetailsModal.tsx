@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -10,7 +10,8 @@ import {
   Mail,
   User,
   ShieldCheck,
-  Image as ImageIcon
+  Image as ImageIcon,
+  MessageSquare
 } from "lucide-react";
 
 interface Advertisement {
@@ -37,6 +38,7 @@ interface AdDetailsModalProps {
   categoryName: string;
   isSaved: boolean;
   onToggleSave: (adId: number) => void;
+  onStartChat?: (adId: number) => void;
 }
 
 export default function AdDetailsModal({
@@ -45,7 +47,8 @@ export default function AdDetailsModal({
   onClose,
   categoryName,
   isSaved,
-  onToggleSave
+  onToggleSave,
+  onStartChat
 }: AdDetailsModalProps) {
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
@@ -198,6 +201,21 @@ export default function AdDetailsModal({
 
                 {/* Contact Options */}
                 <div className="space-y-2.5 pt-2 border-t border-gray-200/60">
+                  {/* Chat with Seller Button */}
+                  {onStartChat && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onStartChat(ad.id);
+                      }}
+                      className="w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Chat with Seller (Messages)</span>
+                    </button>
+                  )}
+
                   {/* Phone Number */}
                   {ad.phone ? (
                     showPhone ? (
