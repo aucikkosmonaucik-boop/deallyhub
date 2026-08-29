@@ -549,46 +549,56 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col bg-white text-[#002f34] font-sans antialiased">
       {/* Top Navbar */}
       <header className="border-b border-gray-100 bg-white sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-2">
+          {/* Logo & Brand */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <img
               src="/logo.png"
               alt="Deally"
-              className="w-9 h-9 rounded-xl shadow-sm object-cover"
+              className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl shadow-sm object-cover"
             />
-            <span className="text-2xl font-black tracking-tight text-[#002f34]">
+            <span className="text-xl sm:text-2xl font-black tracking-tight text-[#002f34] select-none">
               Deally<span className="text-teal-600">hub</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-4 sm:gap-6 text-sm font-medium text-[#002f34]">
+          {/* Nav Actions */}
+          <div className="flex items-center gap-1.5 sm:gap-4 md:gap-6 text-sm font-medium text-[#002f34] shrink-0">
+            {/* Messages Button */}
             <button
               onClick={handleOpenMessages}
-              className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-0 flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer rounded-lg hover:bg-gray-100 sm:hover:bg-transparent"
+              title="Messages"
             >
-              <MessageSquare className="w-4 h-4" />
-              <span>Messages</span>
+              <MessageSquare className="w-5 h-5 sm:w-4 sm:h-4 text-[#002f34]" />
+              <span className="hidden md:inline">Messages</span>
             </button>
 
             {/* Saved Items Nav Button */}
             <button
               onClick={handleOpenSaved}
-              className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-0 flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer rounded-lg hover:bg-gray-100 sm:hover:bg-transparent"
+              title="Saved Items"
             >
-              <Heart className={`w-4 h-4 ${savedAdIds.length > 0 ? "text-rose-500 fill-rose-500" : ""}`} />
-              <span>Saved {savedAdIds.length > 0 && `(${savedAdIds.length})`}</span>
+              <Heart className={`w-5 h-5 sm:w-4 sm:h-4 ${savedAdIds.length > 0 ? "text-rose-500 fill-rose-500" : ""}`} />
+              <span className="hidden md:inline">Saved</span>
+              {savedAdIds.length > 0 && (
+                <span className="text-xs bg-rose-100 text-rose-700 font-bold px-1.5 py-0.2 rounded-full hidden md:inline">
+                  {savedAdIds.length}
+                </span>
+              )}
             </button>
 
             {/* Notification Bell Nav Button */}
             {currentUser && (
               <button
                 onClick={() => setIsNotificationsOpen(true)}
-                className="relative p-2 text-[#002f34] hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+                className="relative p-1.5 sm:p-2 text-[#002f34] hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
                 title="Notifications"
               >
                 <Bell className="w-5 h-5" />
                 {unreadNotificationsCount > 0 && (
-                  <span className="absolute 0 top-0.5 right-0.5 min-w-[18px] h-[18px] bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-xs">
+                  <span className="absolute top-0 right-0 min-w-[17px] h-[17px] bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-xs">
                     {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
                   </span>
                 )}
@@ -601,15 +611,16 @@ export default function HomePage() {
                 <div>
                   <button
                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className="flex items-center gap-2 hover:text-teal-600 transition-colors bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200 cursor-pointer"
+                    className="flex items-center gap-1.5 sm:gap-2 hover:text-teal-600 transition-colors bg-gray-50 hover:bg-gray-100 p-1 sm:px-3 sm:py-1.5 rounded-full border border-gray-200 cursor-pointer"
+                    title={currentUser.name}
                   >
-                    <div className="w-7 h-7 rounded-full bg-teal-600 text-white font-bold text-xs flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-full bg-teal-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
                       {currentUser.name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="max-w-[120px] truncate font-semibold">
+                    <span className="hidden md:inline max-w-[110px] truncate font-semibold">
                       {currentUser.name}
                     </span>
-                    <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                    <ChevronDown className="w-3 h-3 text-gray-500 hidden sm:inline" />
                   </button>
 
                   {/* Logged-In User Dropdown Menu */}
@@ -708,10 +719,10 @@ export default function HomePage() {
               ) : (
                 <button
                   onClick={() => setIsAuthOpen(true)}
-                  className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer py-1.5"
+                  className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer py-1.5 text-xs sm:text-sm font-semibold"
                 >
                   <User className="w-4 h-4" />
-                  <span>My Profile</span>
+                  <span className="hidden sm:inline">My Profile</span>
                 </button>
               )}
             </div>
@@ -719,10 +730,10 @@ export default function HomePage() {
             {/* Post Ad Button */}
             <button
               onClick={handlePostAdClick}
-              className="flex items-center gap-2 bg-[#002f34] hover:bg-[#003d44] text-white px-4 py-2.5 rounded-md font-semibold transition-all shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 sm:gap-2 bg-[#002f34] hover:bg-[#003d44] text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-md text-xs sm:text-sm font-bold transition-all shadow-xs shrink-0 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Post Ad</span>
+              <span>Post<span className="hidden sm:inline"> Ad</span></span>
             </button>
           </div>
         </div>
