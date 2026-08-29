@@ -32,8 +32,18 @@ export const INITIAL_CATEGORIES = [
 ];
 
 // In-memory fallbacks
-const inMemoryUsers = [];
-let nextUserId = 1;
+const defaultAdminHash = bcrypt.hashSync("Admin2026!", 10);
+const inMemoryUsers = [
+  {
+    id: 1,
+    name: "Admin Deallyhub",
+    email: "admin@deallyhub.com",
+    password_hash: defaultAdminHash,
+    role: "admin",
+    created_at: new Date().toISOString()
+  }
+];
+let nextUserId = 2;
 const inMemoryAds = [];
 let nextAdId = 1;
 const inMemorySaved = [];
@@ -159,13 +169,21 @@ export async function initDb() {
         );
       `);
 
-      // 7. Users role migration
+      // 7. Users role migration & admin accounts
       await client.query(`
         ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'user';
       `);
       await client.query(`
         UPDATE users SET role = 'admin' WHERE email = 'jannowak@example.com' OR id = 1;
       `);
+
+      // Seed dedicated super admin account: admin@deallyhub.com / Admin2026!
+      const defaultAdminPass = await bcrypt.hash("Admin2026!", 10);
+      await client.query(`
+        INSERT INTO users (name, email, password_hash, role)
+        VALUES ('Admin Deallyhub', 'admin@deallyhub.com', $1, 'admin')
+        ON CONFLICT (email) DO UPDATE SET role = 'admin', password_hash = $1;
+      `, [defaultAdminPass]);
 
       // 8. Notifications Table (user_id NULL means broadcast to all users)
       await client.query(`
