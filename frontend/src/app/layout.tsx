@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -52,6 +52,9 @@ export const metadata: Metadata = {
     shortcut: ["/logo.png"],
   },
   manifest: "/manifest.json",
+  verification: {
+    google: "googleaf4f33ce5f01eea5",
+  },
   robots: {
     index: true,
     follow: true,
