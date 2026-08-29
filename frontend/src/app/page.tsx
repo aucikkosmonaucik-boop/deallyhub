@@ -883,9 +883,8 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-[#f2f4f5] text-gray-500 text-xs py-8 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-2">
-          <p className="font-semibold text-[#002f34]">Deallyhub Marketplace &copy; 2026</p>
-          <p>Next.js Frontend on Vercel &bull; Node.js &amp; PostgreSQL Backend on Railway</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <p className="font-semibold text-[#002f34]">Deallyhub Marketplace Copyrights &copy; 2026</p>
         </div>
       </footer>
 
