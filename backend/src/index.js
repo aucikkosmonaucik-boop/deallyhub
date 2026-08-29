@@ -454,7 +454,7 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
 });
 
 // 4. Update Profile Name
-app.put("/api/auth/profile", authenticateToken, async (req, res) => {
+app.put(["/api/auth/profile", "/api/user/profile"], authenticateToken, async (req, res) => {
   try {
     const { name } = req.body;
     if (!name || !name.trim()) {
@@ -473,7 +473,7 @@ app.put("/api/auth/profile", authenticateToken, async (req, res) => {
 });
 
 // 5. Change Password
-app.put("/api/auth/password", authenticateToken, async (req, res) => {
+app.put(["/api/auth/password", "/api/user/password"], authenticateToken, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -558,7 +558,7 @@ app.post("/api/ads", authenticateToken, async (req, res) => {
 });
 
 // 2. Get My Advertisements (Protected)
-app.get("/api/ads/my", authenticateToken, async (req, res) => {
+app.get(["/api/ads/my", "/api/user/ads"], authenticateToken, async (req, res) => {
   try {
     const ads = await getUserAds(req.user.userId);
     res.json({

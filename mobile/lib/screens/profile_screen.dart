@@ -413,33 +413,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB)))),
-                    child: const Row(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.description_outlined, color: Color(0xFF002F34)),
-                        SizedBox(width: 8),
-                        Text('My Advertisements', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                        const Row(
+                          children: [
+                            Icon(Icons.description_outlined, color: Color(0xFF002F34)),
+                            SizedBox(width: 8),
+                            Text('My Advertisements', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                          ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
                       ],
                     ),
                   ),
                   Expanded(
-                    child: snapshot.connectionState == ConnectionState.waiting
-                        ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
-                        : ads.isEmpty
-                            ? const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
-                                    SizedBox(height: 12),
-                                    Text('You have not published any ads yet.', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                    child: RefreshIndicator(
+                      color: const Color(0xFF0D9488),
+                      onRefresh: () async {
+                        setSheetState(() {});
+                      },
+                      child: snapshot.connectionState == ConnectionState.waiting
+                          ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
+                          : ads.isEmpty
+                              ? ListView(
+                                  children: const [
+                                    SizedBox(height: 100),
+                                    Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
+                                          SizedBox(height: 12),
+                                          Text('You have not published any ads yet.', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                                        ],
+                                      ),
+                                    ),
                                   ],
-                                ),
-                              )
-                            : ListView.separated(
-                                controller: scrollController,
-                                padding: const EdgeInsets.all(16),
-                                itemCount: ads.length,
-                                separatorBuilder: (context, index) => const Divider(height: 16),
+                                )
+                              : ListView.separated(
+                                  controller: scrollController,
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: ads.length,
+                                  separatorBuilder: (context, index) => const Divider(height: 16),
                                 itemBuilder: (ctx, idx) {
                                   final ad = ads[idx];
                                   final images = (ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
@@ -518,6 +538,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                               ),
+                    ),
                   ),
                 ],
               );

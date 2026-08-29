@@ -413,7 +413,7 @@ class ApiService {
     if (token == null) return [];
     try {
       final res = await http.get(
-        Uri.parse('$baseUrl/api/user/ads'),
+        Uri.parse('$baseUrl/api/ads/my'),
         headers: {'Authorization': 'Bearer $token'},
       ).timeout(const Duration(seconds: 12));
       if (res.statusCode == 200) {
@@ -519,7 +519,7 @@ class ApiService {
     if (token == null) return {'success': false, 'error': 'Not logged in'};
     try {
       final res = await http.put(
-        Uri.parse('$baseUrl/api/user/profile'),
+        Uri.parse('$baseUrl/api/auth/profile'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -541,7 +541,7 @@ class ApiService {
     if (token == null) return {'success': false, 'error': 'Not logged in'};
     try {
       final res = await http.put(
-        Uri.parse('$baseUrl/api/user/password'),
+        Uri.parse('$baseUrl/api/auth/password'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
