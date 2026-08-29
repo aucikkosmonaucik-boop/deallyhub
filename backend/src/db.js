@@ -1,4 +1,5 @@
 ﻿import pg from "pg";
+import bcrypt from "bcryptjs";
 
 const { Pool } = pg;
 
@@ -35,6 +36,8 @@ const inMemoryUsers = [];
 let nextUserId = 1;
 const inMemoryAds = [];
 let nextAdId = 1;
+const inMemorySaved = []; // array of { id, user_id, ad_id, created_at }
+let nextSavedId = 1;
 
 let pool = null;
 
@@ -95,6 +98,17 @@ export async function initDb() {
         );
       `);
 
+      // 4. Saved Ads (Wishlist) Table
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS saved_ads (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          ad_id INTEGER REFERENCES advertisements(id) ON DELETE CASCADE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, ad_id)
+        );
+      `);
+
       // Seed categories if empty
       const { rows } = await client.query("SELECT COUNT(*) FROM categories");
       if (parseInt(rows[0].count, 10) === 0) {
@@ -107,7 +121,7 @@ export async function initDb() {
         }
         console.log("Database seeded successfully with 25 categories.");
       }
-      console.log("Database connected and all tables verified.");
+      console.log("Database connected and all tables verified (including saved_ads).");
     } finally {
       client.release();
     }
@@ -185,6 +199,81 @@ export async function createUser({ name, email, passwordHash }) {
     return rows[0];
   } catch (err) {
     console.error("Error creating user in DB:", err.message);
+    throw err;
+  }
+}
+
+// Update User Profile (Name)
+export async function updateUserProfile(userId, name) {
+  if (!pool) {
+    const user = inMemoryUsers.find(u => u.id === userId);
+    if (user) {
+      user.name = name.trim();
+      return { id: user.id, name: user.name, email: user.email };
+    }
+    return null;
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "UPDATE users SET name = $1 WHERE id = $2 RETURNING id, name, email, created_at",
+      [name.trim(), userId]
+    );
+    return rows[0] || null;
+  } catch (err) {
+    console.error("Error updating user profile:", err.message);
+    throw err;
+  }
+}
+
+// Update Password
+export async function updateUserPassword(userId, currentPassword, newPassword) {
+  if (!pool) {
+    const user = inMemoryUsers.find(u => u.id === userId);
+    if (!user) throw new Error("User not found.");
+    const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isMatch) throw new Error("Current password is incorrect.");
+    const salt = await bcrypt.genSalt(10);
+    user.password_hash = await bcrypt.hash(newPassword, salt);
+    return true;
+  }
+
+  try {
+    const { rows } = await pool.query("SELECT password_hash FROM users WHERE id = $1", [userId]);
+    if (!rows[0]) throw new Error("User not found.");
+
+    const isMatch = await bcrypt.compare(currentPassword, rows[0].password_hash);
+    if (!isMatch) throw new Error("Current password is incorrect.");
+
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword, salt);
+    await pool.query("UPDATE users SET password_hash = $1 WHERE id = $2", [newHash, userId]);
+    return true;
+  } catch (err) {
+    console.error("Error updating user password:", err.message);
+    throw err;
+  }
+}
+
+// Delete User Account
+export async function deleteUserAccount(userId) {
+  if (!pool) {
+    const uIdx = inMemoryUsers.findIndex(u => u.id === userId);
+    if (uIdx !== -1) inMemoryUsers.splice(uIdx, 1);
+    for (let i = inMemoryAds.length - 1; i >= 0; i--) {
+      if (inMemoryAds[i].user_id === userId) inMemoryAds.splice(i, 1);
+    }
+    for (let i = inMemorySaved.length - 1; i >= 0; i--) {
+      if (inMemorySaved[i].user_id === userId) inMemorySaved.splice(i, 1);
+    }
+    return true;
+  }
+
+  try {
+    const { rowCount } = await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+    return rowCount > 0;
+  } catch (err) {
+    console.error("Error deleting user account:", err.message);
     throw err;
   }
 }
@@ -303,6 +392,60 @@ export async function deleteAd(adId, userId) {
   } catch (err) {
     console.error("Error deleting advertisement:", err.message);
     throw err;
+  }
+}
+
+// ================= WISHLIST (SAVED ADS) OPERATIONS ================= //
+
+export async function toggleSavedAd(userId, adId) {
+  const parsedAdId = parseInt(adId, 10);
+
+  if (!pool) {
+    const existingIdx = inMemorySaved.findIndex(s => s.user_id === userId && s.ad_id === parsedAdId);
+    if (existingIdx !== -1) {
+      inMemorySaved.splice(existingIdx, 1);
+      return { isSaved: false };
+    } else {
+      inMemorySaved.push({ id: nextSavedId++, user_id: userId, ad_id: parsedAdId, created_at: new Date().toISOString() });
+      return { isSaved: true };
+    }
+  }
+
+  try {
+    // Check if exists
+    const check = await pool.query("SELECT id FROM saved_ads WHERE user_id = $1 AND ad_id = $2", [userId, parsedAdId]);
+    if (check.rows.length > 0) {
+      await pool.query("DELETE FROM saved_ads WHERE user_id = $1 AND ad_id = $2", [userId, parsedAdId]);
+      return { isSaved: false };
+    } else {
+      await pool.query("INSERT INTO saved_ads (user_id, ad_id) VALUES ($1, $2)", [userId, parsedAdId]);
+      return { isSaved: true };
+    }
+  } catch (err) {
+    console.error("Error toggling saved ad:", err.message);
+    throw err;
+  }
+}
+
+export async function getSavedAds(userId) {
+  if (!pool) {
+    const savedIds = inMemorySaved.filter(s => s.user_id === userId).map(s => s.ad_id);
+    return inMemoryAds.filter(a => savedIds.includes(a.id));
+  }
+
+  try {
+    const { rows } = await pool.query(`
+      SELECT a.*, u.name as author_name, u.email as author_email, s.created_at as saved_at
+      FROM saved_ads s
+      JOIN advertisements a ON s.ad_id = a.id
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE s.user_id = $1
+      ORDER BY s.created_at DESC
+    `, [userId]);
+    return rows;
+  } catch (err) {
+    console.warn("Error fetching saved ads:", err.message);
+    return [];
   }
 }
 

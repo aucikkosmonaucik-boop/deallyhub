@@ -13,7 +13,12 @@ import {
   createAd,
   getUserAds,
   getAllAds,
-  deleteAd
+  deleteAd,
+  toggleSavedAd,
+  getSavedAds,
+  updateUserProfile,
+  updateUserPassword,
+  deleteUserAccount
 } from "./db.js";
 
 const app = express();
@@ -21,7 +26,7 @@ const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
 const JWT_SECRET = process.env.JWT_SECRET || "deallyhub_jwt_super_secret_key_2026";
 
-// Middleware - allow up to 15MB for image payloads
+// Middleware
 app.use(cors());
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
@@ -89,7 +94,7 @@ app.get("/api/categories", async (req, res) => {
   }
 });
 
-// ================= AUTHENTICATION API ================= //
+// ================= AUTHENTICATION & PROFILE API ================= //
 
 // 1. Register User
 app.post("/api/auth/register", async (req, res) => {
@@ -223,6 +228,62 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
   }
 });
 
+// 4. Update Profile Name
+app.put("/api/auth/profile", authenticateToken, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, error: "Name cannot be empty." });
+    }
+
+    const updated = await updateUserProfile(req.user.userId, name);
+    res.json({
+      success: true,
+      message: "Profile updated successfully.",
+      user: updated
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to update profile.", details: err.message });
+  }
+});
+
+// 5. Change Password
+app.put("/api/auth/password", authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, error: "Current password and new password are required." });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: "New password must be at least 6 characters long." });
+    }
+
+    await updateUserPassword(req.user.userId, currentPassword, newPassword);
+
+    res.json({
+      success: true,
+      message: "Password changed successfully."
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// 6. Delete Account
+app.delete("/api/auth/account", authenticateToken, async (req, res) => {
+  try {
+    await deleteUserAccount(req.user.userId);
+    res.json({
+      success: true,
+      message: "Your account and all associated listings have been permanently deleted."
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to delete account.", details: err.message });
+  }
+});
+
 // ================= ADVERTISEMENTS API ================= //
 
 // 1. Create Advertisement (Protected)
@@ -282,7 +343,7 @@ app.get("/api/ads/my", authenticateToken, async (req, res) => {
   }
 });
 
-// 3. Get Public Advertisements (Optional filters: ?category=...&search=...)
+// 3. Get Public Advertisements
 app.get("/api/ads", async (req, res) => {
   try {
     const { category, search, limit } = req.query;
@@ -329,6 +390,45 @@ app.delete("/api/ads/:id", authenticateToken, async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to delete advertisement.",
+      details: err.message
+    });
+  }
+});
+
+// ================= WISHLIST / SAVED ITEMS API ================= //
+
+// 1. Get Saved Advertisements (Protected)
+app.get("/api/saved", authenticateToken, async (req, res) => {
+  try {
+    const saved = await getSavedAds(req.user.userId);
+    res.json({
+      success: true,
+      count: saved.length,
+      saved
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch saved advertisements.",
+      details: err.message
+    });
+  }
+});
+
+// 2. Toggle Saved Advertisement (Protected)
+app.post("/api/saved/:adId", authenticateToken, async (req, res) => {
+  try {
+    const { adId } = req.params;
+    const result = await toggleSavedAd(req.user.userId, adId);
+    res.json({
+      success: true,
+      isSaved: result.isSaved,
+      message: result.isSaved ? "Item added to your saved wishlist." : "Item removed from your saved wishlist."
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to toggle saved status.",
       details: err.message
     });
   }

@@ -40,6 +40,8 @@ import {
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import AdsManagerModal from "@/components/AdsManagerModal";
+import SavedItemsModal from "@/components/SavedItemsModal";
+import AccountSettingsModal from "@/components/AccountSettingsModal";
 import { getApiUrl } from "@/lib/api";
 
 // Icon mapping dictionary
@@ -165,6 +167,11 @@ export default function HomePage() {
   const [isAdsModalOpen, setIsAdsModalOpen] = useState(false);
   const [adsModalTab, setAdsModalTab] = useState<"my-ads" | "create">("my-ads");
 
+  // Wishlist & Settings Modal States
+  const [savedAdIds, setSavedAdIds] = useState<number[]>([]);
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
   // Load saved session on mount
   useEffect(() => {
     try {
@@ -229,6 +236,61 @@ export default function HomePage() {
     fetchAds();
   }, [fetchAds]);
 
+  // Fetch Wishlist Items
+  const fetchSavedIds = useCallback(() => {
+    if (!token) {
+      setSavedAdIds([]);
+      return;
+    }
+    const apiUrl = getApiUrl();
+    fetch(`${apiUrl}/api/saved`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.saved)) {
+          setSavedAdIds(data.saved.map((s: Advertisement) => s.id));
+        }
+      })
+      .catch((err) => console.warn("Failed to fetch saved items:", err));
+  }, [token]);
+
+  useEffect(() => {
+    fetchSavedIds();
+  }, [fetchSavedIds]);
+
+  // Toggle Heart / Wishlist
+  const handleToggleSave = async (adId: number) => {
+    if (!token) {
+      setIsAuthOpen(true);
+      return;
+    }
+
+    const apiUrl = getApiUrl();
+    // Optimistic UI update
+    setSavedAdIds((prev) =>
+      prev.includes(adId) ? prev.filter((id) => id !== adId) : [...prev, adId]
+    );
+
+    try {
+      const res = await fetch(`${apiUrl}/api/saved/${adId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.isSaved) {
+          setSavedAdIds((prev) => (prev.includes(adId) ? prev : [...prev, adId]));
+        } else {
+          setSavedAdIds((prev) => prev.filter((id) => id !== adId));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to toggle wishlist item:", err);
+      fetchSavedIds(); // rollback
+    }
+  };
+
   const handleAuthSuccess = (user: UserProfile, receivedToken: string) => {
     setCurrentUser(user);
     setToken(receivedToken);
@@ -239,6 +301,7 @@ export default function HomePage() {
   const handleLogout = () => {
     setCurrentUser(null);
     setToken(null);
+    setSavedAdIds([]);
     setIsProfileMenuOpen(false);
     localStorage.removeItem("deallyhub_user");
     localStorage.removeItem("deallyhub_token");
@@ -248,6 +311,20 @@ export default function HomePage() {
     setIsProfileMenuOpen(false);
     setAdsModalTab("my-ads");
     setIsAdsModalOpen(true);
+  };
+
+  const handleOpenSaved = () => {
+    if (!currentUser) {
+      setIsAuthOpen(true);
+    } else {
+      setIsProfileMenuOpen(false);
+      setIsSavedModalOpen(true);
+    }
+  };
+
+  const handleOpenSettings = () => {
+    setIsProfileMenuOpen(false);
+    setIsSettingsModalOpen(true);
   };
 
   const handlePostAdClick = () => {
@@ -275,9 +352,14 @@ export default function HomePage() {
               <MessageSquare className="w-4 h-4" />
               <span>Messages</span>
             </button>
-            <button className="hidden sm:flex items-center gap-1.5 hover:text-teal-600 transition-colors">
-              <Heart className="w-4 h-4" />
-              <span>Saved</span>
+
+            {/* Saved Items Nav Button */}
+            <button
+              onClick={handleOpenSaved}
+              className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer"
+            >
+              <Heart className={`w-4 h-4 ${savedAdIds.length > 0 ? "text-rose-500 fill-rose-500" : ""}`} />
+              <span>Saved {savedAdIds.length > 0 && `(${savedAdIds.length})`}</span>
             </button>
 
             {/* My Profile Button / Dropdown */}
@@ -286,7 +368,7 @@ export default function HomePage() {
                 <div>
                   <button
                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className="flex items-center gap-2 hover:text-teal-600 transition-colors bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200"
+                    className="flex items-center gap-2 hover:text-teal-600 transition-colors bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200 cursor-pointer"
                   >
                     <div className="w-7 h-7 rounded-full bg-teal-600 text-white font-bold text-xs flex items-center justify-center">
                       {currentUser.name.charAt(0).toUpperCase()}
@@ -309,21 +391,21 @@ export default function HomePage() {
                       <div className="py-1">
                         <button
                           onClick={handleOpenMyAds}
-                          className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] hover:bg-teal-50 flex items-center gap-2.5 font-semibold transition-colors"
+                          className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] hover:bg-teal-50 flex items-center gap-2.5 font-semibold transition-colors cursor-pointer"
                         >
                           <FileText className="w-4 h-4 text-teal-600" />
                           <span>My Advertisements</span>
                         </button>
                         <button
-                          onClick={() => setIsProfileMenuOpen(false)}
-                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5"
+                          onClick={handleOpenSaved}
+                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 cursor-pointer"
                         >
-                          <Heart className="w-4 h-4 text-gray-400" />
-                          <span>Saved Items</span>
+                          <Heart className="w-4 h-4 text-rose-500" />
+                          <span>Saved Items ({savedAdIds.length})</span>
                         </button>
                         <button
-                          onClick={() => setIsProfileMenuOpen(false)}
-                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5"
+                          onClick={handleOpenSettings}
+                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 cursor-pointer"
                         >
                           <Settings className="w-4 h-4 text-gray-400" />
                           <span>Account Settings</span>
@@ -333,7 +415,7 @@ export default function HomePage() {
                       <div className="border-t border-gray-100 pt-1">
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 font-medium"
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 font-medium cursor-pointer"
                         >
                           <LogOut className="w-4 h-4" />
                           <span>Log Out</span>
@@ -478,7 +560,7 @@ export default function HomePage() {
 
             <button
               onClick={handlePostAdClick}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3.5 py-2 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Post an Ad</span>
@@ -495,7 +577,7 @@ export default function HomePage() {
               </p>
               <button
                 onClick={handlePostAdClick}
-                className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs"
+                className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
                 Post New Advertisement
               </button>
@@ -505,11 +587,12 @@ export default function HomePage() {
               {ads.map((ad) => {
                 const cat = categories.find((c) => c.slug === ad.category_slug);
                 const coverImg = ad.images && ad.images.length > 0 ? ad.images[0] : null;
+                const isSaved = savedAdIds.includes(ad.id);
 
                 return (
                   <div
                     key={ad.id}
-                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group cursor-pointer"
+                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group relative"
                   >
                     {/* Thumbnail Image */}
                     <div className="h-48 bg-gray-100 relative overflow-hidden flex items-center justify-center">
@@ -528,10 +611,30 @@ export default function HomePage() {
 
                       {/* Category Badge */}
                       {cat && (
-                        <span className="absolute top-3 left-3 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-xs">
+                        <span className="absolute top-3 left-3 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-xs pointer-events-none">
                           {cat.name}
                         </span>
                       )}
+
+                      {/* Heart Wishlist Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleSave(ad.id);
+                        }}
+                        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow-sm transition-all hover:scale-110 cursor-pointer z-20"
+                        title={isSaved ? "Remove from saved items" : "Save this advertisement"}
+                      >
+                        <Heart
+                          className={`w-4 h-4 transition-colors ${
+                            isSaved
+                              ? "fill-rose-500 text-rose-500"
+                              : "text-gray-400 hover:text-rose-500"
+                          }`}
+                        />
+                      </button>
                     </div>
 
                     {/* Listing Content */}
@@ -595,6 +698,30 @@ export default function HomePage() {
         categories={categories}
         token={token}
         onAdCreated={fetchAds}
+      />
+
+      {/* Saved Items (Wishlist) Modal */}
+      <SavedItemsModal
+        isOpen={isSavedModalOpen}
+        onClose={() => setIsSavedModalOpen(false)}
+        token={token}
+        categories={categories}
+        onItemRemoved={(removedId) => {
+          setSavedAdIds((prev) => prev.filter((id) => id !== removedId));
+        }}
+      />
+
+      {/* Account Settings Modal */}
+      <AccountSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        token={token}
+        currentUser={currentUser}
+        onProfileUpdated={(updated) => {
+          setCurrentUser(updated);
+          localStorage.setItem("deallyhub_user", JSON.stringify(updated));
+        }}
+        onAccountDeleted={handleLogout}
       />
     </div>
   );
