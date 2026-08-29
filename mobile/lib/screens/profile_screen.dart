@@ -934,7 +934,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final nameController = TextEditingController(text: _user?['name'] ?? '');
     final currentPassController = TextEditingController();
     final newPassController = TextEditingController();
-    bool saving = false;
+    final confirmPassController = TextEditingController();
+    bool obscureCurrent = true;
+    bool obscureNew = true;
+    bool obscureConfirm = true;
+    bool savingName = false;
+    bool savingPass = false;
+    bool sendingForgot = false;
 
     showModalBottomSheet(
       context: context,
@@ -991,16 +997,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: saving
+                        onPressed: savingName
                             ? null
                             : () async {
                                 final newName = nameController.text.trim();
                                 if (newName.isEmpty) return;
                                 final messenger = ScaffoldMessenger.of(context);
                                 final nav = Navigator.of(ctx);
-                                setSheetState(() => saving = true);
+                                setSheetState(() => savingName = true);
                                 final res = await ApiService.updateProfile(newName);
-                                setSheetState(() => saving = false);
+                                setSheetState(() => savingName = false);
                                 if (!mounted) return;
                                 if (res['success'] == true) {
                                   await _checkUser();
@@ -1008,13 +1014,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   messenger.showSnackBar(
                                     const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Profile name updated!')),
                                   );
+                                } else {
+                                  messenger.showSnackBar(
+                                    SnackBar(content: Text(res['error'] ?? 'Failed to update name.')),
+                                  );
                                 }
                               },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF002F34),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: saving
+                        child: savingName
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text('Save Name', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
@@ -1025,55 +1035,135 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
 
                     // Password change
-                    const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
-                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
+                        TextButton(
+                          onPressed: sendingForgot
+                              ? null
+                              : () async {
+                                  final email = _user?['email'] ?? '';
+                                  if (email.isEmpty) return;
+                                  final messenger = ScaffoldMessenger.of(context);
+                                  setSheetState(() => sendingForgot = true);
+                                  final res = await ApiService.forgotPassword(email);
+                                  setSheetState(() => sendingForgot = false);
+                                  if (mounted) {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(res['message'] ?? 'Password reset link sent to $email'),
+                                        backgroundColor: const Color(0xFF0D9488),
+                                      ),
+                                    );
+                                  }
+                                },
+                          child: sendingForgot
+                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D9488)))
+                              : const Text('Forgot current password?', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Current Password
                     TextField(
                       controller: currentPassController,
-                      obscureText: true,
+                      obscureText: obscureCurrent,
                       decoration: InputDecoration(
                         labelText: 'Current Password',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        suffixIcon: IconButton(
+                          icon: Icon(obscureCurrent ? Icons.visibility_off : Icons.visibility, size: 20, color: Colors.grey),
+                          onPressed: () => setSheetState(() => obscureCurrent = !obscureCurrent),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
+
+                    // New Password
                     TextField(
                       controller: newPassController,
-                      obscureText: true,
+                      obscureText: obscureNew,
                       decoration: InputDecoration(
                         labelText: 'New Password (min 6 chars)',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        suffixIcon: IconButton(
+                          icon: Icon(obscureNew ? Icons.visibility_off : Icons.visibility, size: 20, color: Colors.grey),
+                          onPressed: () => setSheetState(() => obscureNew = !obscureNew),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Confirm New Password
+                    TextField(
+                      controller: confirmPassController,
+                      obscureText: obscureConfirm,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm New Password',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        suffixIcon: IconButton(
+                          icon: Icon(obscureConfirm ? Icons.visibility_off : Icons.visibility, size: 20, color: Colors.grey),
+                          onPressed: () => setSheetState(() => obscureConfirm = !obscureConfirm),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
+
                     SizedBox(
                       width: double.infinity,
                       height: 48,
                       child: OutlinedButton(
-                        onPressed: saving
+                        onPressed: savingPass
                             ? null
                             : () async {
                                 final currentPass = currentPassController.text;
                                 final newPass = newPassController.text;
-                                if (currentPass.isEmpty || newPass.length < 6) {
+                                final confirmPass = confirmPassController.text;
+
+                                if (currentPass.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Please check your password inputs.')),
+                                    const SnackBar(content: Text('Please enter your current password.')),
                                   );
                                   return;
                                 }
-                                setSheetState(() => saving = true);
-                                final res = await ApiService.updatePassword(currentPass, newPass);
-                                setSheetState(() => saving = false);
-                                if (!mounted) return;
-                                if (res['success'] == true) {
-                                  if (ctx.mounted) Navigator.pop(ctx);
+
+                                if (newPass.length < 6) {
                                   ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('New password must be at least 6 characters long.')),
+                                  );
+                                  return;
+                                }
+
+                                if (newPass != confirmPass) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('New passwords do not match. Please re-check.')),
+                                  );
+                                  return;
+                                }
+
+                                final messenger = ScaffoldMessenger.of(context);
+                                final nav = Navigator.of(ctx);
+                                setSheetState(() => savingPass = true);
+                                final res = await ApiService.updatePassword(currentPass, newPass);
+                                setSheetState(() => savingPass = false);
+                                if (!mounted) return;
+
+                                if (res['success'] == true) {
+                                  nav.pop();
+                                  messenger.showSnackBar(
                                     const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Password changed successfully!')),
                                   );
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(res['error'] ?? 'Failed to update password.')),
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Colors.redAccent,
+                                      content: Text(res['error'] ?? 'Failed to update password.'),
+                                    ),
                                   );
                                 }
                               },
@@ -1081,7 +1171,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           side: const BorderSide(color: Color(0xFF002F34)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Update Password', style: TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
+                        child: savingPass
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF002F34)))
+                            : const Text('Update Password', style: TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],

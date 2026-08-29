@@ -526,11 +526,18 @@ class ApiService {
         },
         body: jsonEncode({'name': name}),
       ).timeout(const Duration(seconds: 12));
-      final data = jsonDecode(res.body) as Map<String, dynamic>;
-      if (data['success'] == true && data['user'] != null) {
-        await saveSession(token, data['user'] as Map<String, dynamic>);
-      }
-      return data;
+
+      try {
+        final data = jsonDecode(res.body);
+        if (data is Map<String, dynamic>) {
+          if (data['success'] == true && data['user'] != null) {
+            await saveSession(token, data['user'] as Map<String, dynamic>);
+          }
+          return data;
+        }
+      } catch (_) {}
+
+      return {'success': false, 'error': 'Server error (${res.statusCode})'};
     } catch (e) {
       return {'success': false, 'error': 'Connection error: $e'};
     }
@@ -551,7 +558,15 @@ class ApiService {
           'newPassword': newPassword,
         }),
       ).timeout(const Duration(seconds: 12));
-      return jsonDecode(res.body) as Map<String, dynamic>;
+
+      try {
+        final data = jsonDecode(res.body);
+        if (data is Map<String, dynamic>) {
+          return data;
+        }
+      } catch (_) {}
+
+      return {'success': false, 'error': 'Server error (${res.statusCode})'};
     } catch (e) {
       return {'success': false, 'error': 'Connection error: $e'};
     }
