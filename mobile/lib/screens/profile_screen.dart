@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -55,6 +55,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : await ApiService.register(_name, _email, _password);
 
       if (res['success'] == true) {
+        if (!_isLogin) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Color(0xFF0D9488),
+                duration: Duration(seconds: 5),
+                content: Text('Account created! We sent a verification link in Deallyhub style to your email. Check your inbox!'),
+              ),
+            );
+          }
+        }
         await _checkUser();
         widget.onAuthChanged?.call();
       } else {
@@ -65,6 +76,168 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } finally {
       if (mounted) setState(() => _authSubmitting = false);
     }
+  }
+
+  void _showForgotPasswordDialog() {
+    final emailController = TextEditingController(text: _email);
+    bool sending = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.lock_reset, color: Color(0xFF002F34)),
+              SizedBox(width: 8),
+              Text('Reset Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Enter your registered email address and we will send you a password reset link in Deallyhub style.',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email Address',
+                  hintText: 'name@example.com',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: sending
+                  ? null
+                  : () async {
+                      final inputEmail = emailController.text.trim();
+                      if (inputEmail.isEmpty || !inputEmail.contains('@')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter a valid email address.')),
+                        );
+                        return;
+                      }
+
+                      final messenger = ScaffoldMessenger.of(context);
+                      final nav = Navigator.of(ctx);
+                      setDialogState(() => sending = true);
+                      final res = await ApiService.forgotPassword(inputEmail);
+                      nav.pop();
+
+                      messenger.showSnackBar(
+                        SnackBar(
+                          backgroundColor: const Color(0xFF0D9488),
+                          content: Text(res['message'] ?? 'Password reset link sent! Check your inbox.'),
+                        ),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF002F34),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: sending
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Send Reset Link'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showResendVerificationDialog() {
+    final emailController = TextEditingController(text: _email);
+    bool sending = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.mark_email_read_outlined, color: Color(0xFF0D9488)),
+              SizedBox(width: 8),
+              Text('Verify Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Enter your email address to receive a new verification link.',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email Address',
+                  hintText: 'name@example.com',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: sending
+                  ? null
+                  : () async {
+                      final inputEmail = emailController.text.trim();
+                      if (inputEmail.isEmpty || !inputEmail.contains('@')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter a valid email address.')),
+                        );
+                        return;
+                      }
+
+                      final messenger = ScaffoldMessenger.of(context);
+                      final nav = Navigator.of(ctx);
+                      setDialogState(() => sending = true);
+                      final res = await ApiService.resendVerification(inputEmail);
+                      nav.pop();
+
+                      messenger.showSnackBar(
+                        SnackBar(
+                          backgroundColor: const Color(0xFF0D9488),
+                          content: Text(res['message'] ?? 'Verification link sent! Check your inbox.'),
+                        ),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D9488),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: sending
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Resend Link'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _logout() async {
@@ -297,7 +470,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               validator: (val) => val == null || val.length < 6 ? 'At least 6 characters' : null,
               onSaved: (val) => _password = val?.trim() ?? '',
             ),
-            const SizedBox(height: 24),
+            if (_isLogin) ...[
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _showForgotPasswordDialog,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: const Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                      color: Color(0xFF0D9488),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
 
             SizedBox(
               height: 50,
@@ -316,6 +510,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
               ),
             ),
+
+            if (_isLogin) ...[
+              const SizedBox(height: 12),
+              Center(
+                child: TextButton.icon(
+                  onPressed: _showResendVerificationDialog,
+                  icon: const Icon(Icons.mail_outline_rounded, size: 15, color: Colors.grey),
+                  label: const Text(
+                    "Didn't receive verification email? Resend",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
