@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -13,6 +13,7 @@ import {
   createAd,
   getUserAds,
   getAllAds,
+  getAdById,
   deleteAd,
   toggleSavedAd,
   getSavedAds,
@@ -68,15 +69,9 @@ app.get("/health", async (req, res) => {
     }
   }
 
-  const dbEnvKeys = Object.keys(process.env).filter(k => /database|postgres|pg|db/i.test(k));
-
   res.json({
     status: "healthy",
     database: dbStatus,
-    poolIsNull: pool === null,
-    dbUrlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
-    dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 15) : "none",
-    dbEnvKeys,
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
@@ -295,7 +290,7 @@ app.delete("/api/auth/account", authenticateToken, async (req, res) => {
 // 1. Create Advertisement (Protected)
 app.post("/api/ads", authenticateToken, async (req, res) => {
   try {
-    const { categorySlug, title, description, price, currency, location, images } = req.body;
+    const { categorySlug, title, description, price, currency, location, images, phone } = req.body;
 
     if (!title || !categorySlug || !description) {
       return res.status(400).json({
@@ -312,7 +307,8 @@ app.post("/api/ads", authenticateToken, async (req, res) => {
       price: price ?? 0,
       currency: currency || "USD",
       location: location || "Entire Country",
-      images: Array.isArray(images) ? images : []
+      images: Array.isArray(images) ? images : [],
+      phone: phone || ""
     });
 
     res.status(201).json({
@@ -374,7 +370,25 @@ app.get("/api/ads", async (req, res) => {
   }
 });
 
-// 4. Delete Advertisement (Protected)
+// 4. Get Single Advertisement by ID (Public)
+app.get("/api/ads/:id", async (req, res) => {
+  try {
+    const ad = await getAdById(req.params.id);
+    if (!ad) {
+      return res.status(404).json({ success: false, error: "Advertisement not found." });
+    }
+
+    res.json({
+      success: true,
+      ad
+    });
+  } catch (err) {
+    console.error("Get single ad error:", err);
+    res.status(500).json({ success: false, error: "Failed to retrieve advertisement." });
+  }
+});
+
+// 5. Delete Advertisement (Protected)
 app.delete("/api/ads/:id", authenticateToken, async (req, res) => {
   try {
     const adId = req.params.id;

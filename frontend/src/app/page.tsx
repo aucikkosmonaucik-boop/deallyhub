@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -42,6 +42,7 @@ import AuthModal from "@/components/AuthModal";
 import AdsManagerModal from "@/components/AdsManagerModal";
 import SavedItemsModal from "@/components/SavedItemsModal";
 import AccountSettingsModal from "@/components/AccountSettingsModal";
+import AdDetailsModal from "@/components/AdDetailsModal";
 import { getApiUrl } from "@/lib/api";
 
 // Icon mapping dictionary
@@ -116,6 +117,7 @@ interface Advertisement {
   currency: string;
   location: string;
   images: string[];
+  phone?: string;
   status: string;
   created_at: string;
   author_name?: string;
@@ -171,6 +173,7 @@ export default function HomePage() {
   const [savedAdIds, setSavedAdIds] = useState<number[]>([]);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
 
   // Load saved session on mount
   useEffect(() => {
@@ -592,7 +595,8 @@ export default function HomePage() {
                 return (
                   <div
                     key={ad.id}
-                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group relative"
+                    onClick={() => setSelectedAd(ad)}
+                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group relative cursor-pointer hover:border-teal-500/50"
                   >
                     {/* Thumbnail Image */}
                     <div className="h-48 bg-gray-100 relative overflow-hidden flex items-center justify-center">
@@ -722,6 +726,20 @@ export default function HomePage() {
           localStorage.setItem("deallyhub_user", JSON.stringify(updated));
         }}
         onAccountDeleted={handleLogout}
+      />
+
+      {/* Advertisement Details Modal */}
+      <AdDetailsModal
+        ad={selectedAd}
+        isOpen={!!selectedAd}
+        onClose={() => setSelectedAd(null)}
+        categoryName={
+          categories.find((c) => c.slug === selectedAd?.category_slug)?.name ||
+          selectedAd?.category_slug ||
+          "Classifieds"
+        }
+        isSaved={selectedAd ? savedAdIds.includes(selectedAd.id) : false}
+        onToggleSave={handleToggleSave}
       />
     </div>
   );

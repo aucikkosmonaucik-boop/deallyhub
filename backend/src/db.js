@@ -1,4 +1,4 @@
-import pg from "pg";
+﻿import pg from "pg";
 import bcrypt from "bcryptjs";
 
 const { Pool } = pg;
@@ -36,7 +36,7 @@ const inMemoryUsers = [];
 let nextUserId = 1;
 const inMemoryAds = [];
 let nextAdId = 1;
-const inMemorySaved = []; // array of { id, user_id, ad_id, created_at }
+const inMemorySaved = [];
 let nextSavedId = 1;
 
 let pool = null;
@@ -113,7 +113,12 @@ export async function initDb() {
         );
       `);
 
-      // 4. Saved Ads (Wishlist) Table
+      // Add phone column if it doesn't exist
+      await client.query(`
+        ALTER TABLE advertisements ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+      `);
+
+      // 4. Saved Ads Table
       await client.query(`
         CREATE TABLE IF NOT EXISTS saved_ads (
           id SERIAL PRIMARY KEY,
@@ -136,7 +141,7 @@ export async function initDb() {
         }
         console.log("Database seeded successfully with 25 categories.");
       }
-      console.log("Database connected and all tables verified (including saved_ads).");
+      console.log("Database connected and all tables verified (including phone column).");
     } finally {
       client.release();
     }
@@ -218,7 +223,6 @@ export async function createUser({ name, email, passwordHash }) {
   }
 }
 
-// Update User Profile (Name)
 export async function updateUserProfile(userId, name) {
   if (!pool) {
     const user = inMemoryUsers.find(u => u.id === userId);
@@ -241,7 +245,6 @@ export async function updateUserProfile(userId, name) {
   }
 }
 
-// Update Password
 export async function updateUserPassword(userId, currentPassword, newPassword) {
   if (!pool) {
     const user = inMemoryUsers.find(u => u.id === userId);
@@ -270,7 +273,6 @@ export async function updateUserPassword(userId, currentPassword, newPassword) {
   }
 }
 
-// Delete User Account
 export async function deleteUserAccount(userId) {
   if (!pool) {
     const uIdx = inMemoryUsers.findIndex(u => u.id === userId);
@@ -295,7 +297,7 @@ export async function deleteUserAccount(userId) {
 
 // ================= ADVERTISEMENTS OPERATIONS ================= //
 
-export async function createAd({ userId, categorySlug, title, description, price, currency = "USD", location = "Entire Country", images = [] }) {
+export async function createAd({ userId, categorySlug, title, description, price, currency = "USD", location = "Entire Country", images = [], phone = "" }) {
   if (!pool) {
     const newAd = {
       id: nextAdId++,
@@ -307,6 +309,7 @@ export async function createAd({ userId, categorySlug, title, description, price
       currency: currency || "USD",
       location: location.trim() || "Entire Country",
       images: Array.isArray(images) ? images : [],
+      phone: phone ? phone.trim() : "",
       status: "active",
       created_at: new Date().toISOString()
     };
@@ -316,10 +319,10 @@ export async function createAd({ userId, categorySlug, title, description, price
 
   try {
     const { rows } = await pool.query(`
-      INSERT INTO advertisements (user_id, category_slug, title, description, price, currency, location, images)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO advertisements (user_id, category_slug, title, description, price, currency, location, images, phone)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
-    `, [userId, categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images]);
+    `, [userId, categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images, phone ? phone.trim() : ""]);
     return rows[0];
   } catch (err) {
     console.error("Error creating advertisement in DB:", err.message);
@@ -360,7 +363,7 @@ export async function getAllAds({ category, search, limit = 50 }) {
 
   try {
     let query = `
-      SELECT a.*, u.name as author_name, u.email as author_email
+      SELECT a.*, u.name as author_name, u.email as author_email, u.created_at as author_joined
       FROM advertisements a
       LEFT JOIN users u ON a.user_id = u.id
       WHERE a.status = 'active'
@@ -388,6 +391,33 @@ export async function getAllAds({ category, search, limit = 50 }) {
   }
 }
 
+export async function getAdById(adId) {
+  const parsedId = parseInt(adId, 10);
+  if (!pool) {
+    const ad = inMemoryAds.find(a => a.id === parsedId);
+    if (!ad) return null;
+    const author = inMemoryUsers.find(u => u.id === ad.user_id);
+    return {
+      ...ad,
+      author_name: author ? author.name : "Verified Seller",
+      author_email: author ? author.email : ""
+    };
+  }
+
+  try {
+    const { rows } = await pool.query(`
+      SELECT a.*, u.name as author_name, u.email as author_email, u.created_at as author_joined
+      FROM advertisements a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.id = $1
+    `, [parsedId]);
+    return rows[0] || null;
+  } catch (err) {
+    console.error("Error fetching ad by id:", err.message);
+    throw err;
+  }
+}
+
 export async function deleteAd(adId, userId) {
   if (!pool) {
     const idx = inMemoryAds.findIndex(a => a.id === parseInt(adId, 10) && a.user_id === userId);
@@ -410,7 +440,7 @@ export async function deleteAd(adId, userId) {
   }
 }
 
-// ================= WISHLIST (SAVED ADS) OPERATIONS ================= //
+// ================= WISHLIST OPERATIONS ================= //
 
 export async function toggleSavedAd(userId, adId) {
   const parsedAdId = parseInt(adId, 10);
@@ -427,7 +457,6 @@ export async function toggleSavedAd(userId, adId) {
   }
 
   try {
-    // Check if exists
     const check = await pool.query("SELECT id FROM saved_ads WHERE user_id = $1 AND ad_id = $2", [userId, parsedAdId]);
     if (check.rows.length > 0) {
       await pool.query("DELETE FROM saved_ads WHERE user_id = $1 AND ad_id = $2", [userId, parsedAdId]);

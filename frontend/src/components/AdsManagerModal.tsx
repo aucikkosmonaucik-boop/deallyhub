@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -13,7 +13,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
-  Layers
+  Layers,
+  Phone
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
@@ -67,6 +68,7 @@ export default function AdsManagerModal({
   const [currency, setCurrency] = useState("USD");
   const [isFree, setIsFree] = useState(false);
   const [location, setLocation] = useState("Entire Country");
+  const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [imageUrlInput, setImageUrlInput] = useState("");
@@ -183,6 +185,7 @@ export default function AdsManagerModal({
       price: isFree ? 0 : parseFloat(price) || 0,
       currency,
       location: location.trim() || "Entire Country",
+      phone: phone.trim(),
       images
     };
 
@@ -207,6 +210,7 @@ export default function AdsManagerModal({
       setTitle("");
       setDescription("");
       setPrice("");
+      setPhone("");
       setImages([]);
       setIsFree(false);
 
@@ -569,19 +573,37 @@ export default function AdsManagerModal({
               </div>
 
               {/* 5. Location */}
-              <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
-                  Location
-                </label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. Warsaw, Berlin, Remote, Entire Country..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-medium"
-                  />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                    Location
+                  </label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="e.g. Warsaw, Remote, Entire Country..."
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                    Phone Number (Contact)
+                  </label>
+                  <div className="relative">
+                    <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="e.g. +48 123 456 789"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-medium"
+                    />
+                  </div>
                 </div>
               </div>
 
