@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ export default function AuthModal({
     setError(null);
     setLoading(true);
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://deallyhub-production.up.railway.app";
+    const apiUrl = getApiUrl();
     const endpoint = mode === "login" ? `${apiUrl}/api/auth/login` : `${apiUrl}/api/auth/register`;
     const payload = mode === "login" ? { email, password } : { name, email, password };
 

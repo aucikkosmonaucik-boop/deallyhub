@@ -38,6 +38,7 @@ import {
   FileText
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
+import { getApiUrl } from "@/lib/api";
 
 // Icon mapping dictionary
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -155,7 +156,7 @@ export default function HomePage() {
 
   // Fetch categories from backend API
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://deallyhub-production.up.railway.app";
+    const apiUrl = getApiUrl();
     fetch(`${apiUrl}/api/categories`)
       .then((res) => {
         const contentType = res.headers.get("content-type");
