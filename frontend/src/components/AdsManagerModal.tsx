@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Loader2,
   Layers,
-  Phone
+  Phone,
+  Edit3
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
@@ -36,6 +37,7 @@ interface Advertisement {
   currency: string;
   location: string;
   images: string[];
+  phone?: string;
   status: string;
   created_at: string;
 }
@@ -75,10 +77,43 @@ export default function AdsManagerModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [editingAdId, setEditingAdId] = useState<number | null>(null);
+
+  const resetForm = () => {
+    setEditingAdId(null);
+    setTitle("");
+    setDescription("");
+    setPrice("");
+    setPhone("");
+    setImages([]);
+    setIsFree(false);
+    setCategorySlug(categories[0]?.slug || "antiques-collectibles");
+    setLocation("Entire Country");
+    setCurrency("USD");
+  };
+
+  const handleStartEdit = (ad: Advertisement) => {
+    setEditingAdId(ad.id);
+    setTitle(ad.title || "");
+    setCategorySlug(ad.category_slug || categories[0]?.slug || "");
+    setPrice(ad.price ? String(ad.price) : "");
+    setIsFree(parseFloat(String(ad.price)) === 0);
+    setCurrency(ad.currency || "USD");
+    setLocation(ad.location || "Entire Country");
+    setPhone(ad.phone || "");
+    setDescription(ad.description || "");
+    setImages(Array.isArray(ad.images) ? [...ad.images] : []);
+    setError(null);
+    setSuccessMessage(null);
+    setActiveTab("create");
+  };
 
   // Sync tab with initialTab prop when modal opens
   useEffect(() => {
     if (isOpen) {
+      if (initialTab === "create" && !editingAdId) {
+        resetForm();
+      }
       setActiveTab(initialTab);
       setError(null);
       setSuccessMessage(null);
@@ -189,9 +224,13 @@ export default function AdsManagerModal({
       images
     };
 
+    const isEditing = editingAdId !== null;
+    const url = isEditing ? `${apiUrl}/api/ads/${editingAdId}` : `${apiUrl}/api/ads`;
+    const method = isEditing ? "PUT" : "POST";
+
     try {
-      const res = await fetch(`${apiUrl}/api/ads`, {
-        method: "POST",
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
@@ -202,17 +241,11 @@ export default function AdsManagerModal({
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to publish advertisement.");
+        throw new Error(data.error || `Failed to ${isEditing ? "update" : "publish"} advertisement.`);
       }
 
-      setSuccessMessage("Advertisement published successfully!");
-      // Reset form
-      setTitle("");
-      setDescription("");
-      setPrice("");
-      setPhone("");
-      setImages([]);
-      setIsFree(false);
+      setSuccessMessage(isEditing ? "Advertisement updated successfully!" : "Advertisement published successfully!");
+      resetForm();
 
       // Refresh list & switch tab after brief delay
       fetchMyAds();
@@ -279,6 +312,9 @@ export default function AdsManagerModal({
 
           <button
             onClick={() => {
+              if (activeTab !== "create" && !editingAdId) {
+                resetForm();
+              }
               setActiveTab("create");
               setError(null);
             }}
@@ -288,9 +324,30 @@ export default function AdsManagerModal({
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
-            <Plus className="w-4 h-4 text-teal-600" />
-            <span>Post New Advertisement</span>
+            {editingAdId ? (
+              <>
+                <Edit3 className="w-4 h-4 text-teal-600" />
+                <span>Edit Advertisement</span>
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 text-teal-600" />
+                <span>Post New Advertisement</span>
+              </>
+            )}
           </button>
+
+          {editingAdId && activeTab === "create" && (
+            <button
+              onClick={() => {
+                resetForm();
+                setActiveTab("my-ads");
+              }}
+              className="ml-auto my-auto text-xs text-gray-500 hover:text-red-500 font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:border-red-200 transition-colors"
+            >
+              Cancel Edit
+            </button>
+          )}
         </div>
 
         {/* Modal Body */}
@@ -376,13 +433,23 @@ export default function AdsManagerModal({
                               </div>
                             </div>
 
-                            <button
-                              onClick={() => handleDeleteAd(ad.id)}
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                              title="Delete advertisement"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleStartEdit(ad)}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                                title="Edit advertisement"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteAd(ad.id)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors cursor-pointer"
+                                title="Delete advertisement"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -632,12 +699,12 @@ export default function AdsManagerModal({
                   {submitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Publishing advertisement...</span>
+                      <span>{editingAdId ? "Saving changes..." : "Publishing advertisement..."}</span>
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4" />
-                      <span>Publish Advertisement</span>
+                      {editingAdId ? <Edit3 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                      <span>{editingAdId ? "Save Changes" : "Publish Advertisement"}</span>
                     </>
                   )}
                 </button>

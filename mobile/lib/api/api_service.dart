@@ -363,6 +363,45 @@ class ApiService {
     return false;
   }
 
+  static Future<Map<String, dynamic>> updateAd({
+    required int adId,
+    required String categorySlug,
+    required String title,
+    required String description,
+    required double price,
+    required String currency,
+    required String location,
+    required String phone,
+    required List<String> images,
+  }) async {
+    final token = await getToken();
+    if (token == null) return {'success': false, 'error': 'Not logged in'};
+
+    try {
+      final res = await http.put(
+        Uri.parse('$baseUrl/api/ads/$adId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'categorySlug': categorySlug,
+          'title': title,
+          'description': description,
+          'price': price,
+          'currency': currency,
+          'location': location,
+          'phone': phone,
+          'images': images,
+        }),
+      ).timeout(const Duration(seconds: 15));
+
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    } catch (e) {
+      return {'success': false, 'error': 'Connection error: $e'};
+    }
+  }
+
   // ================= NOTIFICATIONS API ================= //
 
   static Future<List<dynamic>> getNotifications() async {

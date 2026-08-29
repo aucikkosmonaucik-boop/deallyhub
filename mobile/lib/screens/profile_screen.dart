@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../api/api_service.dart';
 import '../widgets/app_image.dart';
 import 'ad_details_screen.dart';
@@ -471,29 +473,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ],
                                           ),
                                         ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                                          onPressed: () async {
-                                            final confirm = await showDialog<bool>(
-                                              context: context,
-                                              builder: (c) => AlertDialog(
-                                                title: const Text('Delete Advertisement'),
-                                                content: const Text('Are you sure you want to delete this ad?'),
-                                                actions: [
-                                                  TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
-                                                  ElevatedButton(
-                                                    onPressed: () => Navigator.pop(c, true),
-                                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                                                    child: const Text('Delete'),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(Icons.edit_outlined, color: Color(0xFF0D9488)),
+                                              tooltip: 'Edit Advertisement',
+                                              onPressed: () async {
+                                                final updated = await _showEditAdModal(ad);
+                                                if (updated == true) {
+                                                  setSheetState(() {});
+                                                }
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                                              tooltip: 'Delete Advertisement',
+                                              onPressed: () async {
+                                                final confirm = await showDialog<bool>(
+                                                  context: context,
+                                                  builder: (c) => AlertDialog(
+                                                    title: const Text('Delete Advertisement'),
+                                                    content: const Text('Are you sure you want to delete this ad?'),
+                                                    actions: [
+                                                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                                      ElevatedButton(
+                                                        onPressed: () => Navigator.pop(c, true),
+                                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                                        child: const Text('Delete'),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
-                                            );
-                                            if (confirm == true) {
-                                              await ApiService.deleteAd(ad['id'] as int);
-                                              setSheetState(() {});
-                                            }
-                                          },
+                                                );
+                                                if (confirm == true) {
+                                                  await ApiService.deleteAd(ad['id'] as int);
+                                                  setSheetState(() {});
+                                                }
+                                              },
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -506,6 +524,386 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  // 3b. Edit Advertisement Modal
+  Future<bool?> _showEditAdModal(Map<String, dynamic> ad) async {
+    final titleController = TextEditingController(text: ad['title'] ?? '');
+    final priceController = TextEditingController(text: '${ad['price'] ?? 0}');
+    final descController = TextEditingController(text: ad['description'] ?? '');
+    final phoneController = TextEditingController(text: ad['phone'] ?? '');
+    final locationController = TextEditingController(text: ad['location'] ?? 'Entire Country');
+
+    String selectedCategory = ad['category_slug'] ?? 'antiques-collectibles';
+    String currency = ad['currency'] ?? 'USD';
+    List<String> images = (ad['images'] as List<dynamic>?)?.cast<String>().toList() ?? [];
+    final picker = ImagePicker();
+    bool saving = false;
+    bool picking = false;
+
+    return await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setEditState) {
+          Future<void> pickImg(ImageSource source) async {
+            try {
+              setEditState(() => picking = true);
+              final XFile? photo = await picker.pickImage(
+                source: source,
+                maxWidth: 1200,
+                maxHeight: 1200,
+                imageQuality: 80,
+              );
+              if (photo != null) {
+                final bytes = await photo.readAsBytes();
+                final b64 = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+                setEditState(() {
+                  images.add(b64);
+                });
+              }
+            } catch (_) {
+            } finally {
+              setEditState(() => picking = false);
+            }
+          }
+
+          return DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            minChildSize: 0.6,
+            maxChildSize: 0.95,
+            expand: false,
+            builder: (ctx, scrollController) => Column(
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: const BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.edit_note, color: Color(0xFF0D9488), size: 24),
+                          SizedBox(width: 8),
+                          Text(
+                            'Edit Advertisement',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34)),
+                          ),
+                        ],
+                      ),
+                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx, false)),
+                    ],
+                  ),
+                ),
+
+                // Form Content
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      // Title
+                      const Text('Title *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: titleController,
+                        decoration: InputDecoration(
+                          hintText: 'e.g. Vintage Leather Jacket',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Category
+                      const Text('Category *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                      const SizedBox(height: 6),
+                      FutureBuilder<List<dynamic>>(
+                        future: ApiService.getCategories(),
+                        builder: (c, snapshot) {
+                          final cats = snapshot.data ?? [];
+                          return DropdownButtonFormField<String>(
+                            initialValue: cats.any((c) => c['slug'] == selectedCategory)
+                                ? selectedCategory
+                                : (cats.isNotEmpty ? cats[0]['slug'] : selectedCategory),
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            ),
+                            items: cats.map<DropdownMenuItem<String>>((c) {
+                              return DropdownMenuItem<String>(
+                                value: c['slug'] as String,
+                                child: Text(c['name'] as String, style: const TextStyle(fontSize: 14)),
+                              );
+                            }).toList(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setEditState(() => selectedCategory = val);
+                              }
+                            },
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Price & Currency
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Price *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                const SizedBox(height: 6),
+                                TextField(
+                                  controller: priceController,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  decoration: InputDecoration(
+                                    hintText: '0.00',
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Currency', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                const SizedBox(height: 6),
+                                DropdownButtonFormField<String>(
+                                  initialValue: currency,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  ),
+                                  items: ['USD', 'EUR', 'PLN', 'GBP']
+                                      .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13))))
+                                      .toList(),
+                                  onChanged: (val) {
+                                    if (val != null) setEditState(() => currency = val);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Location & Phone
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                const SizedBox(height: 6),
+                                TextField(
+                                  controller: locationController,
+                                  decoration: InputDecoration(
+                                    hintText: 'e.g. Warsaw',
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Phone Number', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                const SizedBox(height: 6),
+                                TextField(
+                                  controller: phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: InputDecoration(
+                                    hintText: '+48 ...',
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Photos Section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Photos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                          Row(
+                            children: [
+                              TextButton.icon(
+                                onPressed: picking ? null : () => pickImg(ImageSource.gallery),
+                                icon: const Icon(Icons.photo_library, size: 16, color: Color(0xFF0D9488)),
+                                label: const Text('Gallery', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                              TextButton.icon(
+                                onPressed: picking ? null : () => pickImg(ImageSource.camera),
+                                icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFF0D9488)),
+                                label: const Text('Camera', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      if (images.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: const Center(
+                            child: Text('No photos attached. Tap Gallery or Camera above to add photos.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          ),
+                        )
+                      else
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: List.generate(images.length, (idx) {
+                            return Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: SizedBox(
+                                    width: 80,
+                                    height: 80,
+                                    child: AppImage(imageUrl: images[idx], fit: BoxFit.cover),
+                                  ),
+                                ),
+                                if (idx == 0)
+                                  Positioned(
+                                    top: 4,
+                                    left: 4,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                      decoration: BoxDecoration(color: const Color(0xFF002F34), borderRadius: BorderRadius.circular(4)),
+                                      child: const Text('COVER', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                Positioned(
+                                  top: 2,
+                                  right: 2,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setEditState(() => images.removeAt(idx));
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                                      child: const Icon(Icons.close, size: 14, color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
+                      const SizedBox(height: 16),
+
+                      // Description
+                      const Text('Description *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: descController,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintText: 'Describe your item, its condition, specifications...',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.all(14),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Save Changes Button
+                      SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: saving
+                              ? null
+                              : () async {
+                                  final title = titleController.text.trim();
+                                  final desc = descController.text.trim();
+                                  final priceVal = double.tryParse(priceController.text.trim()) ?? 0.0;
+
+                                  if (title.isEmpty || desc.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Title and description are required.')),
+                                    );
+                                    return;
+                                  }
+
+                                  final messenger = ScaffoldMessenger.of(context);
+                                  final nav = Navigator.of(ctx);
+                                  setEditState(() => saving = true);
+
+                                  final res = await ApiService.updateAd(
+                                    adId: ad['id'] as int,
+                                    categorySlug: selectedCategory,
+                                    title: title,
+                                    description: desc,
+                                    price: priceVal,
+                                    currency: currency,
+                                    location: locationController.text.trim().isEmpty ? 'Entire Country' : locationController.text.trim(),
+                                    phone: phoneController.text.trim(),
+                                    images: images,
+                                  );
+
+                                  setEditState(() => saving = false);
+                                  if (res['success'] == true) {
+                                    nav.pop(true);
+                                    messenger.showSnackBar(
+                                      const SnackBar(
+                                        backgroundColor: Color(0xFF0D9488),
+                                        content: Text('Advertisement updated successfully!'),
+                                      ),
+                                    );
+                                  } else {
+                                    messenger.showSnackBar(
+                                      SnackBar(content: Text(res['error'] ?? 'Failed to update advertisement.')),
+                                    );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF002F34),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: saving
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Save Changes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -16,6 +16,7 @@ import {
   findUserById,
   createUser,
   createAd,
+  updateAd,
   getUserAds,
   getAllAds,
   getAdById,
@@ -609,6 +610,58 @@ app.get("/api/ads/:id", async (req, res) => {
   } catch (err) {
     console.error("Get single ad error:", err);
     res.status(500).json({ success: false, error: "Failed to retrieve advertisement." });
+  }
+});
+
+// 4b. Update Advertisement (Protected - Author or Admin)
+app.put("/api/ads/:id", authenticateToken, async (req, res) => {
+  try {
+    const adId = req.params.id;
+    const { categorySlug, title, description, price, currency, location, images, phone } = req.body;
+
+    if (!title || !categorySlug || !description) {
+      return res.status(400).json({
+        success: false,
+        error: "Title, category, and description are required fields."
+      });
+    }
+
+    const user = await findUserById(req.user.userId);
+    const isAdm = user && (user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin"));
+
+    const updatedAd = await updateAd({
+      adId,
+      userId: req.user.userId,
+      categorySlug,
+      title,
+      description,
+      price,
+      currency,
+      location,
+      images,
+      phone,
+      isAdmin: isAdm
+    });
+
+    if (!updatedAd) {
+      return res.status(404).json({
+        success: false,
+        error: "Advertisement not found or you are not authorized to edit it."
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Advertisement updated successfully!",
+      ad: updatedAd
+    });
+  } catch (err) {
+    console.error("Update ad error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to update advertisement.",
+      details: err.message
+    });
   }
 });
 

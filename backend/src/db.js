@@ -528,6 +528,50 @@ export async function getAdById(adId) {
   }
 }
 
+export async function updateAd({ adId, userId, categorySlug, title, description, price, currency = "USD", location = "Entire Country", images = [], phone = "", isAdmin = false }) {
+  const parsedId = parseInt(adId, 10);
+  if (!pool) {
+    const ad = inMemoryAds.find(a => a.id === parsedId && (a.user_id === userId || isAdmin));
+    if (!ad) return null;
+    if (categorySlug !== undefined) ad.category_slug = categorySlug;
+    if (title !== undefined) ad.title = title.trim();
+    if (description !== undefined) ad.description = description.trim();
+    if (price !== undefined) ad.price = parseFloat(price) || 0;
+    if (currency !== undefined) ad.currency = currency;
+    if (location !== undefined) ad.location = location.trim() || "Entire Country";
+    if (images !== undefined) ad.images = Array.isArray(images) ? images : [];
+    if (phone !== undefined) ad.phone = phone ? phone.trim() : "";
+    return ad;
+  }
+
+  try {
+    let query;
+    let params;
+    if (isAdmin) {
+      query = `
+        UPDATE advertisements
+        SET category_slug = $1, title = $2, description = $3, price = $4, currency = $5, location = $6, images = $7, phone = $8
+        WHERE id = $9
+        RETURNING *
+      `;
+      params = [categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images, phone ? phone.trim() : "", parsedId];
+    } else {
+      query = `
+        UPDATE advertisements
+        SET category_slug = $1, title = $2, description = $3, price = $4, currency = $5, location = $6, images = $7, phone = $8
+        WHERE id = $9 AND user_id = $10
+        RETURNING *
+      `;
+      params = [categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images, phone ? phone.trim() : "", parsedId, userId];
+    }
+    const { rows } = await pool.query(query, params);
+    return rows[0] || null;
+  } catch (err) {
+    console.error("Error updating advertisement in DB:", err.message);
+    throw err;
+  }
+}
+
 export async function deleteAd(adId, userId) {
   if (!pool) {
     const idx = inMemoryAds.findIndex(a => a.id === parseInt(adId, 10) && a.user_id === userId);
