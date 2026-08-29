@@ -1,4 +1,4 @@
-﻿import pg from "pg";
+import pg from "pg";
 import bcrypt from "bcryptjs";
 
 const { Pool } = pg;
@@ -41,11 +41,26 @@ let nextSavedId = 1;
 
 let pool = null;
 
-if (process.env.DATABASE_URL) {
-  const isProduction = process.env.NODE_ENV === "production" || process.env.DATABASE_URL.includes("railway");
+const dbConnectionString =
+  process.env.DATABASE_URL ||
+  process.env.DATABASE_PUBLIC_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL;
+
+if (dbConnectionString) {
+  const isProduction = process.env.NODE_ENV === "production" || dbConnectionString.includes("railway") || dbConnectionString.includes("postgres");
   pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: dbConnectionString,
     ssl: isProduction ? { rejectUnauthorized: false } : false
+  });
+} else if (process.env.PGHOST && process.env.PGUSER && process.env.PGDATABASE) {
+  pool = new Pool({
+    host: process.env.PGHOST,
+    port: process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : 5432,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    database: process.env.PGDATABASE,
+    ssl: { rejectUnauthorized: false }
   });
 }
 

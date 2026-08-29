@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -68,9 +68,12 @@ app.get("/health", async (req, res) => {
     }
   }
 
+  const dbEnvKeys = Object.keys(process.env).filter(k => /database|postgres|pg|db/i.test(k));
+
   res.json({
     status: "healthy",
     database: dbStatus,
+    dbEnvKeys,
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
