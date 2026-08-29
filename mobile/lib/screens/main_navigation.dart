@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import '../api/api_service.dart';
 import 'home_screen.dart';
 import 'saved_screen.dart';
 import 'post_ad_screen.dart';
@@ -25,12 +26,37 @@ class _MainNavigationState extends State<MainNavigation> {
       const SavedScreen(),
       PostAdScreen(
         onAdCreated: () => setState(() => _currentIndex = 0),
+        onGoToAccount: () => setState(() => _currentIndex = 4),
       ),
       const MessagesScreen(),
       ProfileScreen(
         onAuthChanged: () => setState(() {}),
       ),
     ];
+  }
+
+  Future<void> _handleTabTapped(int idx) async {
+    // Restrict "Post Ad" tab (index 2) strictly to registered/logged in users
+    if (idx == 2) {
+      final token = await ApiService.getToken();
+      if (token == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Color(0xFF002F34),
+            content: Text(
+              'Registration Required: Please sign in or create an account to post advertisements.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        setState(() => _currentIndex = 4); // Redirect to Account panel
+        return;
+      }
+    }
+
+    setState(() => _currentIndex = idx);
   }
 
   @override
@@ -42,7 +68,7 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (idx) => setState(() => _currentIndex = idx),
+        onTap: _handleTabTapped,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF002F34),

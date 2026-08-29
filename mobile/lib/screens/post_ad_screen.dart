@@ -1,10 +1,15 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 
 class PostAdScreen extends StatefulWidget {
   final VoidCallback? onAdCreated;
+  final VoidCallback? onGoToAccount;
 
-  const PostAdScreen({super.key, this.onAdCreated});
+  const PostAdScreen({
+    super.key,
+    this.onAdCreated,
+    this.onGoToAccount,
+  });
 
   @override
   State<PostAdScreen> createState() => _PostAdScreenState();
@@ -12,6 +17,9 @@ class PostAdScreen extends StatefulWidget {
 
 class _PostAdScreenState extends State<PostAdScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  bool _isLoggedIn = false;
+  bool _checkingAuth = true;
 
   String _title = '';
   String _description = '';
@@ -32,7 +40,18 @@ class _PostAdScreenState extends State<PostAdScreen> {
   @override
   void initState() {
     super.initState();
+    _checkAuth();
     _loadCategories();
+  }
+
+  Future<void> _checkAuth() async {
+    final token = await ApiService.getToken();
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = token != null;
+        _checkingAuth = false;
+      });
+    }
   }
 
   Future<void> _loadCategories() async {
@@ -68,6 +87,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please sign in before posting an advertisement.')),
         );
+        widget.onGoToAccount?.call();
       }
       return;
     }
@@ -96,7 +116,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
           ),
         );
         widget.onAdCreated?.call();
-        // Reset
+        // Reset form
         setState(() {
           _title = '';
           _description = '';
@@ -121,6 +141,80 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_checkingAuth) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF0D9488))),
+      );
+    }
+
+    // If user is not logged in, enforce registration requirement
+    if (!_isLoggedIn) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text(
+            'Post an Advertisement',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF0FDFA),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_outline, size: 40, color: Color(0xFF0D9488)),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Registration Required',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF002F34),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'To protect our marketplace and verify sellers, posting advertisements is available exclusively to registered members.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: Colors.grey, height: 1.5),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () => widget.onGoToAccount?.call(),
+                    icon: const Icon(Icons.login),
+                    label: const Text(
+                      'Go to Account (Sign In / Register)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF002F34),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

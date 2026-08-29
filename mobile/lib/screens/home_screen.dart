@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import 'ad_details_screen.dart';
 
@@ -17,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> _ads = [];
   Set<int> _savedAdIds = {};
   String? _selectedCategory;
+  String? _selectedCategoryName;
 
   bool _loading = true;
 
@@ -71,13 +72,138 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _selectCategory(String? slug, String? name) {
+    setState(() {
+      _selectedCategory = slug;
+      _selectedCategoryName = name;
+    });
+    Navigator.pop(context); // Close Drawer
+    _fetchAds();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
+
+      // Hamburger Drawer with all 25 Categories
+      drawer: Drawer(
+        backgroundColor: Colors.white,
+        child: Column(
+          children: [
+            // Drawer Header
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xFF002F34),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          text: 'Deally',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 24,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'hub',
+                              style: TextStyle(color: Color(0xFF0D9488)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Categories (${_categories.length})',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // All Categories Option
+            ListTile(
+              leading: const Icon(Icons.grid_view_rounded, color: Color(0xFF002F34)),
+              title: const Text(
+                'All Categories',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              trailing: _selectedCategory == null
+                  ? const Icon(Icons.check, color: Color(0xFF0D9488), size: 18)
+                  : null,
+              selected: _selectedCategory == null,
+              selectedTileColor: const Color(0xFFF0FDFA),
+              onTap: () => _selectCategory(null, null),
+            ),
+            const Divider(height: 1),
+
+            // 25 Categories List
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: _categories.length,
+                itemBuilder: (ctx, idx) {
+                  final cat = _categories[idx];
+                  final slug = cat['slug'] as String;
+                  final name = cat['name'] as String;
+                  final isSelected = _selectedCategory == slug;
+
+                  return ListTile(
+                    dense: true,
+                    leading: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF0D9488) : Colors.grey.shade400,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    title: Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected ? const Color(0xFF002F34) : const Color(0xFF374151),
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check, color: Color(0xFF0D9488), size: 16)
+                        : null,
+                    selected: isSelected,
+                    selectedTileColor: const Color(0xFFF0FDFA),
+                    onTap: () => _selectCategory(slug, name),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded, color: Color(0xFF002F34), size: 26),
+            tooltip: 'Browse Categories',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         title: Row(
           children: [
             RichText(
@@ -94,7 +220,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Color(0xFF002F34), size: 20),
+            onPressed: _loadInitialData,
+          ),
+        ],
       ),
+
       body: RefreshIndicator(
         color: const Color(0xFF0D9488),
         onRefresh: () async {
@@ -106,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(
               child: Container(
                 color: Colors.white,
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                 child: Column(
                   children: [
                     // Search Input
@@ -173,65 +306,48 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-            ),
 
-            // Horizontal Categories Scroll
-            SliverToBoxAdapter(
-              child: Container(
-                height: 52,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _categories.length + 1,
-                  itemBuilder: (ctx, idx) {
-                    if (idx == 0) {
-                      final isSelected = _selectedCategory == null;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: const Text('All Categories'),
-                          selected: isSelected,
-                          selectedColor: const Color(0xFF002F34),
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : const Color(0xFF002F34),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                    // Active Category Filter Indicator Chip
+                    if (_selectedCategory != null) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0FDFA),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFF0D9488)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _selectedCategoryName ?? _selectedCategory!,
+                                  style: const TextStyle(
+                                    color: Color(0xFF0D9488),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedCategory = null;
+                                      _selectedCategoryName = null;
+                                    });
+                                    _fetchAds();
+                                  },
+                                  child: const Icon(Icons.close, size: 14, color: Color(0xFF0D9488)),
+                                ),
+                              ],
+                            ),
                           ),
-                          onSelected: (_) {
-                            setState(() => _selectedCategory = null);
-                            _fetchAds();
-                          },
-                        ),
-                      );
-                    }
-
-                    final cat = _categories[idx - 1];
-                    final isSelected = _selectedCategory == cat['slug'];
-
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(cat['name'] as String),
-                        selected: isSelected,
-                        selectedColor: const Color(0xFF002F34),
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : const Color(0xFF002F34),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                        onSelected: (_) {
-                          setState(() {
-                            _selectedCategory = isSelected ? null : cat['slug'];
-                          });
-                          _fetchAds();
-                        },
+                        ],
                       ),
-                    );
-                  },
+                    ],
+                  ],
                 ),
               ),
             ),
