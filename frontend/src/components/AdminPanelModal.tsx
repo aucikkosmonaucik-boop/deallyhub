@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   X,
   Shield,
@@ -16,6 +16,7 @@ import {
   RefreshCw,
   MapPin
 } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -63,10 +64,6 @@ export default function AdminPanelModal({
   const [usersList, setUsersList] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
 
-  const getApiUrl = () => {
-    return process.env.NEXT_PUBLIC_API_URL || "https://deallyhub-production.up.railway.app";
-  };
-
   const fetchStats = useCallback(async () => {
     if (!token) return;
     setLoadingStats(true);
@@ -74,9 +71,12 @@ export default function AdminPanelModal({
       const res = await fetch(`${getApiUrl()}/api/admin/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (data.success) {
-        setStats(data.stats);
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.success) {
+          setStats(data.stats);
+        }
       }
     } catch (e) {
       console.error("Failed to load admin stats:", e);
@@ -96,9 +96,12 @@ export default function AdminPanelModal({
       const res = await fetch(`${getApiUrl()}/api/admin/ads?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (data.success) {
-        setAds(data.ads || []);
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.success) {
+          setAds(data.ads || []);
+        }
       }
     } catch (e) {
       console.error("Failed to fetch ads for moderation:", e);
@@ -114,9 +117,12 @@ export default function AdminPanelModal({
       const res = await fetch(`${getApiUrl()}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (data.success) {
-        setUsersList(data.users || []);
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.success) {
+          setUsersList(data.users || []);
+        }
       }
     } catch (e) {
       console.error("Failed to fetch users:", e);
@@ -157,6 +163,11 @@ export default function AdminPanelModal({
         })
       });
 
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Backend service was restarting. Please try again in a few seconds.");
+      }
+
       const data = await res.json();
       if (data.success) {
         setNotifSuccess(data.message || "Notification sent successfully!");
@@ -168,7 +179,7 @@ export default function AdminPanelModal({
         setNotifError(data.error || "Failed to send notification.");
       }
     } catch (err: any) {
-      setNotifError("Network error: " + err.message);
+      setNotifError(err.message || "Network error sending notification.");
     } finally {
       setSendingNotif(false);
     }
