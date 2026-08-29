@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import 'ad_details_screen.dart';
 
@@ -235,85 +235,99 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: CustomScrollView(
           slivers: [
-            // Search Bar Header
+            // Compact Search Bar Header
             SliverToBoxAdapter(
               child: Container(
                 color: Colors.white,
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
                 child: Column(
                   children: [
-                    // Search Input
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Find something for yourself...',
-                          hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-                          prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 20),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, size: 16),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    _fetchAds();
-                                  },
-                                )
-                              : null,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        onSubmitted: (_) => _fetchAds(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Location Input & Search Button
                     Row(
                       children: [
+                        // Keyword search field
                         Expanded(
+                          flex: 3,
                           child: Container(
+                            height: 42,
                             decoration: BoxDecoration(
                               color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             child: TextField(
-                              controller: _locationController,
-                              decoration: const InputDecoration(
-                                hintText: 'Location (e.g. Warsaw)',
-                                hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
-                                prefixIcon: Icon(Icons.location_on_outlined, color: Colors.grey, size: 18),
+                              controller: _searchController,
+                              style: const TextStyle(fontSize: 13),
+                              decoration: InputDecoration(
+                                hintText: 'Search offers...',
+                                hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
+                                prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 18),
+                                suffixIcon: _searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear, size: 15),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          _fetchAds();
+                                        },
+                                      )
+                                    : null,
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10),
                               ),
                               onSubmitted: (_) => _fetchAds(),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: _fetchAds,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF002F34),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        const SizedBox(width: 6),
+
+                        // Location field
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: TextField(
+                              controller: _locationController,
+                              style: const TextStyle(fontSize: 13),
+                              decoration: const InputDecoration(
+                                hintText: 'City...',
+                                hintStyle: TextStyle(fontSize: 12, color: Colors.grey),
+                                prefixIcon: Icon(Icons.location_on_outlined, color: Colors.grey, size: 16),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(vertical: 10),
+                              ),
+                              onSubmitted: (_) => _fetchAds(),
+                            ),
                           ),
-                          child: const Text('Search', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 6),
+
+                        // Search submit button
+                        SizedBox(
+                          height: 42,
+                          width: 44,
+                          child: ElevatedButton(
+                            onPressed: _fetchAds,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF002F34),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Icon(Icons.search, size: 20),
+                          ),
                         ),
                       ],
                     ),
 
                     // Active Category Filter Indicator Chip
                     if (_selectedCategory != null) ...[
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                             decoration: BoxDecoration(
                               color: const Color(0xFFF0FDFA),
                               borderRadius: BorderRadius.circular(20),
@@ -326,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   _selectedCategoryName ?? _selectedCategory!,
                                   style: const TextStyle(
                                     color: Color(0xFF0D9488),
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -339,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     });
                                     _fetchAds();
                                   },
-                                  child: const Icon(Icons.close, size: 14, color: Color(0xFF0D9488)),
+                                  child: const Icon(Icons.close, size: 13, color: Color(0xFF0D9488)),
                                 ),
                               ],
                             ),
@@ -352,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Advertisements Grid
+            // Advertisements Grid (2x2 fitted for mobile screens)
             _loading
                 ? const SliverFillRemaining(
                     child: Center(child: CircularProgressIndicator(color: Color(0xFF0D9488))),
@@ -367,13 +381,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                     : SliverPadding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
                         sliver: SliverGrid(
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            childAspectRatio: 0.68,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.77,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
                           ),
                           delegate: SliverChildBuilderDelegate(
                             (ctx, idx) {
@@ -390,7 +404,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                               return Card(
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(14),
                                   side: const BorderSide(color: Color(0xFFE5E7EB)),
                                 ),
                                 elevation: 0,
@@ -415,13 +429,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // Image
                                       Stack(
                                         children: [
-                                          Container(
-                                            height: 130,
-                                            width: double.infinity,
-                                            color: Colors.grey.shade100,
-                                            child: cover != null
-                                                ? Image.network(cover, fit: BoxFit.cover)
-                                                : const Icon(Icons.image_outlined, color: Colors.grey),
+                                          AspectRatio(
+                                            aspectRatio: 1.25,
+                                            child: Container(
+                                              color: Colors.grey.shade100,
+                                              child: cover != null
+                                                  ? Image.network(
+                                                      cover,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (context, error, stackTrace) =>
+                                                          const Center(child: Icon(Icons.image_outlined, color: Colors.grey)),
+                                                    )
+                                                  : const Center(child: Icon(Icons.image_outlined, color: Colors.grey)),
+                                            ),
                                           ),
                                           Positioned(
                                             top: 6,
@@ -429,15 +449,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                             child: GestureDetector(
                                               onTap: () => _toggleSaved(adId),
                                               child: Container(
-                                                padding: const EdgeInsets.all(6),
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.white,
+                                                padding: const EdgeInsets.all(5),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xE6FFFFFF),
                                                   shape: BoxShape.circle,
+                                                  boxShadow: const [
+                                                    BoxShadow(color: Colors.black12, blurRadius: 4),
+                                                  ],
                                                 ),
                                                 child: Icon(
                                                   isSaved ? Icons.favorite : Icons.favorite_border,
-                                                  size: 16,
-                                                  color: isSaved ? Colors.redAccent : Colors.grey,
+                                                  size: 15,
+                                                  color: isSaved ? Colors.redAccent : Colors.grey.shade600,
                                                 ),
                                               ),
                                             ),
@@ -448,38 +471,45 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // Details
                                       Expanded(
                                         child: Padding(
-                                          padding: const EdgeInsets.all(10),
+                                          padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
-                                                isFree ? 'Free' : '$price $currency',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 16,
-                                                  color: Color(0xFF002F34),
-                                                ),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    isFree ? 'Free' : '$price $currency',
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.w900,
+                                                      fontSize: 14,
+                                                      color: Color(0xFF002F34),
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    title,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 12,
+                                                      color: Color(0xFF1F2937),
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ],
                                               ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                title,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 13,
-                                                  color: Color(0xFF1F2937),
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              const Spacer(),
                                               Row(
                                                 children: [
-                                                  const Icon(Icons.location_on_outlined, size: 12, color: Colors.grey),
+                                                  const Icon(Icons.location_on_outlined, size: 11, color: Colors.grey),
                                                   const SizedBox(width: 2),
                                                   Expanded(
                                                     child: Text(
                                                       location,
-                                                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
