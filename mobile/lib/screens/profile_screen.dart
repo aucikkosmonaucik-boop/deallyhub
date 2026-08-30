@@ -613,11 +613,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.description_outlined, color: Color(0xFF002F34)),
-                            SizedBox(width: 8),
-                            Text('My Advertisements', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                            const Icon(Icons.description_outlined, color: Color(0xFF002F34)),
+                            const SizedBox(width: 8),
+                            Text(tr('my_ads_title'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
                           ],
                         ),
                         IconButton(
@@ -637,15 +637,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
                           : ads.isEmpty
                               ? ListView(
-                                  children: const [
-                                    SizedBox(height: 100),
+                                  children: [
+                                    const SizedBox(height: 100),
                                     Center(
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
-                                          SizedBox(height: 12),
-                                          Text('You have not published any ads yet.', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                                          const Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
+                                          const SizedBox(height: 12),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                                            child: Text(tr('my_ads_empty'), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -695,7 +698,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           children: [
                                             IconButton(
                                               icon: const Icon(Icons.edit_outlined, color: Color(0xFF0D9488)),
-                                              tooltip: 'Edit Advertisement',
+                                              tooltip: tr('my_ads_edit'),
                                               onPressed: () async {
                                                 final updated = await _showEditAdModal(ad);
                                                 if (updated == true) {
@@ -705,19 +708,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                             IconButton(
                                               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                                              tooltip: 'Delete Advertisement',
+                                              tooltip: tr('my_ads_delete'),
                                               onPressed: () async {
                                                 final confirm = await showDialog<bool>(
                                                   context: context,
                                                   builder: (c) => AlertDialog(
-                                                    title: const Text('Delete Advertisement'),
-                                                    content: const Text('Are you sure you want to delete this ad?'),
+                                                    title: Text(tr('my_ads_delete')),
+                                                    content: Text(tr('my_ads_delete_confirm')),
                                                     actions: [
-                                                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                                                      TextButton(onPressed: () => Navigator.pop(c, false), child: Text(tr('common_cancel'))),
                                                       ElevatedButton(
                                                         onPressed: () => Navigator.pop(c, true),
                                                         style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                                                        child: const Text('Delete'),
+                                                        child: Text(tr('my_ads_delete')),
                                                       ),
                                                     ],
                                                   ),
@@ -806,13 +809,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.edit_note, color: Color(0xFF0D9488), size: 24),
-                          SizedBox(width: 8),
+                          const Icon(Icons.edit_note, color: Color(0xFF0D9488), size: 24),
+                          const SizedBox(width: 8),
                           Text(
-                            'Edit Advertisement',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34)),
+                            tr('edit_ad_title'),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34)),
                           ),
                         ],
                       ),
@@ -828,7 +831,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(20),
                     children: [
                       // Title
-                      const Text('Title *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                      Text('${tr("post_ad_title")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                       const SizedBox(height: 6),
                       TextField(
                         controller: titleController,
@@ -841,7 +844,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 16),
 
                       // Category
-                      const Text('Category *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                      Text('${tr("post_category")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                       const SizedBox(height: 6),
                       FutureBuilder<List<dynamic>>(
                         future: ApiService.getCategories(),
@@ -856,9 +859,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             ),
                             items: cats.map<DropdownMenuItem<String>>((c) {
+                              final slug = c['slug'] as String;
+                              final name = c['name'] as String;
                               return DropdownMenuItem<String>(
-                                value: c['slug'] as String,
-                                child: Text(c['name'] as String, style: const TextStyle(fontSize: 14)),
+                                value: slug,
+                                child: Text(trCat(slug, name), style: const TextStyle(fontSize: 14)),
                               );
                             }).toList(),
                             onChanged: (val) {
@@ -879,7 +884,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Price *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                Text('${tr("post_price")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                                 const SizedBox(height: 6),
                                 TextField(
                                   controller: priceController,
@@ -898,7 +903,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Currency', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                Text(tr('post_currency'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                                 const SizedBox(height: 6),
                                 DropdownButtonFormField<String>(
                                   initialValue: currency,
@@ -927,7 +932,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                Text(tr('post_location'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                                 const SizedBox(height: 6),
                                 TextField(
                                   controller: locationController,
@@ -945,7 +950,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Phone Number', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                                Text(tr('post_phone'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                                 const SizedBox(height: 6),
                                 TextField(
                                   controller: phoneController,
@@ -967,18 +972,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Photos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                          Text(tr('post_photos'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                           Row(
                             children: [
                               TextButton.icon(
                                 onPressed: picking ? null : () => pickImg(ImageSource.gallery),
                                 icon: const Icon(Icons.photo_library, size: 16, color: Color(0xFF0D9488)),
-                                label: const Text('Gallery', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                                label: Text(tr('edit_ad_gallery'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
                               ),
                               TextButton.icon(
                                 onPressed: picking ? null : () => pickImg(ImageSource.camera),
                                 icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFF0D9488)),
-                                label: const Text('Camera', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                                label: Text(tr('edit_ad_camera'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
                               ),
                             ],
                           ),
@@ -993,8 +998,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey.shade200),
                           ),
-                          child: const Center(
-                            child: Text('No photos attached. Tap Gallery or Camera above to add photos.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          child: Center(
+                            child: Text(tr('edit_ad_no_photos'), style: const TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
                           ),
                         )
                       else
@@ -1019,7 +1024,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                                       decoration: BoxDecoration(color: const Color(0xFF002F34), borderRadius: BorderRadius.circular(4)),
-                                      child: const Text('COVER', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                                      child: Text(tr('edit_ad_cover'), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
                                     ),
                                   ),
                                 Positioned(
@@ -1043,13 +1048,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 16),
 
                       // Description
-                      const Text('Description *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                      Text('${tr("post_desc")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                       const SizedBox(height: 6),
                       TextField(
                         controller: descController,
                         maxLines: 4,
                         decoration: InputDecoration(
-                          hintText: 'Describe your item, its condition, specifications...',
+                          hintText: '...',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                           contentPadding: const EdgeInsets.all(14),
                         ),
@@ -1069,7 +1074,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                   if (title.isEmpty || desc.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Title and description are required.')),
+                                      SnackBar(content: Text(tr('edit_ad_req_error'))),
                                     );
                                     return;
                                   }
@@ -1094,9 +1099,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   if (res['success'] == true) {
                                     nav.pop(true);
                                     messenger.showSnackBar(
-                                      const SnackBar(
-                                        backgroundColor: Color(0xFF0D9488),
-                                        content: Text('Advertisement updated successfully!'),
+                                      SnackBar(
+                                        backgroundColor: const Color(0xFF0D9488),
+                                        content: Text(tr('edit_ad_success')),
                                       ),
                                     );
                                   } else {
@@ -1112,7 +1117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: saving
                               ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text('Save Changes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              : Text(tr('edit_ad_save'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         ),
                       ),
                     ],
@@ -1161,11 +1166,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.settings_outlined, color: Color(0xFF002F34), size: 22),
-                        SizedBox(width: 8),
-                        Text('Account Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                        const Icon(Icons.settings_outlined, color: Color(0xFF002F34), size: 22),
+                        const SizedBox(width: 8),
+                        Text(tr('settings_title'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
                       ],
                     ),
                     IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
@@ -1180,7 +1185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 40),
                   children: [
                     // Name update
-                    const Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                    Text(tr('settings_fullname'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                     const SizedBox(height: 6),
                     TextField(
                       controller: nameController,
@@ -1209,7 +1214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await _checkUser();
                                   nav.pop();
                                   messenger.showSnackBar(
-                                    const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Profile name updated!')),
+                                    SnackBar(backgroundColor: const Color(0xFF0D9488), content: Text(tr('settings_name_updated'))),
                                   );
                                 } else {
                                   messenger.showSnackBar(
@@ -1223,7 +1228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: savingName
                             ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Save Name', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            : Text(tr('settings_save_name'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
                     ),
 
@@ -1235,7 +1240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
+                        Text(tr('settings_change_password'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
                         TextButton(
                           onPressed: sendingForgot
                               ? null
@@ -1244,12 +1249,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   if (email.isEmpty) return;
                                   final messenger = ScaffoldMessenger.of(context);
                                   setSheetState(() => sendingForgot = true);
-                                  final res = await ApiService.forgotPassword(email);
+                                  await ApiService.forgotPassword(email);
                                   setSheetState(() => sendingForgot = false);
                                   if (mounted) {
                                     messenger.showSnackBar(
                                       SnackBar(
-                                        content: Text(res['message'] ?? 'Password reset link sent to $email'),
+                                        content: Text('${tr("settings_reset_sent")} $email'),
                                         backgroundColor: const Color(0xFF0D9488),
                                       ),
                                     );
@@ -1257,7 +1262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 },
                           child: sendingForgot
                               ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D9488)))
-                              : const Text('Forgot current password?', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                              : Text(tr('settings_forgot_password'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -1268,7 +1273,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       controller: currentPassController,
                       obscureText: obscureCurrent,
                       decoration: InputDecoration(
-                        labelText: 'Current Password',
+                        labelText: tr('settings_current_password'),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         suffixIcon: IconButton(
@@ -1284,7 +1289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       controller: newPassController,
                       obscureText: obscureNew,
                       decoration: InputDecoration(
-                        labelText: 'New Password (min 6 chars)',
+                        labelText: tr('settings_new_password'),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         suffixIcon: IconButton(
@@ -1300,7 +1305,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       controller: confirmPassController,
                       obscureText: obscureConfirm,
                       decoration: InputDecoration(
-                        labelText: 'Confirm New Password',
+                        labelText: tr('settings_confirm_password'),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         suffixIcon: IconButton(
@@ -1324,21 +1329,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                 if (currentPass.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Please enter your current password.')),
+                                    SnackBar(content: Text(tr('settings_enter_current_pass'))),
                                   );
                                   return;
                                 }
 
                                 if (newPass.length < 6) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('New password must be at least 6 characters long.')),
+                                    SnackBar(content: Text(tr('settings_pass_min_length'))),
                                   );
                                   return;
                                 }
 
                                 if (newPass != confirmPass) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('New passwords do not match. Please re-check.')),
+                                    SnackBar(content: Text(tr('settings_pass_mismatch'))),
                                   );
                                   return;
                                 }
@@ -1353,7 +1358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 if (res['success'] == true) {
                                   nav.pop();
                                   messenger.showSnackBar(
-                                    const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Password changed successfully!')),
+                                    SnackBar(backgroundColor: const Color(0xFF0D9488), content: Text(tr('settings_pass_success'))),
                                   );
                                 } else {
                                   messenger.showSnackBar(
@@ -1370,7 +1375,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: savingPass
                             ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF002F34)))
-                            : const Text('Update Password', style: TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
+                            : Text(tr('settings_update_password'), style: const TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
