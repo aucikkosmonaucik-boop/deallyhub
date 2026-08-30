@@ -112,6 +112,26 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> loginWithFacebook(String accessToken) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/facebook'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'accessToken': accessToken}),
+      ).timeout(const Duration(seconds: 15));
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && data['success'] == true && data['token'] != null) {
+        final token = data['token'] as String;
+        final user = data['user'] as Map<String, dynamic>;
+        await saveSession(token, user);
+      }
+      return data;
+    } catch (e) {
+      return {'success': false, 'error': 'Connection error: $e'};
+    }
+  }
+
   static Future<Map<String, dynamic>> register(String name, String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/register'),

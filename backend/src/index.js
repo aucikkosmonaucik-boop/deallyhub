@@ -42,7 +42,8 @@ import {
   verifyUserByToken,
   setUserResetToken,
   resetUserPasswordByToken,
-  findOrCreateGoogleUser
+  findOrCreateGoogleUser,
+  findOrCreateFacebookUser
 } from "./db.js";
 
 const app = express();
@@ -277,6 +278,83 @@ app.post("/api/auth/google", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to authenticate with Google."
+    });
+  }
+});
+
+// Facebook OAuth Sign-In (Web & Mobile)
+const FB_APP_ID = process.env.FACEBOOK_APP_ID || "1983054212398881";
+const FB_APP_SECRET = process.env.FACEBOOK_APP_SECRET || "32c6ee123b87afaa60366982b9604d19";
+
+app.post("/api/auth/facebook", async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+    if (!accessToken) {
+      return res.status(400).json({
+        success: false,
+        error: "Facebook access token is required."
+      });
+    }
+
+    // Verify token & fetch user profile from Facebook Graph API
+    const fbRes = await fetch(
+      `https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token=${encodeURIComponent(accessToken)}`
+    );
+
+    if (!fbRes.ok) {
+      const errData = await fbRes.json().catch(() => ({}));
+      return res.status(400).json({
+        success: false,
+        error: errData.error?.message || "Invalid or expired Facebook access token."
+      });
+    }
+
+    const fbData = await fbRes.json();
+    const { id, name, email, picture } = fbData;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: "Could not retrieve user information from Facebook."
+      });
+    }
+
+    const avatarUrl = picture?.data?.url || null;
+
+    // Find or create the verified user in our database
+    const user = await findOrCreateFacebookUser({
+      facebookId: id,
+      email,
+      name: name || `User_${id}`,
+      avatar: avatarUrl
+    });
+
+    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
+    const role = isAdm ? "admin" : (user.role || "user");
+
+    const authToken = jwt.sign(
+      { userId: user.id, email: user.email, role },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      success: true,
+      message: "Successfully signed in with Facebook!",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role,
+        is_verified: true
+      },
+      token: authToken
+    });
+  } catch (err) {
+    console.error("Facebook Auth error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to authenticate with Facebook."
     });
   }
 });

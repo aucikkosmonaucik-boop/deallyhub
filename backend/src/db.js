@@ -382,6 +382,56 @@ export async function findOrCreateGoogleUser({ email, name, avatar }) {
   }
 }
 
+export async function findOrCreateFacebookUser({ email, name, avatar, facebookId }) {
+  const normalizedEmail = email ? email.trim().toLowerCase() : `fb_${facebookId}@deallyhub.com`;
+  const isAdm = normalizedEmail.startsWith("jannowak") || normalizedEmail.startsWith("admin");
+  const role = isAdm ? "admin" : "user";
+
+  if (!pool) {
+    let u = inMemoryUsers.find(user => user.email === normalizedEmail);
+    if (u) {
+      u.is_verified = true;
+      if (!u.name && name) u.name = name.trim();
+      return { id: u.id, name: u.name, email: u.email, role: isAdm ? "admin" : (u.role || "user"), is_verified: true };
+    }
+    const dummyPass = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
+    const newUser = {
+      id: nextUserId++,
+      name: name?.trim() || `User_${facebookId || Date.now()}`,
+      email: normalizedEmail,
+      password_hash: dummyPass,
+      role,
+      is_verified: true,
+      created_at: new Date().toISOString()
+    };
+    inMemoryUsers.push(newUser);
+    return { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, is_verified: true, created_at: newUser.created_at };
+  }
+
+  try {
+    const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [normalizedEmail]);
+    if (rows[0]) {
+      const u = rows[0];
+      if (!u.is_verified) {
+        await pool.query("UPDATE users SET is_verified = TRUE WHERE id = $1", [u.id]);
+      }
+      const finalRole = isAdm ? "admin" : (u.role || "user");
+      return { id: u.id, name: u.name, email: u.email, role: finalRole, is_verified: true, created_at: u.created_at };
+    }
+
+    const dummyPass = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
+    const userName = name?.trim() || `User_${facebookId || Date.now()}`;
+    const insertRes = await pool.query(
+      "INSERT INTO users (name, email, password_hash, role, is_verified) VALUES ($1, $2, $3, $4, TRUE) RETURNING id, name, email, role, is_verified, created_at",
+      [userName, normalizedEmail, dummyPass, role]
+    );
+    return insertRes.rows[0];
+  } catch (err) {
+    console.error("Error in findOrCreateFacebookUser:", err.message);
+    throw err;
+  }
+}
+
 export async function updateUserProfile(userId, name) {
   if (!pool) {
     const user = inMemoryUsers.find(u => u.id === userId);

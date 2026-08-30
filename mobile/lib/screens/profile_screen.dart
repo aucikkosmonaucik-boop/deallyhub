@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../api/api_service.dart';
 import '../widgets/app_image.dart';
 import 'ad_details_screen.dart';
@@ -33,6 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _password = '';
   bool _authSubmitting = false;
   bool _googleSubmitting = false;
+  bool _fbSubmitting = false;
   String? _authError;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -181,6 +183,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() => _authError = 'Google sign-in error: $e');
     } finally {
       if (mounted) setState(() => _googleSubmitting = false);
+    }
+  }
+
+  Future<void> _handleFacebookSignIn() async {
+    setState(() {
+      _fbSubmitting = true;
+      _authError = null;
+    });
+
+    try {
+      final fbOAuthUrl = Uri.parse(
+        'https://www.facebook.com/v19.0/dialog/oauth?client_id=1983054212398881&redirect_uri=https://deallyhub.com/&response_type=token&scope=email,public_profile'
+      );
+
+      if (await canLaunchUrl(fbOAuthUrl)) {
+        await launchUrl(fbOAuthUrl, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Could not launch Facebook login dialog.');
+      }
+    } catch (e) {
+      setState(() => _authError = 'Facebook sign-in error: $e');
+    } finally {
+      if (mounted) setState(() => _fbSubmitting = false);
     }
   }
 
@@ -1821,6 +1846,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             'Continue with Google',
                             style: TextStyle(
                               color: Color(0xFF002F34),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Facebook Sign-In Button
+            SizedBox(
+              height: 48,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: (_authSubmitting || _googleSubmitting || _fbSubmitting) ? null : _handleFacebookSignIn,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1877F2),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  elevation: 0,
+                ),
+                child: _fbSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'f',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              fontFamily: 'Roboto',
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Continue with Facebook',
+                            style: TextStyle(
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
