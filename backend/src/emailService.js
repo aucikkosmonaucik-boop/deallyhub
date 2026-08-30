@@ -1,5 +1,13 @@
 import nodemailer from "nodemailer";
 
+function getResendApiKey() {
+  if (process.env.RESEND_API_KEY) return process.env.RESEND_API_KEY.trim();
+  if (process.env.SMTP_PASS && process.env.SMTP_PASS.trim().startsWith("re_")) {
+    return process.env.SMTP_PASS.trim();
+  }
+  return null;
+}
+
 function getTransporter() {
   const host = process.env.SMTP_HOST;
   const port = parseInt(process.env.SMTP_PORT, 10) || 587;
@@ -18,7 +26,69 @@ function getTransporter() {
 }
 
 function getSender() {
-  return process.env.SMTP_FROM || process.env.SMTP_USER || '"Deallyhub" <no-reply@deallyhub.com>';
+  return process.env.SMTP_FROM || process.env.RESEND_FROM || process.env.SMTP_USER || '"Deallyhub" <no-reply@deallyhub.com>';
+}
+
+async function dispatchEmail({ to, subject, html, simulationLabel, actionUrl }) {
+  const resendApiKey = getResendApiKey();
+  const from = getSender();
+
+  // 1. Prefer Resend HTTPS REST API (bypasses Railway SMTP port blocking, fast & reliable)
+  if (resendApiKey) {
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from,
+          to: [to],
+          subject,
+          html
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || JSON.stringify(data));
+      }
+
+      console.log(`[Resend HTTPS] Email sent to ${to}: ${data.id}`);
+      return { success: true, messageId: data.id, url: actionUrl };
+    } catch (err) {
+      console.error(`[Resend HTTPS] Failed to send email to ${to}:`, err.message);
+      throw err;
+    }
+  }
+
+  // 2. Fallback to standard SMTP (if non-Resend SMTP credentials configured)
+  const transporter = getTransporter();
+  if (transporter) {
+    try {
+      const info = await transporter.sendMail({
+        from,
+        to,
+        subject,
+        html
+      });
+      console.log(`[SMTP] Email sent to ${to}: ${info.messageId}`);
+      return { success: true, messageId: info.messageId, url: actionUrl };
+    } catch (err) {
+      console.error(`[SMTP] Failed to send email to ${to}:`, err.message);
+      throw err;
+    }
+  }
+
+  // 3. Fallback to local console simulation
+  console.log("==================================================");
+  console.log(`[EMAIL SIMULATION] ${simulationLabel} to: ${to}`);
+  if (actionUrl) {
+    console.log(`[ACTION LINK]: ${actionUrl}`);
+  }
+  console.log("==================================================");
+  return { success: true, simulated: true, url: actionUrl };
 }
 
 function generateDeallyEmailHtml({ title, subtitle, name, messageText, buttonText, buttonUrl, expirationNote }) {
@@ -121,28 +191,13 @@ export async function sendVerificationEmail({ email, name, token, clientOrigin }
     expirationNote
   });
 
-  const transporter = getTransporter();
-  if (!transporter) {
-    console.log("==================================================");
-    console.log(`[EMAIL SIMULATION] Verification Email to: ${email}`);
-    console.log(`[VERIFICATION LINK]: ${verifyUrl}`);
-    console.log("==================================================");
-    return { success: true, simulated: true, url: verifyUrl };
-  }
-
-  try {
-    const info = await transporter.sendMail({
-      from: getSender(),
-      to: email,
-      subject: "Verify your email address - Deallyhub",
-      html
-    });
-    console.log(`Verification email sent to ${email}: ${info.messageId}`);
-    return { success: true, messageId: info.messageId, url: verifyUrl };
-  } catch (err) {
-    console.error("Failed to send verification email:", err.message);
-    throw err;
-  }
+  return dispatchEmail({
+    to: email,
+    subject: "Verify your email address - Deallyhub",
+    html,
+    simulationLabel: "Verification Email",
+    actionUrl: verifyUrl
+  });
 }
 
 export async function sendPasswordResetEmail({ email, name, token, clientOrigin }) {
@@ -165,26 +220,11 @@ export async function sendPasswordResetEmail({ email, name, token, clientOrigin 
     expirationNote
   });
 
-  const transporter = getTransporter();
-  if (!transporter) {
-    console.log("==================================================");
-    console.log(`[EMAIL SIMULATION] Password Reset Email to: ${email}`);
-    console.log(`[RESET LINK]: ${resetUrl}`);
-    console.log("==================================================");
-    return { success: true, simulated: true, url: resetUrl };
-  }
-
-  try {
-    const info = await transporter.sendMail({
-      from: getSender(),
-      to: email,
-      subject: "Reset your password - Deallyhub",
-      html
-    });
-    console.log(`Password reset email sent to ${email}: ${info.messageId}`);
-    return { success: true, messageId: info.messageId, url: resetUrl };
-  } catch (err) {
-    console.error("Failed to send password reset email:", err.message);
-    throw err;
-  }
+  return dispatchEmail({
+    to: email,
+    subject: "Reset your password - Deallyhub",
+    html,
+    simulationLabel: "Password Reset Email",
+    actionUrl: resetUrl
+  });
 }
