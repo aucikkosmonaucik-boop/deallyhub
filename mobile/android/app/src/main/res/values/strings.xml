@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deally</string>
+    <string name="facebook_app_id">1983054212398881</string>
+    <string name="fb_login_protocol_scheme">fb1983054212398881</string>
+    <string name="facebook_client_token">a1eec5ad6f10c56df62efe4e0c448554</string>
+</resources>

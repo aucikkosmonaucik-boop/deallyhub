@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_service.dart';
 import '../l10n/app_translations.dart';
@@ -286,20 +287,140 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
     try {
-      final fbOAuthUrl = Uri.parse(
-        'https://www.facebook.com/v19.0/dialog/oauth?client_id=1983054212398881&redirect_uri=https://deallyhub.com/&response_type=token&scope=email,public_profile'
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
       );
 
-      if (await canLaunchUrl(fbOAuthUrl)) {
-        await launchUrl(fbOAuthUrl, mode: LaunchMode.externalApplication);
+      if (result.status == LoginStatus.success) {
+        final AccessToken? accessToken = result.accessToken;
+        if (accessToken == null || accessToken.tokenString.isEmpty) {
+          throw Exception('Facebook login succeeded but token was empty.');
+        }
+
+        final res = await ApiService.loginWithFacebook(accessToken.tokenString);
+        if (res['success'] == true) {
+          await _checkUser();
+          widget.onAuthChanged?.call();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Color(0xFF0D9488),
+                content: Text('Successfully signed in with Facebook!'),
+              ),
+            );
+          }
+        } else {
+          setState(() => _authError = res['error'] ?? 'Facebook authentication failed.');
+        }
+      } else if (result.status == LoginStatus.cancelled) {
+        // User cancelled login - no error
       } else {
-        throw Exception('Could not launch Facebook login dialog.');
+        final msg = result.message ?? 'Facebook login failed.';
+        debugPrint('Facebook sign-in failed: status=${result.status}, msg=$msg');
+        if (mounted) {
+          _showFacebookApkNoticeDialog(msg);
+        }
       }
     } catch (e) {
-      setState(() => _authError = 'Facebook sign-in error: $e');
+      final errStr = e.toString();
+      debugPrint('Facebook sign-in exception: $errStr');
+      if (mounted) {
+        _showFacebookApkNoticeDialog(errStr);
+      }
     } finally {
       if (mounted) setState(() => _fbSubmitting = false);
     }
+  }
+
+  void _showFacebookApkNoticeDialog([String? detail]) {
+    const keyHash = '0EWYbrNxgdQJgn6P8+0Hj7mGhRM=';
+    const pkg = 'com.deallyhub.deallyhub_mobile';
+    const appId = '1983054212398881';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Color(0xFF1877F2)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                tr('facebook_apk_setup_title'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                tr('facebook_apk_setup_desc'),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF374151)),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('App ID: $appId', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    const Text('Package: $pkg', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    const Text('Key Hash (Base64):', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                    const SelectableText(
+                      keyHash,
+                      style: TextStyle(fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              if (detail != null && detail.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Details: $detail',
+                  style: const TextStyle(fontSize: 11, color: Colors.redAccent),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.copy, size: 16),
+            label: Text(tr('facebook_apk_copy_hash')),
+            onPressed: () {
+              Clipboard.setData(const ClipboardData(text: keyHash));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: const Color(0xFF1877F2),
+                  content: Text(tr('facebook_apk_copied')),
+                ),
+              );
+              Navigator.pop(ctx);
+            },
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF002F34)),
+            onPressed: () {
+              Navigator.pop(ctx);
+              launchUrl(Uri.parse('https://deallyhub.com'), mode: LaunchMode.externalApplication);
+            },
+            child: Text(tr('google_apk_web_login'), style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showForgotPasswordDialog() {
@@ -465,6 +586,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _logout() async {
+    try {
+      await FacebookAuth.instance.logOut();
+    } catch (_) {}
     await ApiService.logout();
     await _checkUser();
     widget.onAuthChanged?.call();
