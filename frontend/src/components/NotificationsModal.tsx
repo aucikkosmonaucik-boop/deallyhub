@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import {
   X,
   Bell,
@@ -9,6 +9,7 @@ import {
   Shield,
   Clock
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface NotificationItem {
   id: number;
@@ -37,6 +38,7 @@ export default function NotificationsModal({
   onMarkAsRead,
   onMarkAllAsRead
 }: NotificationsModalProps) {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const getTypeIcon = (type: string) => {
@@ -79,14 +81,14 @@ export default function NotificationsModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-lg text-[#002f34]">Notifications</h3>
+                <h3 className="font-bold text-lg text-[#002f34]">{t("notifications.title")}</h3>
                 {unreadCount > 0 && (
                   <span className="bg-red-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full">
-                    {unreadCount} new
+                    {unreadCount}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-500">Announcements, updates and alerts</p>
+              <p className="text-xs text-gray-500">{t("nav.notifications")}</p>
             </div>
           </div>
 
@@ -97,7 +99,7 @@ export default function NotificationsModal({
                 className="text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
-                <span>Mark all read</span>
+                <span>{t("notifications.markAllRead")}</span>
               </button>
             )}
             <button
@@ -116,9 +118,9 @@ export default function NotificationsModal({
               <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3 text-gray-300">
                 <Bell className="w-8 h-8" />
               </div>
-              <p className="font-bold text-[#002f34] text-base">No notifications yet</p>
+              <p className="font-bold text-[#002f34] text-base">{t("notifications.empty")}</p>
               <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto">
-                When you receive system announcements, deal alerts or messages, they will appear here.
+                {t("nav.notifications")}
               </p>
             </div>
           ) : (

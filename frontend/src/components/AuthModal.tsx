@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Send } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type AuthMode = "login" | "register" | "forgot" | "reset" | "verify_notice";
 
@@ -21,6 +22,7 @@ export default function AuthModal({
   initialMode = "login",
   initialResetToken = ""
 }: AuthModalProps) {
+  const { t, language } = useLanguage();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -327,13 +329,10 @@ export default function AuthModal({
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-50 text-teal-600 mb-4 ring-8 ring-teal-50/50">
               <Mail className="w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-extrabold text-[#002f34]">Check your inbox!</h2>
+            <h2 className="text-2xl font-extrabold text-[#002f34]">{t("auth.verifyTitle")}</h2>
             <p className="text-sm text-gray-600 mt-2 leading-relaxed">
-              We have sent a verification link in Deallyhub style to{" "}
+              {t("auth.verifyNotice")}{" "}
               <strong className="text-[#002f34]">{registeredUser?.email || email}</strong>.
-            </p>
-            <p className="text-xs text-gray-400 mt-1">
-              Click the link in your email to verify and activate your advertiser account.
             </p>
 
             {successMsg && (
@@ -362,7 +361,7 @@ export default function AuthModal({
                 ) : (
                   <Send className="w-4 h-4 text-teal-600" />
                 )}
-                <span>Resend verification email</span>
+                <span>{t("auth.resendVerification")}</span>
               </button>
 
               <button
@@ -370,11 +369,11 @@ export default function AuthModal({
                 onClick={() => {
                   setMode("login");
                   setError(null);
-                  setSuccessMsg("Please click the verification link in your email before logging in.");
+                  setSuccessMsg(null);
                 }}
                 className="w-full py-3 px-4 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl transition-all shadow-sm cursor-pointer text-sm"
               >
-                Go to Sign In
+                {t("auth.signInBtn")}
               </button>
             </div>
           </div>
@@ -386,16 +385,16 @@ export default function AuthModal({
                 {mode === "forgot" || mode === "reset" ? <Lock className="w-6 h-6" /> : <User className="w-6 h-6" />}
               </div>
               <h2 className="text-2xl font-extrabold text-[#002f34]">
-                {mode === "login" && "Welcome back"}
-                {mode === "register" && "Create your account"}
-                {mode === "forgot" && "Reset your password"}
-                {mode === "reset" && "Choose new password"}
+                {mode === "login" && t("auth.loginTitle")}
+                {mode === "register" && t("auth.registerTitle")}
+                {mode === "forgot" && t("auth.forgotTitle")}
+                {mode === "reset" && t("auth.resetTitle")}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
-                {mode === "login" && "Sign in to manage your advertisements and favorites"}
-                {mode === "register" && "Join Deallyhub and start buying and selling locally"}
-                {mode === "forgot" && "Enter your email address and we will send you a reset link"}
-                {mode === "reset" && "Enter your new password below"}
+                {mode === "login" && t("auth.loginSubtitle")}
+                {mode === "register" && t("auth.registerSubtitle")}
+                {mode === "forgot" && t("auth.forgotSubtitle")}
+                {mode === "reset" && t("auth.resetSubtitle")}
               </p>
             </div>
 
@@ -415,7 +414,7 @@ export default function AuthModal({
                       : "border-transparent text-gray-400 hover:text-gray-600"
                   }`}
                 >
-                  Sign In
+                  {t("auth.signInBtn")}
                 </button>
                 <button
                   type="button"
@@ -430,7 +429,7 @@ export default function AuthModal({
                       : "border-transparent text-gray-400 hover:text-gray-600"
                   }`}
                 >
-                  Create Account
+                  {t("auth.registerBtn")}
                 </button>
               </div>
             )}
@@ -448,7 +447,7 @@ export default function AuthModal({
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#002f34] transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Sign In</span>
+                  <span>{t("common.back")}</span>
                 </button>
               </div>
             )}
@@ -488,7 +487,7 @@ export default function AuthModal({
               {mode === "register" && (
                 <div>
                   <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
-                    Full Name
+                    {t("auth.nameLabel")}
                   </label>
                   <div className="relative">
                     <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -497,7 +496,7 @@ export default function AuthModal({
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Konrad Kowalski"
+                      placeholder={t("auth.namePlaceholder")}
                       className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
                     />
                   </div>
@@ -508,7 +507,7 @@ export default function AuthModal({
               {mode !== "reset" && (
                 <div>
                   <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
-                    Email Address
+                    {t("auth.emailLabel")}
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -517,7 +516,7 @@ export default function AuthModal({
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
                     />
                   </div>
@@ -550,7 +549,7 @@ export default function AuthModal({
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider">
-                      {mode === "reset" ? "New Password" : "Password"}
+                      {mode === "reset" ? t("auth.resetTitle") : t("auth.passwordLabel")}
                     </label>
                     {mode === "login" && (
                       <button
@@ -562,7 +561,7 @@ export default function AuthModal({
                         }}
                         className="text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline cursor-pointer"
                       >
-                        Forgot password?
+                        {t("auth.forgotPasswordLink")}
                       </button>
                     )}
                   </div>
@@ -574,7 +573,7 @@ export default function AuthModal({
                       minLength={6}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Minimum 6 characters"
+                      placeholder={t("auth.passwordPlaceholder")}
                       className="w-full pl-10 pr-11 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
                     />
                     <button
@@ -592,7 +591,7 @@ export default function AuthModal({
               {mode === "reset" && (
                 <div>
                   <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
-                    Confirm New Password
+                    {t("auth.confirmPasswordLabel")}
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -602,7 +601,7 @@ export default function AuthModal({
                       minLength={6}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Re-type your new password"
+                      placeholder={t("auth.confirmPasswordPlaceholder")}
                       className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
                     />
                   </div>
@@ -618,14 +617,14 @@ export default function AuthModal({
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Processing...</span>
+                    <span>{t("common.loading")}</span>
                   </>
                 ) : (
                   <span>
-                    {mode === "login" && "Sign In"}
-                    {mode === "register" && "Create Account"}
-                    {mode === "forgot" && "Send Reset Link"}
-                    {mode === "reset" && "Update Password"}
+                    {mode === "login" && t("auth.signInBtn")}
+                    {mode === "register" && t("auth.registerBtn")}
+                    {mode === "forgot" && t("auth.sendResetLink")}
+                    {mode === "reset" && t("auth.updatePasswordBtn")}
                   </span>
                 )}
               </button>
@@ -635,7 +634,7 @@ export default function AuthModal({
                 <p className="text-xs text-gray-500">
                   {mode === "login" && (
                     <>
-                      Don&apos;t have an account yet?{" "}
+                      {t("auth.noAccount")}{" "}
                       <button
                         type="button"
                         onClick={() => {
@@ -645,13 +644,13 @@ export default function AuthModal({
                         }}
                         className="font-semibold text-teal-600 hover:underline cursor-pointer"
                       >
-                        Register here
+                        {t("auth.signUpLink")}
                       </button>
                     </>
                   )}
                   {mode === "register" && (
                     <>
-                      Already registered?{" "}
+                      {t("auth.haveAccount")}{" "}
                       <button
                         type="button"
                         onClick={() => {
@@ -661,7 +660,7 @@ export default function AuthModal({
                         }}
                         className="font-semibold text-teal-600 hover:underline cursor-pointer"
                       >
-                        Sign in
+                        {t("auth.signInLink")}
                       </button>
                     </>
                   )}
@@ -677,7 +676,7 @@ export default function AuthModal({
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
                       <span className="bg-white px-3 text-gray-400 font-semibold tracking-wider text-[11px]">
-                        Or continue with
+                        {t("auth.orContinueWith")}
                       </span>
                     </div>
                   </div>

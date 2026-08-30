@@ -95,6 +95,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { LanguageProvider } from "@/context/LanguageContext";
+
 export default function RootLayout({
   children,
 }: {
@@ -201,7 +203,9 @@ export default function RootLayout({
         <Script src="https://accounts.google.com/gsi/client?hl=en" strategy="afterInteractive" />
         <Script src="https://connect.facebook.net/en_US/sdk.js" strategy="lazyOnload" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

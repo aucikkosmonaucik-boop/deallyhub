@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
+import '../l10n/language_controller.dart';
 
 class ChatScreen extends StatefulWidget {
   final int conversationId;
@@ -134,10 +135,10 @@ class _ChatScreenState extends State<ChatScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
                 : _messages.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
-                          'No messages yet. Send an inquiry!',
-                          style: TextStyle(color: Colors.grey),
+                          tr('messages_empty'),
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       )
                     : ListView.builder(
@@ -198,7 +199,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: _controller,
                       textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
-                        hintText: 'Type your message...',
+                        hintText: tr('messages_placeholder'),
                         hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         filled: true,

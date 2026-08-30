@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { X, Heart, Trash2, MapPin, Image as ImageIcon, Loader2 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Category {
   id: number;
@@ -41,6 +42,7 @@ export default function SavedItemsModal({
   categories,
   onItemRemoved
 }: SavedItemsModalProps) {
+  const { t, getCategoryName } = useLanguage();
   const [savedAds, setSavedAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -105,14 +107,14 @@ export default function SavedItemsModal({
               <Heart className="w-5 h-5 fill-rose-500" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#002f34]">Saved Items (Wishlist)</h2>
-              <p className="text-xs text-gray-500">Advertisements you have bookmarked to revisit later</p>
+              <h2 className="text-xl font-bold text-[#002f34]">{t("saved.title")}</h2>
+              <p className="text-xs text-gray-500">{t("nav.saved")}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -123,22 +125,22 @@ export default function SavedItemsModal({
           {loading ? (
             <div className="py-16 text-center text-gray-400">
               <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600 mb-2" />
-              <p className="text-sm">Loading saved advertisements...</p>
+              <p className="text-sm">{t("common.loading")}</p>
             </div>
           ) : savedAds.length === 0 ? (
             <div className="py-14 text-center max-w-sm mx-auto">
               <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-300 flex items-center justify-center mx-auto mb-3">
                 <Heart className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-[#002f34]">Your wishlist is empty</h3>
+              <h3 className="text-lg font-bold text-[#002f34]">{t("saved.empty")}</h3>
               <p className="text-xs text-gray-500 mt-1 mb-5">
-                Browse through listings on the homepage and click the heart icon to save offers you are interested in.
+                {t("feed.noAdsDesc")}
               </p>
               <button
                 onClick={onClose}
-                className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs"
+                className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
-                Browse Listings
+                {t("saved.browseBtn")}
               </button>
             </div>
           ) : (
@@ -169,14 +171,14 @@ export default function SavedItemsModal({
 
                       {cat && (
                         <span className="absolute top-2 left-2 bg-[#002f34]/85 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                          {cat.name}
+                          {getCategoryName(cat.slug, cat.name)}
                         </span>
                       )}
 
                       <button
                         onClick={() => handleRemove(ad.id)}
-                        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-xs transition-colors"
-                        title="Remove from saved"
+                        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-xs transition-colors cursor-pointer"
+                        title={t("saved.remove")}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -187,7 +189,7 @@ export default function SavedItemsModal({
                       <div>
                         <div className="text-base font-black text-[#002f34] mb-0.5">
                           {parseFloat(ad.price as string) === 0
-                            ? "Free"
+                            ? t("common.free")
                             : `${ad.price} ${ad.currency}`}
                         </div>
                         <h4 className="font-bold text-[#002f34] text-sm line-clamp-1">

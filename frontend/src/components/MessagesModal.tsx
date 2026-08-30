@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -13,6 +13,7 @@ import {
   CheckCheck
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Conversation {
   id: number;
@@ -51,6 +52,7 @@ export default function MessagesModal({
   token,
   initialConversationId = null
 }: MessagesModalProps) {
+  const { t } = useLanguage();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConvId, setSelectedConvId] = useState<number | null>(initialConversationId);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -189,14 +191,14 @@ export default function MessagesModal({
               <MessageSquare className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#002f34]">Messages &amp; Inquiries</h2>
-              <p className="text-xs text-gray-500">Communicate securely with buyers and sellers</p>
+              <h2 className="text-xl font-bold text-[#002f34]">{t("messages.title")}</h2>
+              <p className="text-xs text-gray-500">{t("nav.messages")}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -218,7 +220,7 @@ export default function MessagesModal({
                   type="text"
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
-                  placeholder="Filter conversations..."
+                  placeholder={t("common.search")}
                   className="w-full pl-9 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none"
                 />
               </div>
@@ -229,14 +231,14 @@ export default function MessagesModal({
               {loadingConvs ? (
                 <div className="py-12 text-center text-gray-400">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-teal-600 mb-2" />
-                  <p className="text-xs">Loading conversations...</p>
+                  <p className="text-xs">{t("common.loading")}</p>
                 </div>
               ) : filteredConversations.length === 0 ? (
                 <div className="py-14 px-4 text-center text-gray-400">
                   <MessageSquare className="w-10 h-10 mx-auto text-gray-300 mb-2" />
-                  <p className="text-xs font-semibold text-[#002f34]">No messages yet</p>
+                  <p className="text-xs font-semibold text-[#002f34]">{t("messages.empty")}</p>
                   <p className="text-[11px] text-gray-500 mt-1">
-                    Click &quot;Chat with Seller&quot; on any advertisement to start a conversation.
+                    {t("nav.messages")}
                   </p>
                 </div>
               ) : (
@@ -384,14 +386,14 @@ export default function MessagesModal({
                     type="text"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder={`Message ${currentConv.other_user_name}...`}
+                    placeholder={t("messages.placeholder")}
                     className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none font-normal"
                   />
                   <button
                     type="submit"
                     disabled={!inputText.trim() || sending}
                     className="p-3 bg-[#002f34] hover:bg-[#003e45] text-white rounded-xl transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs"
-                    title="Send message"
+                    title={t("messages.send")}
                   >
                     {sending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -404,9 +406,9 @@ export default function MessagesModal({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-8">
                 <MessageSquare className="w-12 h-12 text-gray-300 mb-3" />
-                <p className="text-sm font-bold text-[#002f34]">Select a conversation</p>
+                <p className="text-sm font-bold text-[#002f34]">{t("messages.selectPrompt")}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Choose a chat from the left panel to read and reply to messages.
+                  {t("nav.messages")}
                 </p>
               </div>
             )}

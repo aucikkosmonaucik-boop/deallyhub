@@ -4,7 +4,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_service.dart';
+import '../l10n/app_translations.dart';
+import '../l10n/language_controller.dart';
 import '../widgets/app_image.dart';
+import '../widgets/language_picker_dialog.dart';
 import 'ad_details_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -1539,9 +1542,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         title: Text(
-          _user != null ? 'My Profile' : (_isLogin ? 'Sign In' : 'Create Account'),
+          _user != null ? tr('profile_title') : (_isLogin ? tr('profile_sign_in') : tr('profile_create_account')),
           style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language_rounded, color: Color(0xFF002F34), size: 22),
+            tooltip: tr('lang_picker_title'),
+            onPressed: () => LanguagePickerDialog.show(context),
+          ),
+        ],
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -1575,9 +1585,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Signed in as',
-                    style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
+                  Text(
+                    tr('profile_signed_in_as'),
+                    style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                   if (isAdmin)
                     Container(
@@ -1586,9 +1596,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: const Color(0xFFCCFBF1),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text(
-                        'OWNER / ADMIN',
-                        style: TextStyle(
+                      child: Text(
+                        tr('profile_owner_admin'),
+                        style: const TextStyle(
                           color: Color(0xFF0F766E),
                           fontWeight: FontWeight.w900,
                           fontSize: 10,
@@ -1638,7 +1648,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         const SizedBox(height: 20),
 
-        // 2. Options Menu Card (Matches the 7 items from the web screenshot)
+        // 2. Options Menu Card (Matches the items from the web screenshot)
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -1650,7 +1660,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 1. Notifications
               ListTile(
                 leading: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0D9488)),
-                title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(tr('profile_notifications'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -1671,7 +1681,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 2. Messages
               ListTile(
                 leading: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF0D9488)),
-                title: const Text('Messages', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(tr('nav_messages'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
                 onTap: () => widget.onNavigateTab?.call(3),
               ),
@@ -1680,7 +1690,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 3. My Advertisements
               ListTile(
                 leading: const Icon(Icons.description_outlined, color: Colors.blueGrey),
-                title: const Text('My Advertisements', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(tr('profile_my_ads'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
                 onTap: _showMyAdsDialog,
               ),
@@ -1693,7 +1703,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   valueListenable: ApiService.savedCountNotifier,
                   builder: (context, count, _) {
                     return Text(
-                      'Saved Items ($count)',
+                      '${tr("profile_saved_items")} ($count)',
                       style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34)),
                     );
                   },
@@ -1703,15 +1713,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const Divider(height: 1, indent: 56),
 
-              // 5. Account Settings
+              // 5. Language Selector Tile
+              ListTile(
+                leading: const Icon(Icons.language_rounded, color: Color(0xFF0D9488)),
+                title: Text(tr('profile_language'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppTranslations.supportedLanguages.firstWhere(
+                        (l) => l['code'] == LanguageController.instance.languageCode,
+                        orElse: () => AppTranslations.supportedLanguages[0],
+                      )['native'] ?? '',
+                      style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                  ],
+                ),
+                onTap: () => LanguagePickerDialog.show(context),
+              ),
+              const Divider(height: 1, indent: 56),
+
+              // 6. Account Settings
               ListTile(
                 leading: const Icon(Icons.settings_outlined, color: Colors.grey),
-                title: const Text('Account Settings', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(tr('profile_account_settings'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
                 onTap: _showAccountSettingsDialog,
               ),
 
-              // 6. Admin Portal (Owner) - Only visible if admin!
+              // 7. Admin Portal (Owner) - Only visible if admin!
               if (isAdmin) ...[
                 const Divider(height: 1),
                 Container(
@@ -1730,12 +1762,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const Divider(height: 1),
 
-              // 7. Log Out
+              // 8. Log Out
               ListTile(
                 leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-                title: const Text(
-                  'Log Out',
-                  style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 15),
+                title: Text(
+                  tr('profile_logout'),
+                  style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 onTap: _showLogoutConfirmDialog,
               ),
@@ -1775,7 +1807,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Sign In',
+                            tr('profile_sign_in'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: _isLogin ? const Color(0xFF002F34) : Colors.grey,
@@ -1797,7 +1829,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Register',
+                            tr('profile_create_account'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: !_isLogin ? const Color(0xFF002F34) : Colors.grey,
@@ -1828,7 +1860,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
 
             if (!_isLogin) ...[
-              const Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+              Text(tr('auth_full_name'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
               const SizedBox(height: 6),
               TextFormField(
                 decoration: InputDecoration(
@@ -1843,7 +1875,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
             ],
 
-            const Text('Email Address', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+            Text(tr('auth_email'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
             const SizedBox(height: 6),
             TextFormField(
               keyboardType: TextInputType.emailAddress,
@@ -1858,7 +1890,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 16),
 
-            const Text('Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+            Text(tr('auth_password'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
             const SizedBox(height: 6),
             TextFormField(
               obscureText: true,
@@ -1881,9 +1913,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
-                  child: const Text(
-                    'Forgot password?',
-                    style: TextStyle(
+                  child: Text(
+                    tr('auth_forgot_password'),
+                    style: const TextStyle(
                       color: Color(0xFF0D9488),
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -1906,7 +1938,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: _authSubmitting
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        _isLogin ? 'Sign In' : 'Create Account',
+                        _isLogin ? tr('profile_sign_in') : tr('profile_create_account'),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
               ),
@@ -1939,7 +1971,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
-                    'OR CONTINUE WITH',
+                    tr('auth_or_continue').toUpperCase(),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -1972,10 +2004,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF002F34)),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'G',
                             style: TextStyle(
                               fontSize: 19,
@@ -1983,10 +2015,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Color(0xFF4285F4),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
-                            'Continue with Google',
-                            style: TextStyle(
+                            tr('auth_google'),
+                            style: const TextStyle(
                               color: Color(0xFF002F34),
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -2018,10 +2050,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'f',
                             style: TextStyle(
                               fontSize: 22,
@@ -2030,10 +2062,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontFamily: 'Roboto',
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
-                            'Continue with Facebook',
-                            style: TextStyle(
+                            tr('auth_facebook'),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,

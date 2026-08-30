@@ -14,6 +14,9 @@ import {
   MessageSquare
 } from "lucide-react";
 
+import { getApiUrl } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
+
 interface Advertisement {
   id: number;
   user_id: number;
@@ -50,6 +53,7 @@ export default function AdDetailsModal({
   onToggleSave,
   onStartChat
 }: AdDetailsModalProps) {
+  const { t } = useLanguage();
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
 
@@ -138,7 +142,7 @@ export default function AdDetailsModal({
             {/* Description Section */}
             <div className="border-t border-gray-100 pt-5">
               <h3 className="text-sm font-bold text-[#002f34] uppercase tracking-wider mb-2">
-                Description
+                {t("adsManager.descLabel")}
               </h3>
               <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line font-normal">
                 {ad.description}
@@ -156,7 +160,7 @@ export default function AdDetailsModal({
                 </h1>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className="text-3xl font-black text-[#002f34]">
-                    {isFree ? "Free" : `${ad.price} ${ad.currency}`}
+                    {isFree ? t("common.free") : `${ad.price} ${ad.currency}`}
                   </span>
                 </div>
               </div>
@@ -175,13 +179,13 @@ export default function AdDetailsModal({
                     isSaved ? "fill-rose-500 text-rose-500" : "text-gray-400"
                   }`}
                 />
-                <span>{isSaved ? "Saved to Wishlist" : "Add to Wishlist"}</span>
+                <span>{isSaved ? t("saved.remove") : t("common.save")}</span>
               </button>
 
               {/* Seller Information Card */}
               <div className="p-5 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-4">
                 <h4 className="text-xs font-bold text-[#002f34] uppercase tracking-wider">
-                  Seller Information
+                  {t("adDetails.seller")}
                 </h4>
 
                 <div className="flex items-center gap-3">
@@ -212,7 +216,7 @@ export default function AdDetailsModal({
                       className="w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                     >
                       <MessageSquare className="w-4 h-4" />
-                      <span>Chat with Seller (Messages)</span>
+                      <span>{t("adDetails.chatBtn")}</span>
                     </button>
                   )}
 
@@ -224,7 +228,7 @@ export default function AdDetailsModal({
                         className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-xs"
                       >
                         <Phone className="w-4 h-4" />
-                        <span>Call: {ad.phone}</span>
+                        <span>{t("adDetails.callBtn")}: {ad.phone}</span>
                       </a>
                     ) : (
                       <button
@@ -232,7 +236,7 @@ export default function AdDetailsModal({
                         className="w-full py-3 px-4 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                       >
                         <Phone className="w-4 h-4 text-teal-300" />
-                        <span>Show Phone Number</span>
+                        <span>{t("adDetails.showPhone")}</span>
                       </button>
                     )
                   ) : (
@@ -249,7 +253,7 @@ export default function AdDetailsModal({
                       className="w-full py-3 px-4 bg-white hover:bg-gray-100 text-[#002f34] font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 border border-gray-300 shadow-xs"
                     >
                       <Mail className="w-4 h-4 text-teal-600" />
-                      <span>Email Seller</span>
+                      <span>{t("adDetails.emailBtn")}</span>
                     </a>
                   )}
                 </div>
@@ -257,7 +261,7 @@ export default function AdDetailsModal({
 
               {/* Safety Tips Banner */}
               <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200/60 text-[11px] text-teal-900 leading-relaxed space-y-1">
-                <span className="font-bold block text-teal-950">Safety First</span>
+                <span className="font-bold block text-teal-950">{t("adDetails.safetyTip")}</span>
                 <p>&bull; Meet seller in a safe public location.</p>
                 <p>&bull; Inspect the item thoroughly before paying.</p>
                 <p>&bull; Never send advance payments to strangers.</p>

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_service.dart';
+import '../l10n/language_controller.dart';
 import '../widgets/app_image.dart';
 import 'chat_screen.dart';
 
@@ -183,7 +184,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                 children: [
                   // Price Tag
                   Text(
-                    isFree ? 'Free' : '$price $currency',
+                    isFree ? tr('common_free') : '$price $currency',
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w900,
@@ -218,9 +219,9 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                   const Divider(height: 32),
 
                   // Description
-                  const Text(
-                    'Description',
-                    style: TextStyle(
+                  Text(
+                    tr('details_desc'),
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF002F34),
@@ -276,13 +277,13 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 2),
-                                  const Row(
+                                  Row(
                                     children: [
-                                      Icon(Icons.verified, size: 14, color: Color(0xFF0D9488)),
-                                      SizedBox(width: 4),
+                                      const Icon(Icons.verified, size: 14, color: Color(0xFF0D9488)),
+                                      const SizedBox(width: 4),
                                       Text(
-                                        'Verified Member',
-                                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                                        tr('details_verified_member'),
+                                        style: const TextStyle(fontSize: 12, color: Colors.grey),
                                       ),
                                     ],
                                   ),
@@ -308,9 +309,9 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                                     ),
                                   )
                                 : const Icon(Icons.chat_bubble_outline, size: 18),
-                            label: const Text(
-                              'Chat with Seller (Messages)',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                            label: Text(
+                              tr('details_chat'),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0D9488),
@@ -331,7 +332,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                             child: OutlinedButton.icon(
                               onPressed: () => _callSeller(phone),
                               icon: const Icon(Icons.phone_outlined, size: 18),
-                              label: Text('Call: $phone'),
+                              label: Text('${tr("details_call")}: $phone'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: const Color(0xFF002F34),
                                 side: const BorderSide(color: Color(0xFF002F34)),
@@ -352,7 +353,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                             child: TextButton.icon(
                               onPressed: () => _emailSeller(authorEmail, title),
                               icon: const Icon(Icons.mail_outline, size: 18),
-                              label: const Text('Email Seller'),
+                              label: Text(tr('details_email')),
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.grey[700],
                               ),

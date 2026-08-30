@@ -53,6 +53,8 @@ import AdDetailsModal from "@/components/AdDetailsModal";
 import MessagesModal from "@/components/MessagesModal";
 import NotificationsModal, { NotificationItem } from "@/components/NotificationsModal";
 import AdminPanelModal from "@/components/AdminPanelModal";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useLanguage } from "@/context/LanguageContext";
 import { getApiUrl } from "@/lib/api";
 
 // Icon mapping dictionary
@@ -164,6 +166,7 @@ const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 export default function HomePage() {
+  const { t, getCategoryName, language } = useLanguage();
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
@@ -615,25 +618,28 @@ export default function HomePage() {
           </div>
 
           {/* Nav Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-4 md:gap-6 text-sm font-medium text-[#002f34] shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 text-sm font-medium text-[#002f34] shrink-0">
+            {/* Language Switcher */}
+            <LanguageSelector />
+
             {/* Messages Button */}
             <button
               onClick={handleOpenMessages}
               className="p-1.5 sm:p-0 flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer rounded-lg hover:bg-gray-100 sm:hover:bg-transparent"
-              title="Messages"
+              title={t("nav.messages")}
             >
               <MessageSquare className="w-5 h-5 sm:w-4 sm:h-4 text-[#002f34]" />
-              <span className="hidden md:inline">Messages</span>
+              <span className="hidden md:inline">{t("nav.messages")}</span>
             </button>
 
             {/* Saved Items Nav Button */}
             <button
               onClick={handleOpenSaved}
               className="p-1.5 sm:p-0 flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer rounded-lg hover:bg-gray-100 sm:hover:bg-transparent"
-              title="Saved Items"
+              title={t("nav.saved")}
             >
               <Heart className={`w-5 h-5 sm:w-4 sm:h-4 ${savedAdIds.length > 0 ? "text-rose-500 fill-rose-500" : ""}`} />
-              <span className="hidden md:inline">Saved</span>
+              <span className="hidden md:inline">{t("nav.saved")}</span>
               {savedAdIds.length > 0 && (
                 <span className="text-xs bg-rose-100 text-rose-700 font-bold px-1.5 py-0.2 rounded-full hidden md:inline">
                   {savedAdIds.length}
@@ -646,7 +652,7 @@ export default function HomePage() {
               <button
                 onClick={() => setIsNotificationsOpen(true)}
                 className="relative p-1.5 sm:p-2 text-[#002f34] hover:text-teal-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
-                title="Notifications"
+                title={t("nav.notifications")}
               >
                 <Bell className="w-5 h-5" />
                 {unreadNotificationsCount > 0 && (
@@ -680,10 +686,10 @@ export default function HomePage() {
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500">Signed in as</p>
+                          <p className="text-xs text-gray-500">{t("nav.signedInAs")}</p>
                           {(currentUser.role === "admin" || currentUser.email.startsWith("jannowak") || currentUser.email.startsWith("admin")) && (
                             <span className="bg-teal-100 text-teal-800 text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
-                              Owner / Admin
+                              {t("nav.ownerAdmin")}
                             </span>
                           )}
                         </div>
@@ -701,7 +707,7 @@ export default function HomePage() {
                         >
                           <div className="flex items-center gap-2.5">
                             <Bell className="w-4 h-4 text-teal-600" />
-                            <span>Notifications</span>
+                            <span>{t("nav.notifications")}</span>
                           </div>
                           {unreadNotificationsCount > 0 && (
                             <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
@@ -715,28 +721,28 @@ export default function HomePage() {
                           className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 transition-colors cursor-pointer"
                         >
                           <MessageSquare className="w-4 h-4 text-teal-600" />
-                          <span>Messages</span>
+                          <span>{t("nav.messages")}</span>
                         </button>
                         <button
                           onClick={handleOpenMyAds}
                           className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 cursor-pointer"
                         >
                           <FileText className="w-4 h-4 text-gray-400" />
-                          <span>My Advertisements</span>
+                          <span>{t("nav.myAdvertisements")}</span>
                         </button>
                         <button
                           onClick={handleOpenSaved}
                           className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 cursor-pointer"
                         >
                           <Heart className="w-4 h-4 text-rose-500" />
-                          <span>Saved Items ({savedAdIds.length})</span>
+                          <span>{t("nav.savedItems")} ({savedAdIds.length})</span>
                         </button>
                         <button
                           onClick={handleOpenSettings}
                           className="w-full text-left px-4 py-2 text-sm text-[#002f34] hover:bg-gray-50 flex items-center gap-2.5 cursor-pointer"
                         >
                           <Settings className="w-4 h-4 text-gray-400" />
-                          <span>Account Settings</span>
+                          <span>{t("nav.accountSettings")}</span>
                         </button>
 
                         {/* Admin Portal Option for Deallyhub Owner */}
@@ -750,7 +756,7 @@ export default function HomePage() {
                               className="w-full text-left px-4 py-2.5 text-sm font-bold text-teal-900 bg-teal-50 hover:bg-teal-100 flex items-center gap-2.5 cursor-pointer transition-colors"
                             >
                               <Shield className="w-4 h-4 text-teal-700" />
-                              <span>Admin Portal (Owner)</span>
+                              <span>{t("nav.adminPortal")}</span>
                             </button>
                           </div>
                         )}
@@ -762,7 +768,7 @@ export default function HomePage() {
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2.5 font-medium cursor-pointer"
                         >
                           <LogOut className="w-4 h-4" />
-                          <span>Log Out</span>
+                          <span>{t("nav.logout")}</span>
                         </button>
                       </div>
                     </div>
@@ -774,7 +780,7 @@ export default function HomePage() {
                   className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer py-1.5 text-xs sm:text-sm font-semibold"
                 >
                   <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">My Profile</span>
+                  <span className="hidden sm:inline">{t("nav.myProfile")}</span>
                 </button>
               )}
             </div>
@@ -785,7 +791,7 @@ export default function HomePage() {
               className="flex items-center gap-1.5 sm:gap-2 bg-[#002f34] hover:bg-[#003d44] text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-md text-xs sm:text-sm font-bold transition-all shadow-xs shrink-0 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Post<span className="hidden sm:inline"> Ad</span></span>
+              <span>{t("nav.postAd")}</span>
             </button>
           </div>
         </div>
@@ -831,7 +837,7 @@ export default function HomePage() {
                     if (searchQuery.trim().length >= 1) setIsLiveDropdownOpen(true);
                   }}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Find something for yourself... (e.g. kocur, iphone, watch)"
+                  placeholder={t("hero.searchPlaceholder")}
                   className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
                 />
               </div>
@@ -843,7 +849,7 @@ export default function HomePage() {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Entire Country / Location (e.g. Warsaw)"
+                  placeholder={t("hero.locationPlaceholder")}
                   className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
                 />
               </div>
@@ -853,7 +859,7 @@ export default function HomePage() {
                 type="submit"
                 className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <span>Search</span>
+                <span>{t("hero.searchBtn")}</span>
                 <Search className="w-4 h-4" />
               </button>
             </form>
@@ -865,12 +871,12 @@ export default function HomePage() {
                 <div className="px-4 py-2.5 bg-gray-50/90 border-b border-gray-100 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold text-[#002f34]">
                     <Search className="w-3.5 h-3.5 text-teal-600" />
-                    <span>Matching Offers ({liveSearchResults.length})</span>
+                    <span>{t("hero.liveResults")} ({liveSearchResults.length})</span>
                   </div>
                   {isLiveSearching && (
                     <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
                       <Loader2 className="w-3 h-3 animate-spin text-teal-600" />
-                      <span>Searching...</span>
+                      <span>{t("common.loading")}</span>
                     </div>
                   )}
                 </div>
@@ -879,9 +885,9 @@ export default function HomePage() {
                 <div className="overflow-y-auto divide-y divide-gray-100 flex-1">
                   {liveSearchResults.length === 0 && !isLiveSearching ? (
                     <div className="py-8 text-center px-4">
-                      <p className="text-sm font-semibold text-[#002f34]">No offers found</p>
+                      <p className="text-sm font-semibold text-[#002f34]">{t("feed.noAdsTitle")}</p>
                       <p className="text-xs text-gray-400 mt-0.5">
-                        No advertisements match &quot;{searchQuery}&quot;
+                        {t("feed.noAdsDesc")}
                       </p>
                     </div>
                   ) : (
@@ -916,7 +922,7 @@ export default function HomePage() {
                             <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                               {cat && (
                                 <span className="bg-gray-100 text-[#002f34] text-[10px] font-semibold px-2 py-0.5 rounded-md">
-                                  {cat.name}
+                                  {getCategoryName(cat.slug, cat.name)}
                                 </span>
                               )}
                               <span className="flex items-center gap-0.5 text-[11px] text-gray-400 truncate">
@@ -930,13 +936,13 @@ export default function HomePage() {
                           <div className="text-right shrink-0">
                             <div className="text-sm font-extrabold text-[#002f34]">
                               {isFree ? (
-                                <span className="text-teal-600">Free</span>
+                                <span className="text-teal-600">{t("common.free")}</span>
                               ) : (
                                 `${ad.price} ${ad.currency}`
                               )}
                             </div>
                             <span className="text-[10px] text-teal-600 font-semibold group-hover:underline">
-                              View offer &rarr;
+                              {t("feed.details")} &rarr;
                             </span>
                           </div>
                         </div>
@@ -955,7 +961,7 @@ export default function HomePage() {
                     }}
                     className="text-xs font-bold text-[#002f34] hover:text-teal-700 transition-colors cursor-pointer py-1"
                   >
-                    View all matching results in listings &rarr;
+                    {t("feed.details")} &rarr;
                   </button>
                 </div>
               </div>
@@ -968,10 +974,10 @@ export default function HomePage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 flex-1 w-full">
         <div className="text-center mb-10 sm:mb-14">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002f34] tracking-tight">
-            Main Categories
+            {t("hero.categoriesTitle")}
           </h1>
           <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-            Browse through verified local classifieds, goods, vehicles, and services
+            {t("feed.subtitle")}
           </p>
         </div>
 
@@ -997,9 +1003,9 @@ export default function HomePage() {
                   <IconComponent className="w-9 h-9 stroke-[2]" />
                 </div>
 
-                {/* Category Label in English */}
+                {/* Category Label */}
                 <span className="text-xs sm:text-[13px] font-semibold text-[#002f34] leading-snug line-clamp-2 group-hover:text-teal-700 transition-colors">
-                  {cat.name}
+                  {getCategoryName(cat.slug, cat.name)}
                 </span>
               </button>
             );
@@ -1010,10 +1016,11 @@ export default function HomePage() {
         {activeCategory && (
           <div className="mt-8 flex items-center justify-center gap-3">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-sm font-semibold text-teal-900">
-              <span>Category: {categories.find((c) => c.slug === activeCategory)?.name}</span>
+              <span>{t("feed.activeFilter")} {categories.find((c) => c.slug === activeCategory) ? getCategoryName(activeCategory) : activeCategory}</span>
               <button
                 onClick={() => setActiveCategory(null)}
-                className="text-teal-600 hover:text-teal-900 ml-1 p-0.5 rounded-full hover:bg-teal-100"
+                className="text-teal-600 hover:text-teal-900 ml-1 p-0.5 rounded-full hover:bg-teal-100 cursor-pointer"
+                title={t("feed.clearCategory")}
               >
                 ✕
               </button>
@@ -1027,15 +1034,15 @@ export default function HomePage() {
             <div>
               <h2 className="text-2xl font-bold text-[#002f34]">
                 {activeCategory
-                  ? `${categories.find((c) => c.slug === activeCategory)?.name} Listings`
+                  ? `${getCategoryName(activeCategory)}`
                   : searchQuery.trim()
-                  ? `Search Results for "${searchQuery}"`
-                  : "Recent Advertisements"}
+                  ? `${t("common.search")}: "${searchQuery}"`
+                  : t("feed.title")}
               </h2>
               <p className="text-xs text-gray-500 mt-1">
                 {searchQuery.trim()
-                  ? `Found ${ads.length} result${ads.length === 1 ? "" : "s"}${location.trim() && !/entire country/i.test(location) ? ` in ${location}` : ""}`
-                  : "Latest offers published by members of Deallyhub"}
+                  ? `${t("common.search")}: ${ads.length} ${location.trim() && !/entire country/i.test(location) ? ` (${location})` : ""}`
+                  : t("feed.subtitle")}
               </p>
             </div>
 
@@ -1048,7 +1055,7 @@ export default function HomePage() {
                   }}
                   className="text-xs font-semibold text-gray-500 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors cursor-pointer"
                 >
-                  Clear search ✕
+                  {t("feed.clearCategory")} ✕
                 </button>
               )}
 
@@ -1057,7 +1064,7 @@ export default function HomePage() {
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span>Post an Ad</span>
+                <span>{t("nav.postAd")}</span>
               </button>
             </div>
           </div>
@@ -1066,15 +1073,15 @@ export default function HomePage() {
           {ads.length === 0 ? (
             <div className="p-12 text-center bg-gray-50/70 rounded-2xl border border-gray-200/60 max-w-lg mx-auto">
               <ImageIcon className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-              <h3 className="text-base font-bold text-[#002f34]">No advertisements found</h3>
+              <h3 className="text-base font-bold text-[#002f34]">{t("feed.noAdsTitle")}</h3>
               <p className="text-xs text-gray-500 mt-1 mb-4">
-                Be the first to post an offer in this category!
+                {t("feed.noAdsDesc")}
               </p>
               <button
                 onClick={handlePostAdClick}
                 className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
-                Post New Advertisement
+                {t("nav.postAd")}
               </button>
             </div>
           ) : (
@@ -1108,7 +1115,7 @@ export default function HomePage() {
                       {/* Category Badge */}
                       {cat && (
                         <span className="absolute top-3 left-3 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-xs pointer-events-none">
-                          {cat.name}
+                          {getCategoryName(cat.slug, cat.name)}
                         </span>
                       )}
 
@@ -1121,7 +1128,7 @@ export default function HomePage() {
                           handleToggleSave(ad.id);
                         }}
                         className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow-sm transition-all hover:scale-110 cursor-pointer z-20"
-                        title={isSaved ? "Remove from saved items" : "Save this advertisement"}
+                        title={isSaved ? t("saved.remove") : t("common.save")}
                       >
                         <Heart
                           className={`w-4 h-4 transition-colors ${
@@ -1138,7 +1145,7 @@ export default function HomePage() {
                       <div>
                         <div className="text-xl font-black text-[#002f34] mb-1">
                           {parseFloat(ad.price as string) === 0 ? (
-                            <span className="text-teal-600">Free</span>
+                            <span className="text-teal-600">{t("common.free")}</span>
                           ) : (
                             `${ad.price} ${ad.currency}`
                           )}
@@ -1190,11 +1197,11 @@ export default function HomePage() {
               </div>
 
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                Download Deally for Android (APK)
+                {t("apk.title")}
               </h2>
 
               <p className="text-sm sm:text-base text-gray-200 leading-relaxed">
-                Take your local marketplace with you wherever you go. Browse 25 categories, post ads in seconds using your phone camera, receive chat messages from buyers in real time, and manage your wishlist.
+                {t("apk.subtitle")}
               </p>
 
               {/* Download Buttons */}
@@ -1206,7 +1213,7 @@ export default function HomePage() {
                   className="bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-[#002f34] px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all shadow-md flex items-center gap-2.5 cursor-pointer"
                 >
                   <Download className="w-5 h-5" />
-                  <span>Download Deally.apk (v1.0.0)</span>
+                  <span>{t("apk.downloadBtn")} (v1.0.0)</span>
                 </a>
 
                 <a
@@ -1215,7 +1222,7 @@ export default function HomePage() {
                   rel="noopener noreferrer"
                   className="bg-white/10 hover:bg-white/20 text-white px-5 py-3.5 rounded-xl font-bold text-sm transition-all border border-white/20 flex items-center gap-2 cursor-pointer"
                 >
-                  <span>View Release on GitHub</span>
+                  <span>GitHub Release</span>
                   <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
@@ -1223,12 +1230,12 @@ export default function HomePage() {
               <div className="flex items-center gap-4 text-xs text-gray-300 pt-1">
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-teal-400" />
-                  <span>Direct GitHub Actions Build</span>
+                  <span>{t("apk.safeBadge")}</span>
                 </span>
                 <span>&bull;</span>
-                <span>Android 7.0+</span>
+                <span>{t("apk.instantSync")}</span>
                 <span>&bull;</span>
-                <span>Free &amp; Ad-Free</span>
+                <span>{t("apk.fastMobile")}</span>
               </div>
             </div>
           </div>
@@ -1295,8 +1302,9 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-[#f2f4f5] text-gray-500 text-xs py-8 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <p className="font-semibold text-[#002f34]">Deallyhub Marketplace Copyrights &copy; 2026</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-1.5">
+          <p className="font-semibold text-[#002f34]">{t("footer.tagline")}</p>
+          <p className="text-gray-400">Deallyhub Marketplace &copy; 2026 &bull; {t("footer.allRights")}</p>
         </div>
       </footer>
 

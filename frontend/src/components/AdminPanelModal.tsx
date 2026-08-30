@@ -17,6 +17,7 @@ import {
   MapPin
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export default function AdminPanelModal({
   token,
   onAdDeleted
 }: AdminPanelModalProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"stats" | "notify" | "ads" | "users">("stats");
 
   // Stats state
@@ -248,13 +250,13 @@ export default function AdminPanelModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-xl">Deallyhub Admin Portal</h3>
+                <h3 className="font-extrabold text-xl">{t("admin.title")}</h3>
                 <span className="bg-teal-400 text-[#002f34] text-[11px] font-black uppercase px-2 py-0.5 rounded-md">
-                  Owner
+                  Admin
                 </span>
               </div>
               <p className="text-xs text-gray-300">
-                Platform Overview, Broadcast Notifications &amp; Content Moderation
+                {t("nav.adminPanel")}
               </p>
             </div>
           </div>
@@ -278,7 +280,7 @@ export default function AdminPanelModal({
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            <span>Overview &amp; Stats</span>
+            <span>{t("admin.overviewTab")}</span>
           </button>
 
           <button
@@ -290,7 +292,7 @@ export default function AdminPanelModal({
             }`}
           >
             <Send className="w-4 h-4" />
-            <span>Send Notifications</span>
+            <span>{t("admin.sendNotifTab")}</span>
           </button>
 
           <button
@@ -302,7 +304,7 @@ export default function AdminPanelModal({
             }`}
           >
             <Trash2 className="w-4 h-4 text-rose-500" />
-            <span>Manage &amp; Delete Ads</span>
+            <span>{t("admin.moderationTab")}</span>
           </button>
 
           <button
@@ -314,7 +316,7 @@ export default function AdminPanelModal({
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Registered Users</span>
+            <span>{t("admin.usersTab")}</span>
           </button>
         </div>
 

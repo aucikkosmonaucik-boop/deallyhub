@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../api/api_service.dart';
+import '../l10n/language_controller.dart';
 import '../widgets/app_image.dart';
 
 class PostAdScreen extends StatefulWidget {
@@ -166,9 +167,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
       if (res['success'] == true) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Color(0xFF0D9488),
-            content: Text('Advertisement published successfully!'),
+          SnackBar(
+            backgroundColor: const Color(0xFF0D9488),
+            content: Text(tr('post_success')),
           ),
         );
         widget.onAdCreated?.call();
@@ -212,9 +213,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text(
-            'Post an Advertisement',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+          title: Text(
+            tr('post_title'),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
           ),
           backgroundColor: Colors.white,
           elevation: 0,
@@ -286,9 +287,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Post an Advertisement',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+        title: Text(
+          tr('post_title'),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -302,7 +303,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                 padding: const EdgeInsets.all(20),
                 children: [
                   // Category Dropdown
-                  const Text('Category *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                  Text('${tr("post_category")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     initialValue: _categories.any((c) => c['slug'] == _categorySlug)
@@ -315,9 +316,11 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                     ),
                     items: _categories.map((c) {
+                      final slug = c['slug'] as String;
+                      final rawName = c['name'] as String;
                       return DropdownMenuItem<String>(
-                        value: c['slug'] as String,
-                        child: Text(c['name'] as String, style: const TextStyle(fontSize: 14)),
+                        value: slug,
+                        child: Text(trCat(slug, rawName), style: const TextStyle(fontSize: 14)),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -327,7 +330,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   const SizedBox(height: 16),
 
                   // Title
-                  const Text('Title *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                  Text('${tr("post_ad_title")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _titleController,
@@ -349,14 +352,14 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Price *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text('${tr("post_price")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _priceController,
                               enabled: !_isFree,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               decoration: InputDecoration(
-                                hintText: _isFree ? 'Free' : '0.00',
+                                hintText: _isFree ? tr('common_free') : '0.00',
                                 filled: true,
                                 fillColor: _isFree ? const Color(0xFFE5E7EB) : const Color(0xFFF9FAFB),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
@@ -374,7 +377,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Currency', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text(tr('post_currency'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                             const SizedBox(height: 6),
                             DropdownButtonFormField<String>(
                               initialValue: _currency,
@@ -399,7 +402,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   ),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Free / Giveaway item', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    title: Text(tr('post_free'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                     value: _isFree,
                     activeColor: const Color(0xFF0D9488),
                     onChanged: (val) => setState(() => _isFree = val ?? false),
@@ -413,7 +416,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text(tr('post_location'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _locationController,
@@ -432,7 +435,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Phone Number', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text(tr('post_phone'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _phoneController,
@@ -455,9 +458,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Photos',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002F34)),
+                      Text(
+                        tr('post_photos'),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002F34)),
                       ),
                       Text(
                         '${_images.length}/10',
@@ -642,7 +645,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   const SizedBox(height: 16),
 
                   // Description
-                  const Text('Description *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                  Text('${tr("post_desc")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _descController,
@@ -663,13 +666,13 @@ class _PostAdScreenState extends State<PostAdScreen> {
                     child: ElevatedButton(
                       onPressed: _submitting ? null : _submitAd,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF002F34),
+                         backgroundColor: const Color(0xFF002F34),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: _submitting
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Publish Advertisement', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          : Text(tr('post_submit'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                   ),
                 ],
