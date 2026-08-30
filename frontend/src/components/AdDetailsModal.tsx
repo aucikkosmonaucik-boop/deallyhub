@@ -11,11 +11,13 @@ import {
   User,
   ShieldCheck,
   Image as ImageIcon,
-  MessageSquare
+  MessageSquare,
+  ZoomIn
 } from "lucide-react";
 
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
+import ImageLightboxModal from "./ImageLightboxModal";
 
 interface Advertisement {
   id: number;
@@ -56,10 +58,12 @@ export default function AdDetailsModal({
   const { t, getCategoryName } = useLanguage();
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
     setSelectedImageIdx(0);
     setShowPhone(false);
+    setIsLightboxOpen(false);
   }, [ad]);
 
   if (!isOpen || !ad) return null;
@@ -101,13 +105,25 @@ export default function AdDetailsModal({
           {/* Left Column: Photos & Full Description (7 cols) */}
           <div className="md:col-span-7 space-y-6">
             {/* Main Photo Container */}
-            <div className="w-full h-72 sm:h-96 bg-gray-100 rounded-2xl overflow-hidden relative flex items-center justify-center border border-gray-200 shadow-xs">
+            <div
+              onClick={() => currentImage && setIsLightboxOpen(true)}
+              className={`w-full h-72 sm:h-96 bg-gray-100 rounded-2xl overflow-hidden relative flex items-center justify-center border border-gray-200 shadow-xs group ${
+                currentImage ? "cursor-zoom-in" : ""
+              }`}
+            >
               {currentImage ? (
-                <img
-                  src={currentImage}
-                  alt={ad.title}
-                  className="w-full h-full object-contain bg-black/5"
-                />
+                <>
+                  <img
+                    src={currentImage}
+                    alt={ad.title}
+                    className="w-full h-full object-contain bg-black/5 transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                  {/* Floating Zoom Badge */}
+                  <div className="absolute bottom-3 right-3 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg opacity-90 group-hover:opacity-100 transition-all transform group-hover:scale-105">
+                    <ZoomIn className="w-3.5 h-3.5 text-teal-400" />
+                    <span>{t("adDetails.zoomIn", "Powiększ")}</span>
+                  </div>
+                </>
               ) : (
                 <div className="text-gray-400 flex flex-col items-center">
                   <ImageIcon className="w-12 h-12 mb-2" />
@@ -270,6 +286,15 @@ export default function AdDetailsModal({
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Image Lightbox with Zoom */}
+      <ImageLightboxModal
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        images={images}
+        initialIndex={selectedImageIdx}
+        title={ad.title}
+      />
     </div>
   );
 }
