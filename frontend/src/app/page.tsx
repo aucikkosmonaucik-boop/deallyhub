@@ -1210,9 +1210,9 @@ export default function HomePage() {
                   href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest/download/Deally.apk"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-[#002f34] px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all shadow-md flex items-center gap-2.5 cursor-pointer"
+                  className="group bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-[#002f34] px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all duration-300 ease-out shadow-lg hover:shadow-2xl hover:shadow-teal-400/40 hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0 flex items-center gap-2.5 cursor-pointer"
                 >
-                  <Download className="w-5 h-5" />
+                  <Download className="w-5 h-5 transition-transform duration-300 group-hover:translate-y-0.5" />
                   <span>{t("apk.downloadBtn")} (v1.0.0)</span>
                 </a>
 
@@ -1220,10 +1220,10 @@ export default function HomePage() {
                   href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white/10 hover:bg-white/20 text-white px-5 py-3.5 rounded-xl font-bold text-sm transition-all border border-white/20 flex items-center gap-2 cursor-pointer"
+                  className="group bg-white/10 hover:bg-white/20 text-white px-5 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ease-out border border-white/20 hover:border-white/40 shadow-md hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0 flex items-center gap-2 cursor-pointer"
                 >
                   <span>GitHub Release</span>
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-gray-300 group-hover:text-white" />
                 </a>
               </div>
 
