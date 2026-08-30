@@ -811,7 +811,7 @@ export default function HomePage() {
             onClick={() => setGlobalBanner(null)}
             className="ml-3 underline text-xs hover:opacity-80 font-bold cursor-pointer"
           >
-            Dismiss
+            {t("common.dismiss")}
           </button>
         </div>
       )}
@@ -1108,7 +1108,7 @@ export default function HomePage() {
                       ) : (
                         <div className="text-gray-400 flex flex-col items-center">
                           <ImageIcon className="w-10 h-10 mb-1" />
-                          <span className="text-xs">No image provided</span>
+                          <span className="text-xs">{t("adDetails.noPhoto")}</span>
                         </div>
                       )}
 
@@ -1192,7 +1192,7 @@ export default function HomePage() {
                 />
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold tracking-wide uppercase border border-teal-500/30">
                   <Smartphone className="w-4 h-4" />
-                  <span>Official Mobile App</span>
+                  <span>{t("apk.badge")}</span>
                 </div>
               </div>
 
@@ -1245,10 +1245,10 @@ export default function HomePage() {
             <div className="text-center mb-8">
               <h3 className="text-2xl font-bold text-[#002f34] flex items-center justify-center gap-2">
                 <HelpCircle className="w-6 h-6 text-teal-600" />
-                <span>Frequently Asked Questions &amp; Installation Guide (Q&amp;A)</span>
+                <span>{t("faq.title")}</span>
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                Everything you need to know about installing and using the Deally Android app.
+                {t("faq.subtitle")}
               </p>
             </div>
 
@@ -1256,43 +1256,43 @@ export default function HomePage() {
               {/* Q1 */}
               <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
                 <h4 className="font-bold text-[#002f34] text-base mb-2">
-                  Q: How do I install the Deally APK on my Android phone?
+                  {t("faq.q1")}
                 </h4>
                 <div className="text-xs text-gray-600 space-y-1.5 leading-relaxed">
-                  <p><strong>1. Download:</strong> Tap the &quot;Download Deally.apk&quot; button above to save <code>Deally.apk</code>.</p>
-                  <p><strong>2. Open file:</strong> Swipe down your notification shade or open your <em>Files / Downloads</em> folder and tap the downloaded file.</p>
-                  <p><strong>3. Grant permission:</strong> If Android asks <em>&quot;Install unknown apps&quot;</em>, tap <strong>Settings</strong> and enable <strong>&quot;Allow from this source&quot;</strong>.</p>
-                  <p><strong>4. Confirm &amp; Launch:</strong> Tap <strong>Install</strong>, then tap <strong>Open</strong> to start exploring Deally!</p>
+                  <p><strong>{t("faq.q1_step1_label")}</strong> {t("faq.q1_step1_text")}</p>
+                  <p><strong>{t("faq.q1_step2_label")}</strong> {t("faq.q1_step2_text")}</p>
+                  <p><strong>{t("faq.q1_step3_label")}</strong> {t("faq.q1_step3_text")}</p>
+                  <p><strong>{t("faq.q1_step4_label")}</strong> {t("faq.q1_step4_text")}</p>
                 </div>
               </div>
 
               {/* Q2 */}
               <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
                 <h4 className="font-bold text-[#002f34] text-base mb-2">
-                  Q: Is it safe to install this APK directly?
+                  {t("faq.q2")}
                 </h4>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Yes, 100% safe. The APK is compiled directly from our open-source GitHub repository by automated GitHub Actions build runners. It has zero third-party adware, malware, or tracking scripts, and communicates exclusively with our secure HTTPS API.
+                  {t("faq.a2")}
                 </p>
               </div>
 
               {/* Q3 */}
               <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
                 <h4 className="font-bold text-[#002f34] text-base mb-2">
-                  Q: Will my listings, messages, and saved items sync?
+                  {t("faq.q3")}
                 </h4>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Yes, instantly. Both the website and the Flutter Android app are connected to the exact same PostgreSQL database. When you log in with your account, your published advertisements, wishlist items, and buyer-seller chat conversations will sync automatically in real time.
+                  {t("faq.a3")}
                 </p>
               </div>
 
               {/* Q4 */}
               <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200">
                 <h4 className="font-bold text-[#002f34] text-base mb-2">
-                  Q: Is an iOS / iPhone version available?
+                  {t("faq.q4")}
                 </h4>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  An iOS release for the Apple App Store is currently in development. In the meantime, iPhone users can enjoy the full experience by visiting <a href="https://deallyhub.com" className="text-teal-600 font-bold underline">deallyhub.com</a> in Safari and tapping <strong>Share &rarr; Add to Home Screen</strong> for a full-screen app-like web app!
+                  {t("faq.a4")}
                 </p>
               </div>
             </div>

@@ -165,7 +165,7 @@ export default function SavedItemsModal({
                       ) : (
                         <div className="text-gray-400 flex flex-col items-center">
                           <ImageIcon className="w-7 h-7 mb-1" />
-                          <span className="text-[10px]">No photo</span>
+                          <span className="text-[10px]">{t("adDetails.noPhoto")}</span>
                         </div>
                       )}
 

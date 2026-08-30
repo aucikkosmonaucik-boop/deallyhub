@@ -402,7 +402,7 @@ export default function AdsManagerModal({
                           ) : (
                             <div className="text-gray-400 flex flex-col items-center">
                               <ImageIcon className="w-8 h-8 mb-1" />
-                              <span className="text-xs">No photo</span>
+                              <span className="text-xs">{t("adDetails.noPhoto")}</span>
                             </div>
                           )}
 

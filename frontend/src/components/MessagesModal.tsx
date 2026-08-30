@@ -336,15 +336,15 @@ export default function MessagesModal({
                   {loadingMsgs ? (
                     <div className="py-16 text-center text-gray-400">
                       <Loader2 className="w-6 h-6 animate-spin mx-auto text-teal-600 mb-2" />
-                      <p className="text-xs">Loading messages...</p>
+                      <p className="text-xs">{t("common.loading")}</p>
                     </div>
                   ) : messages.length === 0 ? (
                     <div className="py-16 text-center text-gray-400">
                       <p className="text-xs font-semibold text-[#002f34]">
-                        Start of your conversation
+                        {t("messages.convStart")}
                       </p>
                       <p className="text-[11px] text-gray-500 mt-1">
-                        Send a message to ask about availability, price, or meetup location!
+                        {t("messages.convStartDesc")}
                       </p>
                     </div>
                   ) : (

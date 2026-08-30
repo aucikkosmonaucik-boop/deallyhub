@@ -276,7 +276,7 @@ export default function AccountSettingsModal({
                   </label>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                    <span>Verified</span>
+                    <span>{t("common.verified")}</span>
                   </span>
                 </div>
                 <div className="relative">

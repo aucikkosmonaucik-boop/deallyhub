@@ -327,15 +327,15 @@ export default function AdminPanelModal({
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-base font-bold text-[#002f34]">Platform Real-Time Metrics</h4>
-                  <p className="text-xs text-gray-400">PostgreSQL live database statistics</p>
+                  <h4 className="text-base font-bold text-[#002f34]">{t("admin.statsTitle")}</h4>
+                  <p className="text-xs text-gray-400">{t("admin.statsSubtitle")}</p>
                 </div>
                 <button
                   onClick={fetchStats}
                   className="p-2 rounded-lg text-gray-400 hover:text-teal-700 hover:bg-gray-100 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loadingStats ? "animate-spin" : ""}`} />
-                  <span>Refresh</span>
+                  <span>{t("common.refresh")}</span>
                 </button>
               </div>
 
@@ -348,7 +348,7 @@ export default function AdminPanelModal({
                   <div className="text-2xl font-black text-[#002f34]">
                     {stats ? stats.totalAds : "..."}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium mt-1">Active Offers</div>
+                  <div className="text-xs text-gray-500 font-medium mt-1">{t("admin.activeOffers")}</div>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-blue-50/70 border border-blue-100">
@@ -359,7 +359,7 @@ export default function AdminPanelModal({
                   <div className="text-2xl font-black text-[#002f34]">
                     {stats ? stats.totalUsers : "..."}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium mt-1">Registered Accounts</div>
+                  <div className="text-xs text-gray-500 font-medium mt-1">{t("admin.regAccounts")}</div>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-purple-50/70 border border-purple-100">
@@ -370,7 +370,7 @@ export default function AdminPanelModal({
                   <div className="text-2xl font-black text-[#002f34]">
                     {stats ? stats.totalConversations : "..."}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium mt-1">Active Threads</div>
+                  <div className="text-xs text-gray-500 font-medium mt-1">{t("admin.activeThreads")}</div>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-100">
@@ -381,7 +381,7 @@ export default function AdminPanelModal({
                   <div className="text-2xl font-black text-[#002f34]">
                     {stats ? stats.totalMessages : "..."}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium mt-1">Messages Exchanged</div>
+                  <div className="text-xs text-gray-500 font-medium mt-1">{t("admin.messagesExchanged")}</div>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
@@ -392,27 +392,27 @@ export default function AdminPanelModal({
                   <div className="text-2xl font-black text-[#002f34]">
                     {stats ? stats.totalNotifications : "..."}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium mt-1">Notifications Sent</div>
+                  <div className="text-xs text-gray-500 font-medium mt-1">{t("admin.notifsSent")}</div>
                 </div>
               </div>
 
               {/* Quick Actions Card */}
               <div className="p-6 rounded-2xl bg-gray-50 border border-gray-200">
-                <h5 className="font-bold text-sm text-[#002f34] mb-3">Owner Shortcuts</h5>
+                <h5 className="font-bold text-sm text-[#002f34] mb-3">{t("admin.ownerShortcuts")}</h5>
                 <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => setActiveTab("notify")}
                     className="bg-[#002f34] hover:bg-[#003d44] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
-                    <span>Broadcast Notification to Users</span>
+                    <span>{t("admin.broadcastShortcut")}</span>
                   </button>
                   <button
                     onClick={() => setActiveTab("ads")}
                     className="bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>Moderate &amp; Delete Offers</span>
+                    <span>{t("admin.moderateShortcut")}</span>
                   </button>
                 </div>
               </div>
@@ -423,9 +423,9 @@ export default function AdminPanelModal({
           {activeTab === "notify" && (
             <div className="max-w-2xl mx-auto space-y-6">
               <div>
-                <h4 className="text-lg font-bold text-[#002f34]">Send Notification / Broadcast</h4>
+                <h4 className="text-lg font-bold text-[#002f34]">{t("admin.sendNotifHeader")}</h4>
                 <p className="text-xs text-gray-500">
-                  Send system announcements, alerts, promotions or direct messages to registered users.
+                  {t("admin.sendNotifDesc")}
                 </p>
               </div>
 
@@ -446,7 +446,7 @@ export default function AdminPanelModal({
               <form onSubmit={handleSendNotification} className="space-y-4">
                 {/* Target Audience */}
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] mb-2">Target Audience</label>
+                  <label className="block text-xs font-bold text-[#002f34] mb-2">{t("admin.notifTarget")}</label>
                   <div className="grid grid-cols-2 gap-3">
                     <label
                       className={`p-3.5 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${
@@ -466,8 +466,8 @@ export default function AdminPanelModal({
                         {targetType === "all" && <div className="w-2 h-2 rounded-full bg-teal-600" />}
                       </div>
                       <div className="text-xs">
-                        <div className="font-bold">Broadcast to All Users</div>
-                        <div className="text-[11px] text-gray-500">All registered advertisers</div>
+                        <div className="font-bold">{t("admin.broadcastAll")}</div>
+                        <div className="text-[11px] text-gray-500">{t("admin.allAdvertisers")}</div>
                       </div>
                     </label>
 
@@ -489,8 +489,8 @@ export default function AdminPanelModal({
                         {targetType === "specific" && <div className="w-2 h-2 rounded-full bg-teal-600" />}
                       </div>
                       <div className="text-xs">
-                        <div className="font-bold">Specific User</div>
-                        <div className="text-[11px] text-gray-500">Send by email address</div>
+                        <div className="font-bold">{t("admin.specificUser")}</div>
+                        <div className="text-[11px] text-gray-500">{t("admin.sendByEmail")}</div>
                       </div>
                     </label>
                   </div>
@@ -498,7 +498,7 @@ export default function AdminPanelModal({
 
                 {targetType === "specific" && (
                   <div>
-                    <label className="block text-xs font-bold text-[#002f34] mb-1">User Email Address *</label>
+                    <label className="block text-xs font-bold text-[#002f34] mb-1">{t("admin.userEmailLabel")}</label>
                     <input
                       type="email"
                       value={targetEmail}
@@ -512,27 +512,27 @@ export default function AdminPanelModal({
 
                 {/* Type Selection */}
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] mb-1">Notification Type</label>
+                  <label className="block text-xs font-bold text-[#002f34] mb-1">{t("admin.notifTypeLabel")}</label>
                   <select
                     value={notifType}
                     onChange={(e) => setNotifType(e.target.value)}
                     className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 bg-white"
                   >
-                    <option value="system">System Announcement (Teal)</option>
-                    <option value="promotion">Special Promotion &amp; Feature (Purple)</option>
-                    <option value="alert">Important Security / Warning (Amber)</option>
-                    <option value="info">General Information (Blue)</option>
+                    <option value="system">{t("admin.typeSystem")}</option>
+                    <option value="promotion">{t("admin.typePromotion")}</option>
+                    <option value="alert">{t("admin.typeAlert")}</option>
+                    <option value="info">{t("admin.typeInfo")}</option>
                   </select>
                 </div>
 
                 {/* Title */}
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] mb-1">Notification Title *</label>
+                  <label className="block text-xs font-bold text-[#002f34] mb-1">{t("admin.notifTitle")}</label>
                   <input
                     type="text"
                     value={notifTitle}
                     onChange={(e) => setNotifTitle(e.target.value)}
-                    placeholder="e.g. New Feature: Instant Chat with Sellers!"
+                    placeholder={t("admin.notifTitlePlaceholder")}
                     required
                     className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                   />
@@ -540,11 +540,11 @@ export default function AdminPanelModal({
 
                 {/* Message Body */}
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] mb-1">Notification Message Content *</label>
+                  <label className="block text-xs font-bold text-[#002f34] mb-1">{t("admin.notifMessage")}</label>
                   <textarea
                     value={notifMessage}
                     onChange={(e) => setNotifMessage(e.target.value)}
-                    placeholder="Write message details..."
+                    placeholder={t("admin.notifMsgPlaceholder")}
                     rows={4}
                     required
                     className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
@@ -557,7 +557,7 @@ export default function AdminPanelModal({
                   className="w-full bg-[#002f34] hover:bg-[#003d44] text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer disabled:opacity-60"
                 >
                   <Send className="w-4 h-4" />
-                  <span>{sendingNotif ? "Sending..." : "Send Notification Now"}</span>
+                  <span>{sendingNotif ? t("admin.sendingBtn") : t("admin.sendNowBtn")}</span>
                 </button>
               </form>
             </div>
@@ -568,9 +568,9 @@ export default function AdminPanelModal({
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-base font-bold text-[#002f34]">Content Moderation: All Advertisements</h4>
+                  <h4 className="text-base font-bold text-[#002f34]">{t("admin.moderationHeader")}</h4>
                   <p className="text-xs text-gray-500">
-                    Search and instantly remove inappropriate, expired or violating offers from Deallyhub.
+                    {t("admin.moderationDesc")}
                   </p>
                 </div>
 
@@ -582,7 +582,7 @@ export default function AdminPanelModal({
                       value={adSearchQuery}
                       onChange={(e) => setAdSearchQuery(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && fetchAds()}
-                      placeholder="Search ads by title or seller..."
+                      placeholder={t("admin.searchAdsPlaceholder")}
                       className="pl-9 pr-3 py-2 text-xs rounded-xl border border-gray-300 w-64 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600"
                     />
                   </div>
@@ -613,11 +613,11 @@ export default function AdminPanelModal({
               {adsLoading ? (
                 <div className="py-16 text-center text-gray-400 text-xs">
                   <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-teal-600" />
-                  <span>Loading advertisements from database...</span>
+                  <span>{t("admin.loadingAds")}</span>
                 </div>
               ) : ads.length === 0 ? (
                 <div className="py-16 text-center text-gray-400 text-xs">
-                  No advertisements found matching your search.
+                  {t("admin.noAdsFound")}
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100 border border-gray-200 rounded-2xl overflow-hidden">
@@ -660,7 +660,7 @@ export default function AdminPanelModal({
                             </span>
                             <span>&bull;</span>
                             <span className="text-gray-500 truncate">
-                              Seller: <strong>{ad.seller_name || "Unknown"}</strong> ({ad.seller_email})
+                              {t("admin.sellerLabel")} <strong>{ad.seller_name || "Unknown"}</strong> ({ad.seller_email})
                             </span>
                             <span>&bull;</span>
                             <span className="text-gray-400">
@@ -676,7 +676,7 @@ export default function AdminPanelModal({
                           className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                          <span>{deletingAdId === ad.id ? "Deleting..." : "Delete Ad"}</span>
+                          <span>{deletingAdId === ad.id ? t("admin.deletingBtn") : t("admin.deleteAdBtn")}</span>
                         </button>
                       </div>
                     );
@@ -691,20 +691,20 @@ export default function AdminPanelModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-base font-bold text-[#002f34]">Registered Accounts</h4>
-                  <p className="text-xs text-gray-500">Users who have created an account on Deallyhub</p>
+                  <h4 className="text-base font-bold text-[#002f34]">{t("admin.regAccountsHeader")}</h4>
+                  <p className="text-xs text-gray-500">{t("admin.regAccountsDesc")}</p>
                 </div>
                 <button
                   onClick={fetchUsers}
                   className="p-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-600 cursor-pointer text-xs font-bold flex items-center gap-1.5"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${usersLoading ? "animate-spin" : ""}`} />
-                  <span>Refresh</span>
+                  <span>{t("common.refresh")}</span>
                 </button>
               </div>
 
               {usersLoading ? (
-                <div className="py-12 text-center text-gray-400 text-xs">Loading users...</div>
+                <div className="py-12 text-center text-gray-400 text-xs">{t("admin.loadingUsers")}</div>
               ) : (
                 <div className="border border-gray-200 rounded-2xl overflow-hidden divide-y divide-gray-100">
                   {usersList.map((u) => (
@@ -727,7 +727,7 @@ export default function AdminPanelModal({
                       </div>
 
                       <div className="text-right text-xs text-gray-400">
-                        Joined: {new Date(u.created_at).toLocaleDateString()}
+                        {t("admin.joinedLabel")} {new Date(u.created_at).toLocaleDateString()}
                       </div>
                     </div>
                   ))}
@@ -739,12 +739,12 @@ export default function AdminPanelModal({
 
         {/* Footer */}
         <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-          <span>Deallyhub Administrator Moderation Tools</span>
+          <span>{t("admin.footerNotice")}</span>
           <button
             onClick={onClose}
             className="px-4 py-2 font-bold text-gray-600 hover:text-[#002f34] transition-colors cursor-pointer"
           >
-            Close Panel
+            {t("admin.closePanel")}
           </button>
         </div>
       </div>

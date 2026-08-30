@@ -194,7 +194,7 @@ export default function AdDetailsModal({
                   </div>
                   <div>
                     <p className="font-bold text-[#002f34] text-base leading-tight">
-                      {ad.author_name || "Verified Seller"}
+                      {ad.author_name || t("adDetails.verifiedMember")}
                     </p>
                     <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
