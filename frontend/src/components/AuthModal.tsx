@@ -78,16 +78,24 @@ export default function AuthModal({
   useEffect(() => {
     if (!isOpen || (mode !== "login" && mode !== "register")) return;
 
-    const initGoogle = () => {
-      if (typeof window === "undefined" || !(window as any).google?.accounts?.id) return;
-      try {
-        (window as any).google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleCallback,
-        });
+    let isMounted = true;
+    let timer: NodeJS.Timeout | null = null;
 
-        const container = document.getElementById("google-signin-btn-container");
-        if (container) {
+    const initGoogle = () => {
+      if (!isMounted) return;
+      const container = document.getElementById("google-signin-btn-container");
+      if (!container) return;
+
+      // If Google button iframe is already inside, do NOT wipe and re-render!
+      if (container.querySelector("iframe")) return;
+
+      if (typeof window !== "undefined" && (window as any).google?.accounts?.id) {
+        try {
+          (window as any).google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCallback,
+          });
+
           container.innerHTML = "";
           (window as any).google.accounts.id.renderButton(container, {
             theme: "outline",
@@ -98,15 +106,24 @@ export default function AuthModal({
             logo_alignment: "left",
             locale: "en"
           });
+        } catch (err) {
+          console.warn("Failed to initialize Google Sign-In:", err);
         }
-      } catch (err) {
-        console.warn("Failed to initialize Google Sign-In:", err);
+      } else {
+        timer = setTimeout(initGoogle, 300);
       }
     };
 
+    // Clean container on mode change
+    const container = document.getElementById("google-signin-btn-container");
+    if (container) container.innerHTML = "";
+
     initGoogle();
-    const timer = setTimeout(initGoogle, 500);
-    return () => clearTimeout(timer);
+
+    return () => {
+      isMounted = false;
+      if (timer) clearTimeout(timer);
+    };
   }, [isOpen, mode]);
 
   const FB_APP_ID = "1983054212398881";
@@ -293,12 +310,12 @@ export default function AuthModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden relative my-auto max-h-[96vh] flex flex-col">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer z-10"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -437,7 +454,7 @@ export default function AuthModal({
             )}
 
             {/* Form */}
-            <form onSubmit={handleAuthSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleAuthSubmit} className="p-5 sm:p-6 space-y-3.5 overflow-y-auto">
               {/* Error Message */}
               {error && (
                 <div className="space-y-2">
@@ -665,7 +682,7 @@ export default function AuthModal({
                     </div>
                   </div>
 
-                  <div id="google-signin-btn-container" className="w-full flex justify-center min-h-[40px]"></div>
+                  <div id="google-signin-btn-container" className="w-full flex justify-center h-[40px] min-h-[40px] overflow-hidden"></div>
 
                   <button
                     type="button"
