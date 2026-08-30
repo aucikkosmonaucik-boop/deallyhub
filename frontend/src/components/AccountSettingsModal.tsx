@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -197,7 +197,7 @@ export default function AccountSettingsModal({
         {/* Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white">
           <div>
-            <h2 className="text-xl font-bold text-[#002f34]">Account Settings</h2>
+            <h2 className="text-xl font-bold text-[#002f34]">My Profile & Settings</h2>
             <p className="text-xs text-gray-500">Manage your profile, security, and preferences</p>
           </div>
 
@@ -220,7 +220,7 @@ export default function AccountSettingsModal({
             }`}
           >
             <User className="w-3.5 h-3.5" />
-            <span>Profile Details</span>
+            <span>My Profile</span>
           </button>
 
           <button
@@ -268,9 +268,15 @@ export default function AccountSettingsModal({
               )}
 
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
-                  Email Address
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider">
+                    Email Address
+                  </label>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>Verified</span>
+                  </span>
+                </div>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input

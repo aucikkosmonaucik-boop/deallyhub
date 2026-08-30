@@ -305,7 +305,14 @@ export default function HomePage() {
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
-            setGlobalBanner({ text: "Email address verified successfully! 🎉 Welcome to Deallyhub.", type: "success" });
+            setGlobalBanner({ text: "Email address verified successfully! 🎉 Welcome to your profile.", type: "success" });
+            if (data.user && data.token) {
+              handleAuthSuccess(data.user, data.token);
+              setIsSettingsModalOpen(true);
+            }
+            if (typeof window !== "undefined") {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
           } else {
             setGlobalBanner({ text: data.error || "Email verification link is invalid or expired.", type: "error" });
           }
@@ -314,7 +321,11 @@ export default function HomePage() {
           setGlobalBanner({ text: "Failed to verify email. Please try again.", type: "error" });
         });
     } else if (isVerified === "true") {
-      setGlobalBanner({ text: "Email address verified successfully! 🎉 Welcome to Deallyhub.", type: "success" });
+      setGlobalBanner({ text: "Email address verified successfully! 🎉 Welcome to your profile.", type: "success" });
+      setIsSettingsModalOpen(true);
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     } else if (verifyError) {
       setGlobalBanner({ text: "Verification link was invalid or expired. Please request a new one.", type: "error" });
     } else if (resetToken) {
