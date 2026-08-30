@@ -53,7 +53,7 @@ export default function AdDetailsModal({
   onToggleSave,
   onStartChat
 }: AdDetailsModalProps) {
-  const { t } = useLanguage();
+  const { t, getCategoryName } = useLanguage();
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
 
@@ -75,7 +75,7 @@ export default function AdDetailsModal({
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
           <div className="flex items-center gap-2.5">
             <span className="bg-[#002f34] text-white text-xs font-bold px-3 py-1 rounded-full">
-              {categoryName}
+              {getCategoryName(ad.category_slug, categoryName)}
             </span>
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <MapPin className="w-3.5 h-3.5" />
@@ -111,7 +111,7 @@ export default function AdDetailsModal({
               ) : (
                 <div className="text-gray-400 flex flex-col items-center">
                   <ImageIcon className="w-12 h-12 mb-2" />
-                  <span className="text-sm font-medium">No photo provided</span>
+                  <span className="text-sm font-medium">{t("adDetails.noPhoto")}</span>
                 </div>
               )}
             </div>
@@ -198,7 +198,7 @@ export default function AdDetailsModal({
                     </p>
                     <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
-                      <span>Verified Deallyhub Member</span>
+                      <span>{t("adDetails.verifiedMember")}</span>
                     </span>
                   </div>
                 </div>
@@ -242,7 +242,7 @@ export default function AdDetailsModal({
                   ) : (
                     <div className="py-2.5 px-4 bg-gray-100 rounded-xl text-xs text-gray-500 flex items-center justify-center gap-2">
                       <Phone className="w-3.5 h-3.5 text-gray-400" />
-                      <span>No phone number provided</span>
+                      <span>{t("adDetails.noPhone")}</span>
                     </div>
                   )}
 
@@ -262,9 +262,9 @@ export default function AdDetailsModal({
               {/* Safety Tips Banner */}
               <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200/60 text-[11px] text-teal-900 leading-relaxed space-y-1">
                 <span className="font-bold block text-teal-950">{t("adDetails.safetyTip")}</span>
-                <p>&bull; Meet seller in a safe public location.</p>
-                <p>&bull; Inspect the item thoroughly before paying.</p>
-                <p>&bull; Never send advance payments to strangers.</p>
+                <p>&bull; {t("adDetails.safetyTip1")}</p>
+                <p>&bull; {t("adDetails.safetyTip2")}</p>
+                <p>&bull; {t("adDetails.safetyTip3")}</p>
               </div>
             </div>
           </div>
