@@ -40,6 +40,7 @@ const inMemoryUsers = [
     email: "admin@deallyhub.com",
     password_hash: defaultAdminHash,
     role: "admin",
+    is_verified: true,
     created_at: new Date().toISOString()
   }
 ];
@@ -312,10 +313,11 @@ export async function createUser({ name, email, passwordHash }) {
       email: normalizedEmail,
       password_hash: passwordHash,
       role: initialRole,
+      is_verified: false,
       created_at: new Date().toISOString()
     };
     inMemoryUsers.push(newUser);
-    return { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, created_at: newUser.created_at };
+    return { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, is_verified: false, created_at: newUser.created_at };
   }
 
   try {

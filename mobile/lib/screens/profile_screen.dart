@@ -84,19 +84,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (res['success'] == true) {
         if (!_isLogin) {
           if (mounted) {
+            setState(() {
+              _isLogin = true;
+              _authError = null;
+            });
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 backgroundColor: Color(0xFF0D9488),
-                duration: Duration(seconds: 5),
-                content: Text('Account created! We sent a verification link in Deallyhub style to your email. Check your inbox!'),
+                duration: Duration(seconds: 8),
+                content: Text('Account created! Please check your email to verify your address before logging in.'),
               ),
             );
           }
+          return;
         }
         await _checkUser();
         widget.onAuthChanged?.call();
       } else {
-        setState(() => _authError = res['error'] ?? 'Authentication failed');
+        final errorMsg = res['error'] ?? 'Authentication failed';
+        setState(() => _authError = errorMsg);
+
+        if (res['requiresVerification'] == true && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.amber.shade900,
+              duration: const Duration(seconds: 10),
+              content: const Text('Email address not verified yet.'),
+              action: SnackBarAction(
+                label: 'Resend Email',
+                textColor: Colors.white,
+                onPressed: () async {
+                  final sendRes = await ApiService.resendVerification(_email);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: const Color(0xFF0D9488),
+                        content: Text(sendRes['message'] ?? 'Verification link sent! Check your inbox.'),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       setState(() => _authError = 'Error connecting to server: $e');

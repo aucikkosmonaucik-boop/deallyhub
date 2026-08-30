@@ -34,6 +34,7 @@ export default function AuthModal({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [registeredUser, setRegisteredUser] = useState<{ id: number; name: string; email: string } | null>(null);
   const [userToken, setUserToken] = useState<string>("");
+  const [isUnverified, setIsUnverified] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -44,6 +45,7 @@ export default function AuthModal({
       }
       setError(null);
       setSuccessMsg(null);
+      setIsUnverified(false);
     }
   }, [isOpen, initialMode, initialResetToken]);
 
@@ -53,6 +55,7 @@ export default function AuthModal({
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
+    setIsUnverified(false);
     setLoading(true);
 
     const apiUrl = getApiUrl();
@@ -70,12 +73,16 @@ export default function AuthModal({
 
         const data = await res.json();
         if (!res.ok || !data.success) {
+          if (data.requiresVerification) {
+            setIsUnverified(true);
+            setRegisteredUser({ id: 0, name: "", email });
+          }
           throw new Error(data.error || "Authentication failed.");
         }
 
         if (mode === "register" && data.requiresVerification) {
           setRegisteredUser(data.user);
-          setUserToken(data.token);
+          setUserToken("");
           setMode("verify_notice");
           return;
         }
@@ -218,14 +225,13 @@ export default function AuthModal({
               <button
                 type="button"
                 onClick={() => {
-                  if (registeredUser && userToken) {
-                    onAuthSuccess(registeredUser, userToken);
-                  }
-                  onClose();
+                  setMode("login");
+                  setError(null);
+                  setSuccessMsg("Please click the verification link in your email before logging in.");
                 }}
                 className="w-full py-3 px-4 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl transition-all shadow-sm cursor-pointer text-sm"
               >
-                Continue to Deallyhub
+                Go to Sign In
               </button>
             </div>
           </div>
@@ -308,9 +314,22 @@ export default function AuthModal({
             <form onSubmit={handleAuthSubmit} className="p-6 space-y-4">
               {/* Error Message */}
               {error && (
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span>{error}</span>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <span className="flex-1">{error}</span>
+                  </div>
+                  {isUnverified && (
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resending}
+                      className="w-full py-2.5 px-3 text-xs font-bold text-teal-700 bg-teal-50 border border-teal-200 rounded-xl hover:bg-teal-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{resending ? "Sending link..." : `Resend verification link to ${email}`}</span>
+                    </button>
+                  )}
                 </div>
               )}
 

@@ -71,7 +71,7 @@ class ApiService {
     );
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode == 200 && data['success'] == true) {
+    if (response.statusCode == 200 && data['success'] == true && data['token'] != null) {
       final token = data['token'] as String;
       final user = data['user'] as Map<String, dynamic>;
       await saveSession(token, user);
@@ -87,11 +87,7 @@ class ApiService {
     );
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode == 201 && data['success'] == true) {
-      final token = data['token'] as String;
-      final user = data['user'] as Map<String, dynamic>;
-      await saveSession(token, user);
-    }
+    // Do not save session on registration - email verification is required before login
     return data;
   }
 

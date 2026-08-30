@@ -184,15 +184,10 @@ app.post("/api/auth/register", async (req, res) => {
       clientOrigin: origin
     }).catch(err => console.warn("Failed to send verification email:", err.message));
 
-    const token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
+    // Do not issue a session token upon registration - email verification is strictly required before login
     res.status(201).json({
       success: true,
-      message: "Account created successfully! We sent a verification link to your email.",
+      message: "Account created successfully! Please check your email to verify your address before logging in.",
       requiresVerification: true,
       user: {
         id: newUser.id,
@@ -200,8 +195,7 @@ app.post("/api/auth/register", async (req, res) => {
         email: newUser.email,
         role: newUser.role || "user",
         is_verified: false
-      },
-      token
+      }
     });
   } catch (err) {
     console.error("Registration error:", err);
@@ -399,6 +393,17 @@ app.post("/api/auth/login", async (req, res) => {
     }
 
     const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
+
+    // Strictly require email verification before allowing login (admins exempt)
+    if (!user.is_verified && !isAdm) {
+      return res.status(403).json({
+        success: false,
+        error: "Your email address is not verified yet. Please check your inbox (and spam folder) for the verification link before logging in.",
+        requiresVerification: true,
+        email: user.email
+      });
+    }
+
     const role = isAdm ? "admin" : "user";
 
     const token = jwt.sign(
