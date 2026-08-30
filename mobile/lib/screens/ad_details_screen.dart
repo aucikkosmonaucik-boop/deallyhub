@@ -182,6 +182,27 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Category Badge
+                  Builder(
+                    builder: (context) {
+                      final catSlug = (widget.ad['category_slug'] ?? widget.ad['category'] ?? '').toString();
+                      final catName = (widget.ad['category_name'] ?? widget.ad['category'] ?? '').toString();
+                      if (catSlug.isEmpty) return const SizedBox.shrink();
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF002F34),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          trCat(catSlug, catName),
+                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    },
+                  ),
+
                   // Price Tag
                   Text(
                     isFree ? tr('common_free') : '$price $currency',

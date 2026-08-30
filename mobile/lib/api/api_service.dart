@@ -92,12 +92,16 @@ class ApiService {
     return data;
   }
 
-  static Future<Map<String, dynamic>> loginWithGoogle(String idToken) async {
+  static Future<Map<String, dynamic>> loginWithGoogle(String? idToken, {String? accessToken}) async {
     try {
+      final payload = <String, dynamic>{};
+      if (idToken != null && idToken.isNotEmpty) payload['idToken'] = idToken;
+      if (accessToken != null && accessToken.isNotEmpty) payload['accessToken'] = accessToken;
+
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/google'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'idToken': idToken}),
+        body: jsonEncode(payload),
       ).timeout(const Duration(seconds: 15));
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -41,6 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _authError;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: '1073600566504-ra3affi9k11tgsqs20oe7ppq9vd24nke.apps.googleusercontent.com',
     serverClientId: '1073600566504-rmbe5e4na60o18ehark84qv74d2v57ku.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
   );
@@ -162,12 +164,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final GoogleSignInAuthentication auth = await account.authentication;
       final idToken = auth.idToken;
+      final accessToken = auth.accessToken;
 
-      if (idToken == null) {
-        throw Exception('Could not obtain Google ID token.');
+      if (idToken == null && accessToken == null) {
+        throw Exception('Could not obtain Google authentication token.');
       }
 
-      final res = await ApiService.loginWithGoogle(idToken);
+      final res = await ApiService.loginWithGoogle(idToken, accessToken: accessToken);
       if (res['success'] == true) {
         await _checkUser();
         widget.onAuthChanged?.call();
@@ -183,10 +186,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() => _authError = res['error'] ?? 'Google authentication failed.');
       }
     } catch (e) {
-      setState(() => _authError = 'Google sign-in error: $e');
+      final errStr = e.toString();
+      debugPrint('Google sign-in error: $errStr');
+      if (mounted) {
+        if (errStr.contains('10') || errStr.contains('ApiException: 10') || errStr.contains('sign_in_failed')) {
+          _showGoogleApkNoticeDialog();
+        } else {
+          setState(() => _authError = 'Google sign-in error: $e');
+        }
+      }
     } finally {
       if (mounted) setState(() => _googleSubmitting = false);
     }
+  }
+
+  void _showGoogleApkNoticeDialog() {
+    const sha1 = 'D0:45:98:6E:B3:71:81:D4:09:82:7E:8F:F3:ED:07:8F:B9:86:85:13';
+    const pkg = 'com.deallyhub.deallyhub_mobile';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Color(0xFF0D9488)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                tr('google_apk_setup_title'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tr('google_apk_setup_desc'),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF374151)),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Package: $pkg', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  const Text('SHA-1:', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  const SelectableText(
+                    sha1,
+                    style: TextStyle(fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.copy, size: 16),
+            label: Text(tr('google_apk_copy_sha')),
+            onPressed: () {
+              Clipboard.setData(const ClipboardData(text: sha1));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: const Color(0xFF0D9488),
+                  content: Text(tr('google_apk_copied')),
+                ),
+              );
+              Navigator.pop(ctx);
+            },
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF002F34)),
+            onPressed: () {
+              Navigator.pop(ctx);
+              launchUrl(Uri.parse('https://deallyhub.com'), mode: LaunchMode.externalApplication);
+            },
+            child: Text(tr('google_apk_web_login'), style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _handleFacebookSignIn() async {

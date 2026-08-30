@@ -478,6 +478,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   final adId = ad['id'] as int;
                                   final isSaved = _savedAdIds.contains(adId);
                                   final isFree = (double.tryParse('$price') ?? 0) == 0;
+                                  final catSlug = (ad['category_slug'] ?? ad['category'] ?? '').toString();
+                                  final catName = (ad['category_name'] ?? ad['category'] ?? '').toString();
 
                                   return Card(
                                     shape: RoundedRectangleBorder(
@@ -577,6 +579,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
                                                       ),
+                                                      if (catSlug.isNotEmpty) ...[
+                                                        const SizedBox(height: 2),
+                                                        Text(
+                                                          trCat(catSlug, catName),
+                                                          style: const TextStyle(
+                                                            fontSize: 10,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: Color(0xFF0D9488),
+                                                          ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ],
                                                     ],
                                                   ),
                                                   Row(

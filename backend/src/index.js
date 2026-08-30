@@ -215,28 +215,50 @@ const GOOGLE_ANDROID_CLIENT_ID = process.env.GOOGLE_ANDROID_CLIENT_ID || "107360
 
 app.post("/api/auth/google", async (req, res) => {
   try {
-    const { credential, idToken } = req.body;
+    const { credential, idToken, accessToken } = req.body;
     const tokenToVerify = credential || idToken;
 
-    if (!tokenToVerify) {
+    if (!tokenToVerify && !accessToken) {
       return res.status(400).json({
         success: false,
-        error: "Google credential / ID token is required."
+        error: "Google credential / ID token or access token is required."
       });
     }
 
-    // Verify token with Google tokeninfo API
-    const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokenToVerify)}`);
-    if (!googleRes.ok) {
-      const errData = await googleRes.json().catch(() => ({}));
-      return res.status(400).json({
-        success: false,
-        error: errData.error_description || "Invalid Google ID token."
-      });
-    }
+    let email, name, picture;
 
-    const payload = await googleRes.json();
-    const { email, name, picture } = payload;
+    if (tokenToVerify) {
+      // Verify token with Google tokeninfo API
+      const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokenToVerify)}`);
+      if (!googleRes.ok) {
+        const errData = await googleRes.json().catch(() => ({}));
+        return res.status(400).json({
+          success: false,
+          error: errData.error_description || "Invalid Google ID token."
+        });
+      }
+
+      const payload = await googleRes.json();
+      email = payload.email;
+      name = payload.name;
+      picture = payload.picture;
+    } else if (accessToken) {
+      // Verify with Google UserInfo endpoint using access token
+      const userinfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (!userinfoRes.ok) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid Google access token."
+        });
+      }
+
+      const payload = await userinfoRes.json();
+      email = payload.email;
+      name = payload.name;
+      picture = payload.picture;
+    }
 
     if (!email) {
       return res.status(400).json({

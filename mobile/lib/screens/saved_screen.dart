@@ -146,10 +146,10 @@ class _SavedScreenState extends State<SavedScreen> {
                                     children: [
                                       const Icon(Icons.info_outline, color: Color(0xFF0D9488), size: 18),
                                       const SizedBox(width: 10),
-                                      const Expanded(
+                                      Expanded(
                                         child: Text(
-                                          'Sign in to sync your saved items across devices.',
-                                          style: TextStyle(fontSize: 12, color: Color(0xFF065F46)),
+                                          tr('saved_sync_prompt'),
+                                          style: const TextStyle(fontSize: 12, color: Color(0xFF065F46)),
                                         ),
                                       ),
                                       TextButton(
@@ -172,6 +172,8 @@ class _SavedScreenState extends State<SavedScreen> {
                                     final title = ad['title'] ?? '';
                                     final location = ad['location'] ?? 'Entire Country';
                                     final isFree = (double.tryParse('$price') ?? 0) == 0;
+                                    final catSlug = (ad['category_slug'] ?? ad['category'] ?? '').toString();
+                                    final catName = (ad['category_name'] ?? ad['category'] ?? '').toString();
 
                                     return Card(
                                       margin: const EdgeInsets.only(bottom: 12),
@@ -208,6 +210,15 @@ class _SavedScreenState extends State<SavedScreen> {
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
+                                                    if (catSlug.isNotEmpty) ...[
+                                                      Text(
+                                                        trCat(catSlug, catName),
+                                                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF0D9488)),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                      const SizedBox(height: 2),
+                                                    ],
                                                     Text(
                                                       title,
                                                       maxLines: 1,
