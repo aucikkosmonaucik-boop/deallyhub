@@ -1757,7 +1757,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 6),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'e.g. Jan Kowalski',
+                  hintText: 'e.g. John Doe',
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),

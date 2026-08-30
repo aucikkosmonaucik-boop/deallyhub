@@ -456,7 +456,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Photos / Zdjęcia',
+                        'Photos',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002F34)),
                       ),
                       Text(
