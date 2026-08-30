@@ -186,12 +186,12 @@ export async function initDb() {
         UPDATE users SET is_verified = TRUE WHERE is_verified IS NULL;
       `);
 
-      // Seed dedicated super admin account: admin@deallyhub.com / Admin2026!
+      // Seed dedicated super admin account if not already created
       const defaultAdminPass = await bcrypt.hash("Admin2026!", 10);
       await client.query(`
-        INSERT INTO users (name, email, password_hash, role)
-        VALUES ('Admin Deallyhub', 'admin@deallyhub.com', $1, 'admin')
-        ON CONFLICT (email) DO UPDATE SET role = 'admin', password_hash = $1;
+        INSERT INTO users (name, email, password_hash, role, is_verified)
+        VALUES ('Admin Deallyhub', 'admin@deallyhub.com', $1, 'admin', TRUE)
+        ON CONFLICT (email) DO UPDATE SET role = 'admin', is_verified = TRUE;
       `, [defaultAdminPass]);
 
       // 8. Notifications Table (user_id NULL means broadcast to all users)
