@@ -23,13 +23,36 @@ class AdDetailsScreen extends StatefulWidget {
 
 class _AdDetailsScreenState extends State<AdDetailsScreen> {
   late bool _isSaved;
-  int _selectedImageIndex = 0;
+  late final ValueNotifier<int> _selectedImageNotifier;
+  late final PageController _pageController;
+  bool _precached = false;
   bool _startingChat = false;
 
   @override
   void initState() {
     super.initState();
     _isSaved = widget.initialSaved;
+    _selectedImageNotifier = ValueNotifier<int>(0);
+    _pageController = PageController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_precached) {
+      _precached = true;
+      final images = (widget.ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
+      if (images.isNotEmpty) {
+        AppImage.precacheAll(context, images);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _selectedImageNotifier.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _toggleSaved() async {
@@ -89,6 +112,15 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
     }
   }
 
+  void _openFullScreenGallery(BuildContext context, List<String> images, int initialIndex) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _FullScreenGalleryView(images: images, initialIndex: initialIndex),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final images = (widget.ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
@@ -133,14 +165,21 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                   alignment: Alignment.bottomCenter,
                   children: [
                     PageView.builder(
+                      controller: _pageController,
+                      physics: const BouncingScrollPhysics(),
                       itemCount: images.length,
-                      onPageChanged: (idx) => setState(() => _selectedImageIndex = idx),
+                      onPageChanged: (idx) => _selectedImageNotifier.value = idx,
                       itemBuilder: (ctx, idx) {
-                        return Container(
-                          color: const Color(0xFFF2F4F5),
-                          child: AppImage(
-                            imageUrl: images[idx],
-                            fit: BoxFit.contain,
+                        return _KeepAliveImagePage(
+                          child: GestureDetector(
+                            onTap: () => _openFullScreenGallery(context, images, idx),
+                            child: Container(
+                              color: const Color(0xFFF2F4F5),
+                              child: AppImage(
+                                imageUrl: images[idx],
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           ),
                         );
                       },
@@ -148,21 +187,53 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                     if (images.length > 1)
                       Positioned(
                         bottom: 12,
-                        child: Row(
-                          children: List.generate(
-                            images.length,
-                            (i) => Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              width: _selectedImageIndex == i ? 16 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: _selectedImageIndex == i
-                                    ? const Color(0xFF002F34)
-                                    : Colors.black26,
-                                borderRadius: BorderRadius.circular(3),
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: _selectedImageNotifier,
+                          builder: (context, currentIndex, _) {
+                            return Row(
+                              children: List.generate(
+                                images.length,
+                                (i) => AnimatedContainer(
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeInOut,
+                                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                                  width: currentIndex == i ? 18 : 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: currentIndex == i
+                                        ? const Color(0xFF002F34)
+                                        : Colors.black26,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
+                        ),
+                      ),
+                    if (images.length > 1)
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: _selectedImageNotifier,
+                          builder: (context, currentIndex, _) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '${currentIndex + 1} / ${images.length}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                   ],
@@ -393,3 +464,120 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
     );
   }
 }
+
+class _KeepAliveImagePage extends StatefulWidget {
+  final Widget child;
+  const _KeepAliveImagePage({required this.child});
+
+  @override
+  State<_KeepAliveImagePage> createState() => _KeepAliveImagePageState();
+}
+
+class _KeepAliveImagePageState extends State<_KeepAliveImagePage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
+  }
+}
+
+class _FullScreenGalleryView extends StatefulWidget {
+  final List<String> images;
+  final int initialIndex;
+
+  const _FullScreenGalleryView({
+    required this.images,
+    required this.initialIndex,
+  });
+
+  @override
+  State<_FullScreenGalleryView> createState() => _FullScreenGalleryViewState();
+}
+
+class _FullScreenGalleryViewState extends State<_FullScreenGalleryView> {
+  late final PageController _pageController;
+  late final ValueNotifier<int> _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: widget.initialIndex);
+    _currentIndex = ValueNotifier<int>(widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _currentIndex.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            physics: const BouncingScrollPhysics(),
+            itemCount: widget.images.length,
+            onPageChanged: (idx) => _currentIndex.value = idx,
+            itemBuilder: (context, idx) {
+              return InteractiveViewer(
+                minScale: 0.8,
+                maxScale: 4.0,
+                child: Center(
+                  child: AppImage(
+                    imageUrl: widget.images[idx],
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              );
+            },
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  if (widget.images.length > 1)
+                    ValueListenableBuilder<int>(
+                      valueListenable: _currentIndex,
+                      builder: (context, idx, _) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${idx + 1} / ${widget.images.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  const SizedBox(width: 48), // Balance for close button
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
