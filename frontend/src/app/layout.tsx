@@ -198,7 +198,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
         />
-        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+        <Script src="https://accounts.google.com/gsi/client?hl=en" strategy="afterInteractive" />
         <Script src="https://connect.facebook.net/en_US/sdk.js" strategy="lazyOnload" />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>

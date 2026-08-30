@@ -95,7 +95,8 @@ export default function AuthModal({
             width: 320,
             text: mode === "register" ? "signup_with" : "signin_with",
             shape: "rectangular",
-            logo_alignment: "left"
+            logo_alignment: "left",
+            locale: "en"
           });
         }
       } catch (err) {
@@ -435,36 +436,6 @@ export default function AuthModal({
               </div>
             )}
 
-            {/* Social Logins (Google & Facebook) */}
-            {(mode === "login" || mode === "register") && (
-              <div className="px-6 pt-5 pb-1 flex flex-col items-center gap-2.5">
-                <div id="google-signin-btn-container" className="w-full flex justify-center min-h-[40px]"></div>
-
-                <button
-                  type="button"
-                  onClick={handleFacebookLogin}
-                  disabled={loading}
-                  className="w-full max-w-[320px] h-[40px] px-4 rounded-[4px] bg-[#1877F2] hover:bg-[#166fe5] text-white text-[13px] font-semibold flex items-center justify-center gap-2.5 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
-                >
-                  <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                  </svg>
-                  <span>{mode === "register" ? "Sign up with Facebook" : "Continue with Facebook"}</span>
-                </button>
-
-                <div className="relative w-full my-3">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-3 text-gray-400 font-semibold tracking-wider">
-                      Or continue with email
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Form */}
             <form onSubmit={handleAuthSubmit} className="p-6 space-y-4">
               {/* Error Message */}
@@ -679,6 +650,36 @@ export default function AuthModal({
                   )}
                 </p>
               </div>
+
+              {/* Social Logins (Google & Facebook) below "Don't have an account yet? Register here" */}
+              {(mode === "login" || mode === "register") && (
+                <div className="pt-3 flex flex-col items-center gap-2.5">
+                  <div className="relative w-full my-1">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-3 text-gray-400 font-semibold tracking-wider text-[11px]">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <div id="google-signin-btn-container" className="w-full flex justify-center min-h-[40px]"></div>
+
+                  <button
+                    type="button"
+                    onClick={handleFacebookLogin}
+                    disabled={loading}
+                    className="w-full max-w-[320px] h-[40px] px-4 rounded-[4px] bg-[#1877F2] hover:bg-[#166fe5] text-white text-[13px] font-semibold flex items-center justify-center gap-2.5 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    <span>{mode === "register" ? "Sign up with Facebook" : "Continue with Facebook"}</span>
+                  </button>
+                </div>
+              )}
             </form>
           </>
         )}
