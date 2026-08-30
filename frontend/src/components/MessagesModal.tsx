@@ -192,7 +192,7 @@ export default function MessagesModal({
             </div>
             <div>
               <h2 className="text-xl font-bold text-[#002f34]">{t("messages.title")}</h2>
-              <p className="text-xs text-gray-500">{t("nav.messages")}</p>
+              <p className="text-xs text-gray-500">{t("messages.subtitle")}</p>
             </div>
           </div>
 
@@ -236,9 +236,9 @@ export default function MessagesModal({
               ) : filteredConversations.length === 0 ? (
                 <div className="py-14 px-4 text-center text-gray-400">
                   <MessageSquare className="w-10 h-10 mx-auto text-gray-300 mb-2" />
-                  <p className="text-xs font-semibold text-[#002f34]">{t("messages.empty")}</p>
+                  <p className="text-xs font-semibold text-[#002f34]">{t("messages.emptyConvs")}</p>
                   <p className="text-[11px] text-gray-500 mt-1">
-                    {t("nav.messages")}
+                    {t("messages.emptyConvsDesc")}
                   </p>
                 </div>
               ) : (
@@ -406,9 +406,9 @@ export default function MessagesModal({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-8">
                 <MessageSquare className="w-12 h-12 text-gray-300 mb-3" />
-                <p className="text-sm font-bold text-[#002f34]">{t("messages.selectPrompt")}</p>
+                <p className="text-sm font-bold text-[#002f34]">{t("messages.selectChat")}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {t("nav.messages")}
+                  {t("messages.emptyConvsDesc")}
                 </p>
               </div>
             )}

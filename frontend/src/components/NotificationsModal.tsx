@@ -88,7 +88,7 @@ export default function NotificationsModal({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-500">{t("nav.notifications")}</p>
+              <p className="text-xs text-gray-500">{t("notifications.subtitle")}</p>
             </div>
           </div>
 
@@ -120,7 +120,7 @@ export default function NotificationsModal({
               </div>
               <p className="font-bold text-[#002f34] text-base">{t("notifications.empty")}</p>
               <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto">
-                {t("nav.notifications")}
+                {t("notifications.emptyDesc")}
               </p>
             </div>
           ) : (

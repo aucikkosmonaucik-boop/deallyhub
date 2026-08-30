@@ -108,7 +108,7 @@ export default function SavedItemsModal({
             </div>
             <div>
               <h2 className="text-xl font-bold text-[#002f34]">{t("saved.title")}</h2>
-              <p className="text-xs text-gray-500">{t("nav.saved")}</p>
+              <p className="text-xs text-gray-500">{t("saved.subtitle")}</p>
             </div>
           </div>
 
@@ -134,7 +134,7 @@ export default function SavedItemsModal({
               </div>
               <h3 className="text-lg font-bold text-[#002f34]">{t("saved.empty")}</h3>
               <p className="text-xs text-gray-500 mt-1 mb-5">
-                {t("feed.noAdsDesc")}
+                {t("saved.emptyDesc")}
               </p>
               <button
                 onClick={onClose}
