@@ -42,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _authError;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: '1073600566504-ra3affi9k11tgsqs20oe7ppq9vd24nke.apps.googleusercontent.com',
+    clientId: '1073600566504-1sikbtmhde712fhkalhmoc6v6ivu63dh.apps.googleusercontent.com',
     serverClientId: '1073600566504-rmbe5e4na60o18ehark84qv74d2v57ku.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
   );

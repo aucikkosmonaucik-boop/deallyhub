@@ -211,7 +211,7 @@ app.post("/api/auth/register", async (req, res) => {
 
 // Google OAuth Sign-In (Web & Mobile)
 const GOOGLE_WEB_CLIENT_ID = process.env.GOOGLE_WEB_CLIENT_ID || "1073600566504-rmbe5e4na60o18ehark84qv74d2v57ku.apps.googleusercontent.com";
-const GOOGLE_ANDROID_CLIENT_ID = process.env.GOOGLE_ANDROID_CLIENT_ID || "1073600566504-ra3affi9k11tgsqs20oe7ppq9vd24nke.apps.googleusercontent.com";
+const GOOGLE_ANDROID_CLIENT_ID = process.env.GOOGLE_ANDROID_CLIENT_ID || "1073600566504-1sikbtmhde712fhkalhmoc6v6ivu63dh.apps.googleusercontent.com";
 
 app.post("/api/auth/google", async (req, res) => {
   try {
