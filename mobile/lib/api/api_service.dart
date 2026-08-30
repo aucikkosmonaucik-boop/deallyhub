@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +10,17 @@ class ApiService {
   static const String _userKey = 'deallyhub_user_profile';
   static const String _savedIdsKey = 'deallyhub_saved_ids';
   static const String _savedAdsCacheKey = 'deallyhub_saved_ads_cache';
+
+  // Reactive notifier for real-time badge updates across the entire app
+  static final ValueNotifier<int> savedCountNotifier = ValueNotifier<int>(0);
+
+  static Future<void> initSavedCount() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_savedIdsKey) ?? [];
+      savedCountNotifier.value = list.length;
+    } catch (_) {}
+  }
 
   // ================= AUTH TOKEN HELPERS ================= //
 
@@ -59,6 +71,7 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userKey);
+    savedCountNotifier.value = 0;
   }
 
   // ================= AUTH API ================= //
@@ -221,6 +234,7 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     final list = prefs.getStringList(_savedIdsKey) ?? [];
     final idSet = list.map((id) => int.tryParse(id)).whereType<int>().toSet();
+    savedCountNotifier.value = idSet.length;
 
     final token = await getToken();
     if (token != null) {
@@ -238,6 +252,7 @@ class ApiService {
             idSet.addAll(serverIds);
             await prefs.setStringList(_savedIdsKey, idSet.map((id) => id.toString()).toList());
             await prefs.setString(_savedAdsCacheKey, jsonEncode(serverList));
+            savedCountNotifier.value = idSet.length;
           }
         }
       } catch (_) {}
@@ -264,6 +279,7 @@ class ApiService {
             await prefs.setString(_savedAdsCacheKey, jsonEncode(list));
             final idList = list.map((e) => e['id'].toString()).toList();
             await prefs.setStringList(_savedIdsKey, idList);
+            savedCountNotifier.value = list.length;
             return list;
           }
         }
@@ -275,7 +291,10 @@ class ApiService {
     if (cachedStr != null && cachedStr.isNotEmpty) {
       try {
         final decoded = jsonDecode(cachedStr);
-        if (decoded is List) return decoded;
+        if (decoded is List) {
+          savedCountNotifier.value = decoded.length;
+          return decoded;
+        }
       } catch (_) {}
     }
     return [];
@@ -294,6 +313,7 @@ class ApiService {
       savedIds.remove(adId.toString());
     }
     await prefs.setStringList(_savedIdsKey, savedIds.toList());
+    savedCountNotifier.value = savedIds.length;
 
     final cachedStr = prefs.getString(_savedAdsCacheKey);
     List<dynamic> cachedAds = [];
@@ -323,7 +343,15 @@ class ApiService {
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           if (data['success'] == true && data['isSaved'] != null) {
-            return data['isSaved'] as bool;
+            final isSaved = data['isSaved'] as bool;
+            if (isSaved) {
+              savedIds.add(adId.toString());
+            } else {
+              savedIds.remove(adId.toString());
+            }
+            await prefs.setStringList(_savedIdsKey, savedIds.toList());
+            savedCountNotifier.value = savedIds.length;
+            return isSaved;
           }
         }
       } catch (_) {}

@@ -18,6 +18,13 @@ class _MainNavigationState extends State<MainNavigation> {
   int _authVersion = 0;
   int _savedVersion = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    ApiService.initSavedCount();
+    ApiService.getSavedAdIds();
+  }
+
   void _onAuthChanged() {
     setState(() {
       _authVersion++;
@@ -91,28 +98,54 @@ class _MainNavigationState extends State<MainNavigation> {
         unselectedItemColor: Colors.grey.shade400,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 11),
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.explore_outlined),
             activeIcon: Icon(Icons.explore),
             label: 'Explore',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border),
-            activeIcon: Icon(Icons.favorite),
+            icon: ValueListenableBuilder<int>(
+              valueListenable: ApiService.savedCountNotifier,
+              builder: (context, count, child) {
+                return Badge(
+                  isLabelVisible: count > 0,
+                  label: Text(
+                    '$count',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.white),
+                  ),
+                  backgroundColor: const Color(0xFFE11D48),
+                  child: const Icon(Icons.favorite_border),
+                );
+              },
+            ),
+            activeIcon: ValueListenableBuilder<int>(
+              valueListenable: ApiService.savedCountNotifier,
+              builder: (context, count, child) {
+                return Badge(
+                  isLabelVisible: count > 0,
+                  label: Text(
+                    '$count',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.white),
+                  ),
+                  backgroundColor: const Color(0xFFE11D48),
+                  child: const Icon(Icons.favorite),
+                );
+              },
+            ),
             label: 'Saved',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline, size: 28, color: Color(0xFF0D9488)),
             activeIcon: Icon(Icons.add_circle, size: 28, color: Color(0xFF0D9488)),
             label: 'Post Ad',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),
             activeIcon: Icon(Icons.chat_bubble),
             label: 'Messages',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
             label: 'Account',

@@ -62,9 +62,14 @@ class _SavedScreenState extends State<SavedScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: const Text(
-          'Saved Items',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+        title: ValueListenableBuilder<int>(
+          valueListenable: ApiService.savedCountNotifier,
+          builder: (context, count, _) {
+            return Text(
+              count > 0 ? 'Saved Items ($count)' : 'Saved Items',
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+            );
+          },
         ),
         backgroundColor: Colors.white,
         elevation: 0,

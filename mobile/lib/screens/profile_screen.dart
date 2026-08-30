@@ -22,7 +22,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? _user;
   bool _loading = true;
-  int _savedCount = 0;
   int _unreadNotifications = 0;
 
   // Auth form states
@@ -56,11 +55,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadCounts() async {
     try {
-      final saved = await ApiService.getSavedAds();
+      await ApiService.getSavedAds();
       final notifications = await ApiService.getNotifications();
       if (mounted) {
         setState(() {
-          _savedCount = saved.length;
           _unreadNotifications = notifications.where((n) => n['is_read'] != true).length;
         });
       }
@@ -1616,7 +1614,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 4. Saved Items
               ListTile(
                 leading: const Icon(Icons.favorite_outline_rounded, color: Colors.redAccent),
-                title: Text('Saved Items ($_savedCount)', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: ValueListenableBuilder<int>(
+                  valueListenable: ApiService.savedCountNotifier,
+                  builder: (context, count, _) {
+                    return Text(
+                      'Saved Items ($count)',
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34)),
+                    );
+                  },
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
                 onTap: () => widget.onNavigateTab?.call(1),
               ),
