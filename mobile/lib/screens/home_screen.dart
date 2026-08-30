@@ -27,7 +27,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onInputChanged);
+    _locationController.addListener(_onInputChanged);
     _loadInitialData();
+  }
+
+  void _onInputChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onInputChanged);
+    _locationController.removeListener(_onInputChanged);
+    _searchController.dispose();
+    _locationController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
@@ -122,6 +137,16 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCategoryName = name;
     });
     Navigator.pop(context); // Close Drawer
+    _fetchAds();
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _selectedCategory = null;
+      _selectedCategoryName = null;
+      _searchController.clear();
+      _locationController.clear();
+    });
     _fetchAds();
   }
 
@@ -289,127 +314,287 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: CustomScrollView(
               slivers: [
-                // Compact Search Bar Header
+                // Modern Search & Location Header
                 SliverToBoxAdapter(
                   child: Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x0A000000),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // 1. Full-width Main Search Bar
+                        Container(
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            textInputAction: TextInputAction.search,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF002F34),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: tr('home_search_placeholder'),
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade500,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.search_rounded,
+                                color: Color(0xFF002F34),
+                                size: 22,
+                              ),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                                      splashRadius: 18,
+                                      tooltip: tr('common_delete'),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _fetchAds();
+                                      },
+                                    )
+                                  : null,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            onSubmitted: (_) => _fetchAds(),
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // 2. Location Input (Directly UNDER the search bar) + Search Button
                         Row(
                           children: [
-                            // Keyword search field
+                            // Location field
                             Expanded(
-                              flex: 3,
                               child: Container(
-                                height: 42,
+                                height: 44,
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF3F4F6),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFE5E7EB)),
                                 ),
                                 child: TextField(
-                                  controller: _searchController,
-                                  style: const TextStyle(fontSize: 13),
+                                  controller: _locationController,
+                                  textInputAction: TextInputAction.search,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF002F34),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                   decoration: InputDecoration(
-                                    hintText: tr('home_search_placeholder'),
-                                    hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
-                                    prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 18),
-                                    suffixIcon: _searchController.text.isNotEmpty
+                                    hintText: tr('home_location_placeholder'),
+                                    hintStyle: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    prefixIcon: const Icon(
+                                      Icons.location_on_rounded,
+                                      color: Color(0xFF0D9488),
+                                      size: 19,
+                                    ),
+                                    suffixIcon: _locationController.text.isNotEmpty
                                         ? IconButton(
-                                            icon: const Icon(Icons.clear, size: 15),
+                                            icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                                            splashRadius: 18,
+                                            tooltip: tr('common_delete'),
                                             onPressed: () {
-                                              _searchController.clear();
+                                              _locationController.clear();
                                               _fetchAds();
                                             },
                                           )
                                         : null,
                                     border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 11),
                                   ),
                                   onSubmitted: (_) => _fetchAds(),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 6),
-
-                            // Location field
-                            Expanded(
-                              flex: 2,
-                              child: Container(
-                                height: 42,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF3F4F6),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: TextField(
-                                  controller: _locationController,
-                                  style: const TextStyle(fontSize: 13),
-                                  decoration: InputDecoration(
-                                    hintText: tr('home_location_placeholder'),
-                                    hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
-                                    prefixIcon: const Icon(Icons.location_on_outlined, color: Colors.grey, size: 16),
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                                  ),
-                                  onSubmitted: (_) => _fetchAds(),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
 
                             // Search submit button
                             SizedBox(
-                              height: 42,
-                              width: 44,
-                              child: ElevatedButton(
+                              height: 44,
+                              child: ElevatedButton.icon(
                                 onPressed: _fetchAds,
+                                icon: const Icon(Icons.search_rounded, size: 18),
+                                label: Text(
+                                  tr('common_search'),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF002F34),
                                   foregroundColor: Colors.white,
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
-                                child: const Icon(Icons.search, size: 20),
                               ),
                             ),
                           ],
                         ),
 
-                        // Active Category Filter Indicator Chip
-                        if (_selectedCategory != null) ...[
-                          const SizedBox(height: 8),
-                          Row(
+                        // Active Filters Indicator Row
+                        if (_selectedCategory != null ||
+                            _searchController.text.trim().isNotEmpty ||
+                            _locationController.text.trim().isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF0FDFA),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFF0D9488)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      trCat(_selectedCategory!, _selectedCategoryName ?? _selectedCategory!),
-                                      style: const TextStyle(
-                                        color: Color(0xFF0D9488),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
+                              // Active Category Chip
+                              if (_selectedCategory != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF0FDFA),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: const Color(0xFF0D9488)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.grid_view_rounded, size: 12, color: Color(0xFF0D9488)),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        trCat(_selectedCategory!, _selectedCategoryName ?? _selectedCategory!),
+                                        style: const TextStyle(
+                                          color: Color(0xFF0D9488),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
+                                      const SizedBox(width: 4),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedCategory = null;
+                                            _selectedCategoryName = null;
+                                          });
+                                          _fetchAds();
+                                        },
+                                        child: const Icon(Icons.close, size: 14, color: Color(0xFF0D9488)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              // Active Search Query Chip
+                              if (_searchController.text.trim().isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF3F4F6),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.grey.shade400),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.search, size: 12, color: Color(0xFF002F34)),
+                                      const SizedBox(width: 4),
+                                      ConstrainedBox(
+                                        constraints: const BoxConstraints(maxWidth: 120),
+                                        child: Text(
+                                          '"${_searchController.text.trim()}"',
+                                          style: const TextStyle(
+                                            color: Color(0xFF002F34),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      GestureDetector(
+                                        onTap: () {
+                                          _searchController.clear();
+                                          _fetchAds();
+                                        },
+                                        child: const Icon(Icons.close, size: 14, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              // Active Location Chip
+                              if (_locationController.text.trim().isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF0FDFA),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: const Color(0xFF0D9488)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.location_on_rounded, size: 12, color: Color(0xFF0D9488)),
+                                      const SizedBox(width: 4),
+                                      ConstrainedBox(
+                                        constraints: const BoxConstraints(maxWidth: 120),
+                                        child: Text(
+                                          _locationController.text.trim(),
+                                          style: const TextStyle(
+                                            color: Color(0xFF0D9488),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      GestureDetector(
+                                        onTap: () {
+                                          _locationController.clear();
+                                          _fetchAds();
+                                        },
+                                        child: const Icon(Icons.close, size: 14, color: Color(0xFF0D9488)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              // Clear All Filters text button
+                              GestureDetector(
+                                onTap: _clearAllFilters,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                                  child: Text(
+                                    tr('home_clear_filters'),
+                                    style: const TextStyle(
+                                      color: Color(0xFFEF4444),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(width: 4),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedCategory = null;
-                                          _selectedCategoryName = null;
-                                        });
-                                        _fetchAds();
-                                      },
-                                      child: const Icon(Icons.close, size: 13, color: Color(0xFF0D9488)),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -419,6 +604,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+
+                // Results Count & Section Header
+                if (!_loading && _ads.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            (_selectedCategory != null ||
+                                    _searchController.text.trim().isNotEmpty ||
+                                    _locationController.text.trim().isNotEmpty)
+                                ? '${tr('common_search')}: ${_ads.length}'
+                                : '${tr('home_recent_ads')} (${_ads.length})',
+                            style: const TextStyle(
+                              color: Color(0xFF002F34),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
 
                 // Advertisements Grid (2x2 fitted for mobile screens)
                 _loading
@@ -444,9 +654,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   const SizedBox(height: 14),
                                   ElevatedButton.icon(
-                                    onPressed: _loadInitialData,
-                                    icon: const Icon(Icons.refresh, size: 18),
-                                    label: Text(tr('common_refresh')),
+                                    onPressed: () {
+                                      if (_selectedCategory != null ||
+                                          _searchController.text.trim().isNotEmpty ||
+                                          _locationController.text.trim().isNotEmpty) {
+                                        _clearAllFilters();
+                                      } else {
+                                        _loadInitialData();
+                                      }
+                                    },
+                                    icon: Icon(
+                                      (_selectedCategory != null ||
+                                              _searchController.text.trim().isNotEmpty ||
+                                              _locationController.text.trim().isNotEmpty)
+                                          ? Icons.filter_alt_off_rounded
+                                          : Icons.refresh,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      (_selectedCategory != null ||
+                                              _searchController.text.trim().isNotEmpty ||
+                                              _locationController.text.trim().isNotEmpty)
+                                          ? tr('home_clear_filters')
+                                          : tr('common_refresh'),
+                                    ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF002F34),
                                       foregroundColor: Colors.white,

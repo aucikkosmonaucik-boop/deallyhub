@@ -204,7 +204,12 @@ class ApiService {
       final queryParams = <String, String>{};
       if (category != null && category.isNotEmpty) queryParams['category'] = category;
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
-      if (location != null && location.isNotEmpty && !location.toLowerCase().contains('entire country')) {
+      final locLower = location?.toLowerCase().trim() ?? '';
+      final isEntireCountry = locLower.isEmpty ||
+          locLower.contains('entire country') ||
+          locLower.contains('cały kraj') ||
+          locLower.contains('caly kraj');
+      if (location != null && location.isNotEmpty && !isEntireCountry) {
         queryParams['location'] = location;
       }
 
