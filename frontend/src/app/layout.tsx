@@ -203,7 +203,7 @@ export default function RootLayout({
         <Script src="https://accounts.google.com/gsi/client?hl=en" strategy="afterInteractive" />
         <Script src="https://connect.facebook.net/en_US/sdk.js" strategy="lazyOnload" />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col font-sans antialiased text-[#002f34]">
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>

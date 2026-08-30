@@ -921,7 +921,7 @@ export default function HomePage() {
                             </h4>
                             <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                               {cat && (
-                                <span className="bg-gray-100 text-[#002f34] text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                                <span className="bg-gray-100 text-[#002f34] text-[11px] font-bold px-2.5 py-0.5 rounded-md">
                                   {getCategoryName(cat.slug, cat.name)}
                                 </span>
                               )}
@@ -982,7 +982,7 @@ export default function HomePage() {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-x-4 gap-y-8 sm:gap-y-10 justify-items-center">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-x-4 sm:gap-x-5 gap-y-8 sm:gap-y-11 justify-items-center">
           {categories.map((cat) => {
             const IconComponent = ICON_MAP[cat.icon] || Sparkles;
             const colorClass = COLOR_STYLES[cat.color] || "bg-teal-100 text-teal-800";
@@ -992,19 +992,19 @@ export default function HomePage() {
               <button
                 key={cat.id || cat.slug}
                 onClick={() => setActiveCategory(isSelected ? null : cat.slug)}
-                className="group flex flex-col items-center text-center cursor-pointer max-w-[105px] focus:outline-none"
+                className="group flex flex-col items-center text-center cursor-pointer w-full max-w-[115px] sm:max-w-[130px] focus:outline-none transition-transform duration-300 ease-out hover:-translate-y-2"
               >
                 {/* Circle Icon Badge */}
                 <div
-                  className={`w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center transition-all duration-200 transform group-hover:scale-108 group-hover:shadow-md mb-2.5 ${colorClass} ${
-                    isSelected ? "ring-4 ring-teal-500 scale-105 shadow-md" : ""
+                  className={`w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center transition-all duration-300 ease-out transform group-hover:scale-115 group-hover:shadow-2xl group-hover:shadow-black/20 group-hover:ring-4 group-hover:ring-teal-400/50 group-hover:ring-offset-2 mb-3 shadow-xs ${colorClass} ${
+                    isSelected ? "ring-4 ring-teal-600 ring-offset-2 scale-110 shadow-lg -translate-y-1" : ""
                   }`}
                 >
-                  <IconComponent className="w-9 h-9 stroke-[2]" />
+                  <IconComponent className="w-9 h-9 sm:w-10 sm:h-10 stroke-[2.25] transition-transform duration-300 ease-out group-hover:scale-115 group-hover:-rotate-6" />
                 </div>
 
                 {/* Category Label */}
-                <span className="text-xs sm:text-[13px] font-semibold text-[#002f34] leading-snug line-clamp-2 group-hover:text-teal-700 transition-colors">
+                <span className="text-[13.5px] sm:text-[15px] font-bold text-[#002f34] leading-snug line-clamp-2 tracking-tight transition-all duration-300 group-hover:text-teal-700 group-hover:scale-105">
                   {getCategoryName(cat.slug, cat.name)}
                 </span>
               </button>
@@ -1015,11 +1015,11 @@ export default function HomePage() {
         {/* Filter Indicator */}
         {activeCategory && (
           <div className="mt-8 flex items-center justify-center gap-3">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-sm font-semibold text-teal-900">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-50 border-2 border-teal-300 rounded-full text-[15px] font-bold text-teal-900 shadow-sm hover:shadow-md transition-shadow">
               <span>{t("feed.activeFilter")} {categories.find((c) => c.slug === activeCategory) ? getCategoryName(activeCategory) : activeCategory}</span>
               <button
                 onClick={() => setActiveCategory(null)}
-                className="text-teal-600 hover:text-teal-900 ml-1 p-0.5 rounded-full hover:bg-teal-100 cursor-pointer"
+                className="text-teal-700 hover:text-teal-950 ml-1.5 p-1 rounded-full hover:bg-teal-200 transition-colors cursor-pointer"
                 title={t("feed.clearCategory")}
               >
                 ✕
@@ -1114,7 +1114,7 @@ export default function HomePage() {
 
                       {/* Category Badge */}
                       {cat && (
-                        <span className="absolute top-3 left-3 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-xs pointer-events-none">
+                        <span className="absolute top-3 left-3 bg-[#002f34]/90 backdrop-blur-xs text-white text-[12px] font-bold px-3 py-1 rounded-full shadow-sm pointer-events-none">
                           {getCategoryName(cat.slug, cat.name)}
                         </span>
                       )}

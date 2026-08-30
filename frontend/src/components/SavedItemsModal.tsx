@@ -170,7 +170,7 @@ export default function SavedItemsModal({
                       )}
 
                       {cat && (
-                        <span className="absolute top-2 left-2 bg-[#002f34]/85 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        <span className="absolute top-2 left-2 bg-[#002f34]/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
                           {getCategoryName(cat.slug, cat.name)}
                         </span>
                       )}
