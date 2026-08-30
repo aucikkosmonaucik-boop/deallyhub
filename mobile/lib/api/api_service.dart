@@ -92,6 +92,26 @@ class ApiService {
     return data;
   }
 
+  static Future<Map<String, dynamic>> loginWithGoogle(String idToken) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/google'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'idToken': idToken}),
+      ).timeout(const Duration(seconds: 15));
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && data['success'] == true && data['token'] != null) {
+        final token = data['token'] as String;
+        final user = data['user'] as Map<String, dynamic>;
+        await saveSession(token, user);
+      }
+      return data;
+    } catch (e) {
+      return {'success': false, 'error': 'Connection error: $e'};
+    }
+  }
+
   static Future<Map<String, dynamic>> register(String name, String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/register'),

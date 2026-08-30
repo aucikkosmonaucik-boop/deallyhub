@@ -49,6 +49,65 @@ export default function AuthModal({
     }
   }, [isOpen, initialMode, initialResetToken]);
 
+  const GOOGLE_CLIENT_ID = "1073600566504-rmbe5e4na60o18ehark84qv74d2v57ku.apps.googleusercontent.com";
+
+  const handleGoogleCallback = async (response: any) => {
+    if (!response?.credential) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Google authentication failed.");
+      }
+      onAuthSuccess(data.user, data.token);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in with Google.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen || (mode !== "login" && mode !== "register")) return;
+
+    const initGoogle = () => {
+      if (typeof window === "undefined" || !(window as any).google?.accounts?.id) return;
+      try {
+        (window as any).google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleCallback,
+        });
+
+        const container = document.getElementById("google-signin-btn-container");
+        if (container) {
+          container.innerHTML = "";
+          (window as any).google.accounts.id.renderButton(container, {
+            theme: "outline",
+            size: "large",
+            width: 320,
+            text: mode === "register" ? "signup_with" : "signin_with",
+            shape: "rectangular",
+            logo_alignment: "left"
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to initialize Google Sign-In:", err);
+      }
+    };
+
+    initGoogle();
+    const timer = setTimeout(initGoogle, 500);
+    return () => clearTimeout(timer);
+  }, [isOpen, mode]);
+
   if (!isOpen) return null;
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -307,6 +366,23 @@ export default function AuthModal({
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Back to Sign In</span>
                 </button>
+              </div>
+            )}
+
+            {/* Google Sign-In Option (Login & Register) */}
+            {(mode === "login" || mode === "register") && (
+              <div className="px-6 pt-5 pb-1 flex flex-col items-center">
+                <div id="google-signin-btn-container" className="w-full flex justify-center min-h-[44px]"></div>
+                <div className="relative w-full my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-3 text-gray-400 font-semibold tracking-wider">
+                      Or continue with email
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 

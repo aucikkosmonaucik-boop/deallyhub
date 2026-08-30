@@ -41,7 +41,8 @@ import {
   setUserVerificationToken,
   verifyUserByToken,
   setUserResetToken,
-  resetUserPasswordByToken
+  resetUserPasswordByToken,
+  findOrCreateGoogleUser
 } from "./db.js";
 
 const app = express();
@@ -203,6 +204,79 @@ app.post("/api/auth/register", async (req, res) => {
       success: false,
       error: "Registration failed due to a server error.",
       details: err.message
+    });
+  }
+});
+
+// Google OAuth Sign-In (Web & Mobile)
+const GOOGLE_WEB_CLIENT_ID = process.env.GOOGLE_WEB_CLIENT_ID || "1073600566504-rmbe5e4na60o18ehark84qv74d2v57ku.apps.googleusercontent.com";
+const GOOGLE_ANDROID_CLIENT_ID = process.env.GOOGLE_ANDROID_CLIENT_ID || "1073600566504-ra3affi9k11tgsqs20oe7ppq9vd24nke.apps.googleusercontent.com";
+
+app.post("/api/auth/google", async (req, res) => {
+  try {
+    const { credential, idToken } = req.body;
+    const tokenToVerify = credential || idToken;
+
+    if (!tokenToVerify) {
+      return res.status(400).json({
+        success: false,
+        error: "Google credential / ID token is required."
+      });
+    }
+
+    // Verify token with Google tokeninfo API
+    const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokenToVerify)}`);
+    if (!googleRes.ok) {
+      const errData = await googleRes.json().catch(() => ({}));
+      return res.status(400).json({
+        success: false,
+        error: errData.error_description || "Invalid Google ID token."
+      });
+    }
+
+    const payload = await googleRes.json();
+    const { email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: "Could not retrieve email from Google."
+      });
+    }
+
+    // Find or create the verified user in our database
+    const user = await findOrCreateGoogleUser({
+      email,
+      name: name || email.split("@")[0],
+      avatar: picture
+    });
+
+    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
+    const role = isAdm ? "admin" : (user.role || "user");
+
+    const authToken = jwt.sign(
+      { userId: user.id, email: user.email, role },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      success: true,
+      message: "Successfully signed in with Google!",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role,
+        is_verified: true
+      },
+      token: authToken
+    });
+  } catch (err) {
+    console.error("Google Auth error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to authenticate with Google."
     });
   }
 });

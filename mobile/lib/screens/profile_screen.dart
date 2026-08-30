@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../api/api_service.dart';
 import '../widgets/app_image.dart';
 import 'ad_details_screen.dart';
@@ -31,7 +32,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _email = '';
   String _password = '';
   bool _authSubmitting = false;
+  bool _googleSubmitting = false;
   String? _authError;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '1073600566504-rmbe5e4na60o18ehark84qv74d2v57ku.apps.googleusercontent.com',
+    scopes: ['email', 'profile'],
+  );
 
   @override
   void initState() {
@@ -131,6 +138,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() => _authError = 'Error connecting to server: $e');
     } finally {
       if (mounted) setState(() => _authSubmitting = false);
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _googleSubmitting = true;
+      _authError = null;
+    });
+
+    try {
+      await _googleSignIn.signOut();
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+      if (account == null) {
+        if (mounted) setState(() => _googleSubmitting = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+      final idToken = auth.idToken;
+
+      if (idToken == null) {
+        throw Exception('Could not obtain Google ID token.');
+      }
+
+      final res = await ApiService.loginWithGoogle(idToken);
+      if (res['success'] == true) {
+        await _checkUser();
+        widget.onAuthChanged?.call();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Color(0xFF0D9488),
+              content: Text('Successfully signed in with Google!'),
+            ),
+          );
+        }
+      } else {
+        setState(() => _authError = res['error'] ?? 'Google authentication failed.');
+      }
+    } catch (e) {
+      setState(() => _authError = 'Google sign-in error: $e');
+    } finally {
+      if (mounted) setState(() => _googleSubmitting = false);
     }
   }
 
@@ -1735,7 +1785,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // Google Sign-In Button
+            SizedBox(
+              height: 48,
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: (_authSubmitting || _googleSubmitting) ? null : _handleGoogleSignIn,
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: BorderSide(color: Colors.grey.shade300),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                child: _googleSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF002F34)),
+                      )
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'G',
+                            style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF4285F4),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Continue with Google',
+                            style: TextStyle(
+                              color: Color(0xFF002F34),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+
+            const SizedBox(height: 18),
+
+            // Divider
+            Row(
+              children: [
+                Expanded(child: Divider(color: Colors.grey.shade300)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    'OR CONTINUE WITH EMAIL',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ),
+                Expanded(child: Divider(color: Colors.grey.shade300)),
+              ],
+            ),
+
+            const SizedBox(height: 16),
 
             if (_authError != null)
               Container(
