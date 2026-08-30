@@ -381,21 +381,25 @@ export default function AuthModal({
                 </div>
               )}
 
-              {/* Reset Token (if in Reset mode) */}
+              {/* Reset Token (Hidden when provided from email link) */}
               {mode === "reset" && (
-                <div>
-                  <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
-                    Security Token
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={resetToken}
-                    onChange={(e) => setResetToken(e.target.value)}
-                    placeholder="Paste reset token from email"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
-                  />
-                </div>
+                resetToken ? (
+                  <input type="hidden" value={resetToken} />
+                ) : (
+                  <div>
+                    <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
+                      Security Token
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={resetToken}
+                      onChange={(e) => setResetToken(e.target.value)}
+                      placeholder="Paste reset token from email"
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                    />
+                  </div>
+                )
               )}
 
               {/* Password Field (Login, Register, Reset) */}

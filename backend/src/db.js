@@ -1211,12 +1211,13 @@ export async function resetUserPasswordByToken(token, newPasswordHash) {
     const u = inMemoryUsers.find(user => user.reset_token === token);
     if (!u) return null;
     u.password_hash = newPasswordHash;
+    u.is_verified = true;
     u.reset_token = null;
     u.reset_token_expires = null;
     return u;
   }
   const { rows } = await pool.query(
-    "UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE reset_token = $2 AND (reset_token_expires IS NULL OR reset_token_expires > NOW()) RETURNING id, name, email",
+    "UPDATE users SET password_hash = $1, is_verified = TRUE, reset_token = NULL, reset_token_expires = NULL WHERE reset_token = $2 AND (reset_token_expires IS NULL OR reset_token_expires > NOW()) RETURNING id, name, email, role, is_verified",
     [newPasswordHash, token]
   );
   return rows[0] || null;
