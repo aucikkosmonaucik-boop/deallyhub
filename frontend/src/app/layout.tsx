@@ -5,12 +5,14 @@ import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -181,7 +183,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${geistSans.className} h-full antialiased`}
     >
       <head>
         <script
@@ -203,7 +205,7 @@ export default function RootLayout({
         <Script src="https://accounts.google.com/gsi/client?hl=en" strategy="afterInteractive" />
         <Script src="https://connect.facebook.net/en_US/sdk.js" strategy="lazyOnload" />
       </head>
-      <body className="min-h-full flex flex-col font-sans antialiased text-[#002f34]">
+      <body className={`${geistSans.className} min-h-full flex flex-col font-sans antialiased text-[#002f34]`}>
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>

@@ -838,7 +838,7 @@ export default function HomePage() {
                   }}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t("hero.searchPlaceholder")}
-                  className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
+                  className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-medium"
                 />
               </div>
 
@@ -850,14 +850,14 @@ export default function HomePage() {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder={t("hero.locationPlaceholder")}
-                  className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-normal"
+                  className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-medium"
                 />
               </div>
 
               {/* Search Button */}
               <button
                 type="submit"
-                className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white px-8 py-4 font-extrabold tracking-tight flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <span>{t("hero.searchBtn")}</span>
                 <Search className="w-4 h-4" />
@@ -1032,7 +1032,7 @@ export default function HomePage() {
         <section id="listings-section" className="mt-16 pt-12 border-t border-gray-100 scroll-mt-24">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-[#002f34]">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#002f34] tracking-tight">
                 {activeCategory
                   ? `${getCategoryName(activeCategory)}`
                   : searchQuery.trim()
@@ -1143,7 +1143,7 @@ export default function HomePage() {
                     {/* Listing Content */}
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="text-xl font-black text-[#002f34] mb-1">
+                        <div className="text-xl font-black text-[#002f34] mb-1 tracking-tight">
                           {parseFloat(ad.price as string) === 0 ? (
                             <span className="text-teal-600">{t("common.free")}</span>
                           ) : (
@@ -1151,18 +1151,18 @@ export default function HomePage() {
                           )}
                         </div>
 
-                        <h3 className="font-bold text-[#002f34] text-base line-clamp-1 group-hover:text-teal-600 transition-colors">
+                        <h3 className="font-bold text-[#002f34] text-base line-clamp-1 group-hover:text-teal-600 transition-colors tracking-tight">
                           {ad.title}
                         </h3>
 
-                        <p className="text-xs text-gray-500 line-clamp-2 mt-1 mb-3">
+                        <p className="text-xs text-gray-600 line-clamp-2 mt-1 mb-3 font-normal leading-relaxed">
                           {ad.description}
                         </p>
                       </div>
 
-                      <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                      <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500 font-medium">
                         <div className="flex items-center gap-1 truncate">
-                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <MapPin className="w-3.5 h-3.5 shrink-0 text-teal-600" />
                           <span className="truncate">{ad.location}</span>
                         </div>
                         <span className="shrink-0 text-gray-400">
