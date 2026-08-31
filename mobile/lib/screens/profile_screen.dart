@@ -1357,9 +1357,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     );
                                   } else {
-                                    messenger.showSnackBar(
-                                      SnackBar(content: Text(res['error'] ?? 'Failed to update advertisement.')),
-                                    );
+                                     final errStr = res['error']?.toString() ?? '';
+                                     final violation = res['violation']?.toString() ?? '';
+                                     String displayError = errStr;
+                                     if (violation == 'NSFW_IMAGE_DETECTED' ||
+                                         errStr.toLowerCase().contains('nudity') ||
+                                         errStr.toLowerCase().contains('adult') ||
+                                         errStr.toLowerCase().contains('erotic') ||
+                                         errStr.toLowerCase().contains('nagość')) {
+                                       displayError = tr('error_nsfw_image');
+                                     } else if (errStr.toLowerCase().contains('prohibited') ||
+                                         errStr.toLowerCase().contains('offensive') ||
+                                         errStr.toLowerCase().contains('niedozwolon') ||
+                                         errStr.toLowerCase().contains('obrażliw')) {
+                                       displayError = tr('error_profanity');
+                                     }
+                                     messenger.showSnackBar(
+                                       SnackBar(
+                                         backgroundColor: const Color(0xFFDC2626),
+                                         content: Text(displayError.isNotEmpty ? displayError : 'Failed to update advertisement.'),
+                                       ),
+                                     );
                                   }
                                 },
                           style: ElevatedButton.styleFrom(

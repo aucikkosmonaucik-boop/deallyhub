@@ -235,6 +235,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "errors.profanityAd": "Advertisement contains prohibited or offensive words. Please remove them before publishing.",
     "errors.profanityMessage": "Your message contains prohibited or offensive words and cannot be sent.",
     "errors.profanityName": "Name contains prohibited or offensive words.",
+    "errors.nsfwImage": "Advertisement contains prohibited content: nudity, adult, or sexually explicit photos are strictly forbidden on Deallyhub.",
 
     "nav.home": "Home",
     "nav.messages": "Messages",
@@ -536,6 +537,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "errors.profanityAd": "L'annonce contient des mots interdits ou offensants. Veuillez les supprimer avant de publier.",
     "errors.profanityMessage": "Votre message contient des mots interdits ou offensants et ne peut pas être envoyé.",
     "errors.profanityName": "Le nom contient des mots interdits ou offensants.",
+    "errors.nsfwImage": "L'annonce contient du contenu interdit : la nudité, le contenu pour adultes ou les photos sexuellement explicites sont strictement interdits sur Deallyhub.",
 
     "nav.home": "Accueil",
     "nav.messages": "Messages",
@@ -837,6 +839,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "errors.profanityAd": "El anuncio contiene palabras prohibidas u ofensivas. Por favor, elimínalas antes de publicar.",
     "errors.profanityMessage": "Tu mensaje contiene palabras prohibidas u ofensivas y no se puede enviar.",
     "errors.profanityName": "El nombre contiene palabras prohibidas u ofensivas.",
+    "errors.nsfwImage": "El anuncio contiene contenido prohibido: la desnudez, el material para adultos o las fotos explícitas están estrictamente prohibidos en Deallyhub.",
 
     "nav.home": "Inicio",
     "nav.messages": "Mensajes",
@@ -1138,6 +1141,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "errors.profanityAd": "Die Anzeige enthält unzulässige oder beleidigende Wörter. Bitte entfernen Sie diese vor der Veröffentlichung.",
     "errors.profanityMessage": "Deine Nachricht enthält unzulässige oder beleidigende Wörter und kann nicht gesendet werden.",
     "errors.profanityName": "Der Name enthält unzulässige oder beleidigende Wörter.",
+    "errors.nsfwImage": "Die Anzeige enthält unzulässige Inhalte: Nacktheit, Erotik oder nicht jugendfreie Bilder sind auf Deallyhub streng verboten.",
 
     "nav.home": "Startseite",
     "nav.messages": "Nachrichten",
@@ -1439,6 +1443,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "errors.profanityAd": "Treść ogłoszenia zawiera niedozwolone lub obraźliwe słowa. Usuń je przed publikacją.",
     "errors.profanityMessage": "Wiadomość zawiera niedozwolone lub obraźliwe słowa i nie mogła zostać wysłana.",
     "errors.profanityName": "Imię lub nazwisko zawiera niedozwolone słowa.",
+    "errors.nsfwImage": "Ogłoszenie zawiera zabronione treści: zdjęcia o charakterze erotycznym, nagość lub treści dla dorosłych są surowo zabronione na Deallyhub.",
 
     "nav.home": "Strona główna",
     "nav.messages": "Wiadomości",
@@ -1740,6 +1745,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "errors.profanityAd": "L'annuncio contiene parole vietate o offensive. Rimuovile prima di pubblicare.",
     "errors.profanityMessage": "Il tuo messaggio contiene parole vietate o offensive e non può essere inviato.",
     "errors.profanityName": "Il nome contiene parole vietate o offensive.",
+    "errors.nsfwImage": "L'annuncio contiene contenuti vietati: nudità, materiale per adulti o immagini esplicite sono severamente vietati su Deallyhub.",
 
     "nav.home": "Home",
     "nav.messages": "Messaggi",
@@ -2041,6 +2047,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "errors.profanityAd": "Η αγγελία περιέχει απαγορευμένες ή προσβλητικές λέξεις. Παρακαλούμε αφαιρέστε τις πριν από τη δημοσίευση.",
     "errors.profanityMessage": "Το μήνυμά σας περιέχει απαγορευμένες ή προσβλητικές λέξεις και δεν μπορεί να σταλεί.",
     "errors.profanityName": "Το όνομα περιέχει απαγορευμένες ή προσβλητικές λέξεις.",
+    "errors.nsfwImage": "Η αγγελία περιέχει απαγορευμένο περιεχόμενο: το γυμνό, το περιεχόμενο για ενήλικες ή οι άσεμνες φωτογραφίες απαγορεύονται αυστηρά στο Deallyhub.",
 
     "nav.home": "Αρχική",
     "nav.messages": "Μηνύματα",

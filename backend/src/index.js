@@ -9,6 +9,7 @@ import {
   sendPasswordResetEmail
 } from "./emailService.js";
 import { containsProfanity } from "./contentFilter.js";
+import { checkImagesForNudity, initImageFilter } from "./imageFilter.js";
 import {
   initDb,
   getCategories,
@@ -758,6 +759,21 @@ app.post("/api/ads", authenticateToken, async (req, res) => {
       });
     }
 
+    // Global Nudity & NSFW Content Filter
+    if (Array.isArray(images) && images.length > 0) {
+      const imageSafety = await checkImagesForNudity(images);
+      if (!imageSafety.isSafe) {
+        return res.status(400).json({
+          success: false,
+          violation: "NSFW_IMAGE_DETECTED",
+          error: "Advertisement contains prohibited content: nudity or adult material is not permitted on Deallyhub.",
+          error_pl: "Ogłoszenie zawiera zabronione treści: zdjęcia o charakterze erotycznym lub nagość nie są dozwolone na Deallyhub.",
+          reason: imageSafety.reason,
+          imageIndex: imageSafety.imageIndex
+        });
+      }
+    }
+
     const ad = await createAd({
       userId: req.user.userId,
       categorySlug: trimmedCategory,
@@ -876,6 +892,21 @@ app.put("/api/ads/:id", authenticateToken, async (req, res) => {
         success: false,
         error: "Advertisement description contains prohibited or offensive words. Please remove them before publishing."
       });
+    }
+
+    // Global Nudity & NSFW Content Filter
+    if (Array.isArray(images) && images.length > 0) {
+      const imageSafety = await checkImagesForNudity(images);
+      if (!imageSafety.isSafe) {
+        return res.status(400).json({
+          success: false,
+          violation: "NSFW_IMAGE_DETECTED",
+          error: "Advertisement contains prohibited content: nudity or adult material is not permitted on Deallyhub.",
+          error_pl: "Ogłoszenie zawiera zabronione treści: zdjęcia o charakterze erotycznym lub nagość nie są dozwolone na Deallyhub.",
+          reason: imageSafety.reason,
+          imageIndex: imageSafety.imageIndex
+        });
+      }
     }
 
     const user = await findUserById(req.user.userId);
@@ -1234,4 +1265,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, HOST, async () => {
   console.log(`Deallyhub server running on http://${HOST}:${PORT}`);
   await initDb();
+  initImageFilter().catch(err => console.warn("[ImageFilter] Background warmup error:", err.message));
 });

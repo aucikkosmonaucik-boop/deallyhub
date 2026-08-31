@@ -327,6 +327,16 @@ export default function AdsManagerModal({
       if (!res.ok || !data.success) {
         const errStr = data.error || "";
         if (
+          data.violation === "NSFW_IMAGE_DETECTED" ||
+          errStr.toLowerCase().includes("nudity") ||
+          errStr.toLowerCase().includes("nagość") ||
+          errStr.toLowerCase().includes("erotic") ||
+          errStr.toLowerCase().includes("adult material") ||
+          errStr.toLowerCase().includes("porn")
+        ) {
+          throw new Error(t("errors.nsfwImage"));
+        }
+        if (
           errStr.toLowerCase().includes("prohibited") ||
           errStr.toLowerCase().includes("offensive") ||
           errStr.toLowerCase().includes("niedozwolon") ||

@@ -9,13 +9,17 @@
     "dev": "node --watch src/index.js"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jpeg-js": "^0.4.4",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^9.0.6",
-    "pg": "^8.23.0"
+    "nsfwjs": "^4.3.0",
+    "pg": "^8.23.0",
+    "pngjs": "^7.0.0"
   },
   "keywords": [],
   "author": "",

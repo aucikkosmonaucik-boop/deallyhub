@@ -202,8 +202,26 @@ class _PostAdScreenState extends State<PostAdScreen> {
         });
       } else {
         if (!mounted) return;
+        final errStr = res['error']?.toString() ?? '';
+        final violation = res['violation']?.toString() ?? '';
+        String displayError = errStr;
+        if (violation == 'NSFW_IMAGE_DETECTED' ||
+            errStr.toLowerCase().contains('nudity') ||
+            errStr.toLowerCase().contains('adult') ||
+            errStr.toLowerCase().contains('erotic') ||
+            errStr.toLowerCase().contains('nagość')) {
+          displayError = tr('error_nsfw_image');
+        } else if (errStr.toLowerCase().contains('prohibited') ||
+            errStr.toLowerCase().contains('offensive') ||
+            errStr.toLowerCase().contains('niedozwolon') ||
+            errStr.toLowerCase().contains('obrażliw')) {
+          displayError = tr('error_profanity');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res['error'] ?? 'Failed to publish ad')),
+          SnackBar(
+            backgroundColor: const Color(0xFFDC2626),
+            content: Text(displayError.isNotEmpty ? displayError : 'Failed to publish ad'),
+          ),
         );
       }
     } catch (e) {
