@@ -232,6 +232,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.location": "Location",
     "common.date": "Date",
     "common.or": "or",
+    "errors.profanityAd": "Advertisement contains prohibited or offensive words. Please remove them before publishing.",
+    "errors.profanityMessage": "Your message contains prohibited or offensive words and cannot be sent.",
+    "errors.profanityName": "Name contains prohibited or offensive words.",
 
     "nav.home": "Home",
     "nav.messages": "Messages",
@@ -530,6 +533,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.location": "Lieu",
     "common.date": "Date",
     "common.or": "ou",
+    "errors.profanityAd": "L'annonce contient des mots interdits ou offensants. Veuillez les supprimer avant de publier.",
+    "errors.profanityMessage": "Votre message contient des mots interdits ou offensants et ne peut pas être envoyé.",
+    "errors.profanityName": "Le nom contient des mots interdits ou offensants.",
 
     "nav.home": "Accueil",
     "nav.messages": "Messages",
@@ -828,6 +834,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.location": "Ubicación",
     "common.date": "Fecha",
     "common.or": "o",
+    "errors.profanityAd": "El anuncio contiene palabras prohibidas u ofensivas. Por favor, elimínalas antes de publicar.",
+    "errors.profanityMessage": "Tu mensaje contiene palabras prohibidas u ofensivas y no se puede enviar.",
+    "errors.profanityName": "El nombre contiene palabras prohibidas u ofensivas.",
 
     "nav.home": "Inicio",
     "nav.messages": "Mensajes",
@@ -1126,6 +1135,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.location": "Ort",
     "common.date": "Datum",
     "common.or": "oder",
+    "errors.profanityAd": "Die Anzeige enthält unzulässige oder beleidigende Wörter. Bitte entfernen Sie diese vor der Veröffentlichung.",
+    "errors.profanityMessage": "Deine Nachricht enthält unzulässige oder beleidigende Wörter und kann nicht gesendet werden.",
+    "errors.profanityName": "Der Name enthält unzulässige oder beleidigende Wörter.",
 
     "nav.home": "Startseite",
     "nav.messages": "Nachrichten",
@@ -1424,6 +1436,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.location": "Lokalizacja",
     "common.date": "Data",
     "common.or": "lub",
+    "errors.profanityAd": "Treść ogłoszenia zawiera niedozwolone lub obraźliwe słowa. Usuń je przed publikacją.",
+    "errors.profanityMessage": "Wiadomość zawiera niedozwolone lub obraźliwe słowa i nie mogła zostać wysłana.",
+    "errors.profanityName": "Imię lub nazwisko zawiera niedozwolone słowa.",
 
     "nav.home": "Strona główna",
     "nav.messages": "Wiadomości",
@@ -1722,6 +1737,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.location": "Luogo",
     "common.date": "Data",
     "common.or": "o",
+    "errors.profanityAd": "L'annuncio contiene parole vietate o offensive. Rimuovile prima di pubblicare.",
+    "errors.profanityMessage": "Il tuo messaggio contiene parole vietate o offensive e non può essere inviato.",
+    "errors.profanityName": "Il nome contiene parole vietate o offensive.",
 
     "nav.home": "Home",
     "nav.messages": "Messaggi",
@@ -2020,6 +2038,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.location": "Τοποθεσία",
     "common.date": "Ημερομηνία",
     "common.or": "ή",
+    "errors.profanityAd": "Η αγγελία περιέχει απαγορευμένες ή προσβλητικές λέξεις. Παρακαλούμε αφαιρέστε τις πριν από τη δημοσίευση.",
+    "errors.profanityMessage": "Το μήνυμά σας περιέχει απαγορευμένες ή προσβλητικές λέξεις και δεν μπορεί να σταλεί.",
+    "errors.profanityName": "Το όνομα περιέχει απαγορευμένες ή προσβλητικές λέξεις.",
 
     "nav.home": "Αρχική",
     "nav.messages": "Μηνύματα",

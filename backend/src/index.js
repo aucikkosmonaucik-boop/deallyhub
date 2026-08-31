@@ -8,6 +8,7 @@ import {
   sendVerificationEmail,
   sendPasswordResetEmail
 } from "./emailService.js";
+import { containsProfanity } from "./contentFilter.js";
 import {
   initDb,
   getCategories,
@@ -157,6 +158,14 @@ app.post("/api/auth/register", async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Password must be at least 6 characters long."
+      });
+    }
+
+    const nameCheck = containsProfanity(name);
+    if (nameCheck.hasProfanity) {
+      return res.status(400).json({
+        success: false,
+        error: "Full name contains prohibited or offensive words."
       });
     }
 
@@ -656,6 +665,14 @@ app.put(["/api/auth/profile", "/api/user/profile"], authenticateToken, async (re
       return res.status(400).json({ success: false, error: "Name cannot be empty." });
     }
 
+    const nameCheck = containsProfanity(name);
+    if (nameCheck.hasProfanity) {
+      return res.status(400).json({
+        success: false,
+        error: "Name contains prohibited or offensive words."
+      });
+    }
+
     const updated = await updateUserProfile(req.user.userId, name);
     res.json({
       success: true,
@@ -723,6 +740,22 @@ app.post("/api/ads", authenticateToken, async (req, res) => {
     }
     if (!trimmedDesc) {
       return res.status(400).json({ success: false, error: "Description is required." });
+    }
+
+    const titleCheck = containsProfanity(trimmedTitle);
+    if (titleCheck.hasProfanity) {
+      return res.status(400).json({
+        success: false,
+        error: "Advertisement title contains prohibited or offensive words. Please remove them before publishing."
+      });
+    }
+
+    const descCheck = containsProfanity(trimmedDesc);
+    if (descCheck.hasProfanity) {
+      return res.status(400).json({
+        success: false,
+        error: "Advertisement description contains prohibited or offensive words. Please remove them before publishing."
+      });
     }
 
     const ad = await createAd({
@@ -826,6 +859,22 @@ app.put("/api/ads/:id", authenticateToken, async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Title, category, and description are required fields."
+      });
+    }
+
+    const titleCheck = containsProfanity(title);
+    if (titleCheck.hasProfanity) {
+      return res.status(400).json({
+        success: false,
+        error: "Advertisement title contains prohibited or offensive words. Please remove them before publishing."
+      });
+    }
+
+    const descCheck = containsProfanity(description);
+    if (descCheck.hasProfanity) {
+      return res.status(400).json({
+        success: false,
+        error: "Advertisement description contains prohibited or offensive words. Please remove them before publishing."
       });
     }
 
@@ -1000,6 +1049,14 @@ app.post("/api/conversations/:id/messages", authenticateToken, async (req, res) 
     const { content } = req.body;
     if (!content || !content.trim()) {
       return res.status(400).json({ success: false, error: "Message content cannot be empty." });
+    }
+
+    const msgCheck = containsProfanity(content);
+    if (msgCheck.hasProfanity) {
+      return res.status(400).json({
+        success: false,
+        error: "Your message contains prohibited or offensive words and cannot be sent."
+      });
     }
 
     const message = await sendMessage(req.params.id, req.user.userId, content);

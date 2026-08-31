@@ -325,7 +325,16 @@ export default function AdsManagerModal({
       }
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || `Failed to ${isEditing ? "update" : "publish"} advertisement.`);
+        const errStr = data.error || "";
+        if (
+          errStr.toLowerCase().includes("prohibited") ||
+          errStr.toLowerCase().includes("offensive") ||
+          errStr.toLowerCase().includes("niedozwolon") ||
+          errStr.toLowerCase().includes("obrażliw")
+        ) {
+          throw new Error(t("errors.profanityAd"));
+        }
+        throw new Error(errStr || `Failed to ${isEditing ? "update" : "publish"} advertisement.`);
       }
 
       setSuccessMessage(isEditing ? "Advertisement updated successfully!" : "Advertisement published successfully!");

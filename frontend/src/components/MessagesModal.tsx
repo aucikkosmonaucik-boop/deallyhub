@@ -10,7 +10,8 @@ import {
   Loader2,
   Search,
   ArrowLeft,
-  CheckCheck
+  CheckCheck,
+  AlertCircle
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
@@ -61,6 +62,7 @@ export default function MessagesModal({
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [sending, setSending] = useState(false);
   const [filterQuery, setFilterQuery] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -145,8 +147,8 @@ export default function MessagesModal({
     e.preventDefault();
     if (!inputText.trim() || !selectedConvId || !token || sending) return;
 
+    setErrorMsg(null);
     const content = inputText.trim();
-    setInputText("");
     setSending(true);
     const apiUrl = getApiUrl();
 
@@ -161,11 +163,25 @@ export default function MessagesModal({
       });
       const data = await res.json();
       if (data.success && data.message) {
+        setInputText("");
         setMessages((prev) => [...prev, data.message]);
         fetchConversations(); // Update snippet in thread list
+      } else {
+        const errText = data.error || "";
+        if (
+          errText.toLowerCase().includes("prohibited") ||
+          errText.toLowerCase().includes("offensive") ||
+          errText.toLowerCase().includes("niedozwolon") ||
+          errText.toLowerCase().includes("obrażliw")
+        ) {
+          setErrorMsg(t("errors.profanityMessage"));
+        } else {
+          setErrorMsg(errText || t("common.error"));
+        }
       }
     } catch (err) {
       console.error("Failed to send message:", err);
+      setErrorMsg(t("common.error"));
     } finally {
       setSending(false);
     }
@@ -380,6 +396,24 @@ export default function MessagesModal({
                   <div ref={messagesEndRef} />
                 </div>
 
+                {/* Error Banner if message blocked */}
+                {errorMsg && (
+                  <div className="px-4 py-2 bg-red-50 border-t border-red-200 text-red-700 text-xs font-semibold flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-150 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                      <span>{errorMsg}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setErrorMsg(null)}
+                      className="text-red-400 hover:text-red-700 p-0.5 rounded cursor-pointer transition-colors"
+                      aria-label="Dismiss error"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 {/* Message Input Box - Fixed and anchored at bottom */}
                 <form
                   onSubmit={handleSendMessage}
@@ -388,7 +422,10 @@ export default function MessagesModal({
                   <input
                     type="text"
                     value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
+                    onChange={(e) => {
+                      setInputText(e.target.value);
+                      if (errorMsg) setErrorMsg(null);
+                    }}
                     onFocus={() => {
                       setTimeout(scrollToBottom, 250);
                     }}

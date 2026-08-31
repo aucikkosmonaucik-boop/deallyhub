@@ -98,7 +98,16 @@ export default function AccountSettingsModal({
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to update profile.");
+        const errStr = data.error || "";
+        if (
+          errStr.toLowerCase().includes("prohibited") ||
+          errStr.toLowerCase().includes("offensive") ||
+          errStr.toLowerCase().includes("niedozwolon") ||
+          errStr.toLowerCase().includes("obrażliw")
+        ) {
+          throw new Error(t("errors.profanityName"));
+        }
+        throw new Error(errStr || "Failed to update profile.");
       }
 
       setProfileSuccess("Profile name updated successfully!");
