@@ -237,25 +237,25 @@ export default function AdminPanelModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className="bg-white rounded-3xl w-full max-w-5xl shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-5xl shadow-2xl border border-gray-100 flex flex-col max-h-[92dvh] sm:max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-[#002f34] text-white p-5 sm:p-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
-              <Shield className="w-6 h-6" />
+        <div className="bg-[#002f34] text-white p-4 sm:p-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300 shrink-0">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-xl">{t("admin.title")}</h3>
-                <span className="bg-teal-400 text-[#002f34] text-[11px] font-black uppercase px-2 py-0.5 rounded-md">
+                <h3 className="font-extrabold text-lg sm:text-xl">{t("admin.title")}</h3>
+                <span className="bg-teal-400 text-[#002f34] text-[10px] sm:text-[11px] font-black uppercase px-2 py-0.5 rounded-md">
                   Admin
                 </span>
               </div>
-              <p className="text-xs text-gray-300">
+              <p className="text-[11px] sm:text-xs text-gray-300">
                 {t("nav.adminPanel")}
               </p>
             </div>
@@ -263,14 +263,15 @@ export default function AdminPanelModal({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            aria-label="Close"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
         {/* Tabs Bar */}
-        <div className="flex items-center gap-2 px-6 pt-4 border-b border-gray-100 bg-gray-50/70 overflow-x-auto">
+        <div className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 pt-3 sm:pt-4 border-b border-gray-100 bg-gray-50/70 overflow-x-auto shrink-0">
           <button
             onClick={() => setActiveTab("stats")}
             className={`pb-3 px-4 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer whitespace-nowrap ${

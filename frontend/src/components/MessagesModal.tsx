@@ -183,22 +183,23 @@ export default function MessagesModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-4xl h-[88vh] flex flex-col overflow-hidden relative my-auto">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-4xl h-[92dvh] sm:h-[88vh] flex flex-col overflow-hidden relative my-auto">
         {/* Top Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5" />
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#002f34]">{t("messages.title")}</h2>
-              <p className="text-xs text-gray-500">{t("messages.subtitle")}</p>
+              <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">{t("messages.title")}</h2>
+              <p className="text-[11px] sm:text-xs text-gray-500">{t("messages.subtitle")}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -380,7 +381,7 @@ export default function MessagesModal({
                 {/* Message Input Box */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-3 sm:p-4 bg-white border-t border-gray-200 flex items-center gap-2"
+                  className="p-3 sm:p-4 bg-white border-t border-gray-200 flex items-center gap-2 pb-safe shrink-0"
                 >
                   <input
                     type="text"
@@ -392,7 +393,7 @@ export default function MessagesModal({
                   <button
                     type="submit"
                     disabled={!inputText.trim() || sending}
-                    className="p-3 bg-[#002f34] hover:bg-[#003e45] text-white rounded-xl transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs"
+                    className="p-3 bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white rounded-xl transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs active:scale-95"
                     title={t("messages.send")}
                   >
                     {sending ? (

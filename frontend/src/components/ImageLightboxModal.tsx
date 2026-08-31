@@ -128,7 +128,10 @@ export default function ImageLightboxModal({
     setIsDragging(false);
   };
 
-  // Touch handlers (Pinch to zoom + Pan)
+  const swipeTouchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const swipeTouchDiffRef = useRef<number>(0);
+
+  // Touch handlers (Pinch to zoom + Pan + Swipe navigation)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const dist = Math.hypot(
@@ -136,12 +139,16 @@ export default function ImageLightboxModal({
         e.touches[0].clientY - e.touches[1].clientY
       );
       lastTouchDistRef.current = dist;
-    } else if (e.touches.length === 1 && scale > 1) {
-      setIsDragging(true);
-      setDragStart({
-        x: e.touches[0].clientX - position.x,
-        y: e.touches[0].clientY - position.y
-      });
+    } else if (e.touches.length === 1) {
+      swipeTouchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      swipeTouchDiffRef.current = 0;
+      if (scale > 1) {
+        setIsDragging(true);
+        setDragStart({
+          x: e.touches[0].clientX - position.x,
+          y: e.touches[0].clientY - position.y
+        });
+      }
     }
   };
 
@@ -158,17 +165,30 @@ export default function ImageLightboxModal({
         return next;
       });
       lastTouchDistRef.current = dist;
-    } else if (e.touches.length === 1 && isDragging && scale > 1) {
-      setPosition({
-        x: e.touches[0].clientX - dragStart.x,
-        y: e.touches[0].clientY - dragStart.y
-      });
+    } else if (e.touches.length === 1) {
+      if (scale > 1 && isDragging) {
+        setPosition({
+          x: e.touches[0].clientX - dragStart.x,
+          y: e.touches[0].clientY - dragStart.y
+        });
+      } else if (scale === 1 && swipeTouchStartRef.current) {
+        swipeTouchDiffRef.current = e.touches[0].clientX - swipeTouchStartRef.current.x;
+      }
     }
   };
 
   const handleTouchEnd = () => {
     lastTouchDistRef.current = null;
     setIsDragging(false);
+    if (scale === 1 && Math.abs(swipeTouchDiffRef.current) > 50) {
+      if (swipeTouchDiffRef.current < -50) {
+        handleNext();
+      } else if (swipeTouchDiffRef.current > 50) {
+        handlePrev();
+      }
+    }
+    swipeTouchStartRef.current = null;
+    swipeTouchDiffRef.current = 0;
   };
 
   // Keyboard navigation & lock body scroll

@@ -68,43 +68,44 @@ export default function NotificationsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 flex flex-col max-h-[85vh] overflow-hidden"
+        className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 flex flex-col max-h-[92dvh] sm:max-h-[85vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-700">
-              <Bell className="w-5 h-5" />
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-700 shrink-0">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-lg text-[#002f34]">{t("notifications.title")}</h3>
+                <h3 className="font-bold text-base sm:text-lg text-[#002f34]">{t("notifications.title")}</h3>
                 {unreadCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full">
+                  <span className="bg-red-500 text-white text-[10px] sm:text-xs font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full">
                     {unreadCount}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-500">{t("notifications.subtitle")}</p>
+              <p className="text-[11px] sm:text-xs text-gray-500">{t("notifications.subtitle")}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {unreadCount > 0 && (
               <button
                 onClick={onMarkAllAsRead}
-                className="text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer active:scale-95"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
-                <span>{t("notifications.markAllRead")}</span>
+                <span className="hidden sm:inline">{t("notifications.markAllRead")}</span>
               </button>
             )}
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+              aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -112,7 +113,7 @@ export default function NotificationsModal({
         </div>
 
         {/* Notifications List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
           {notifications.length === 0 ? (
             <div className="py-12 text-center">
               <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3 text-gray-300">

@@ -99,30 +99,31 @@ export default function SavedItemsModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden relative my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[92dvh] sm:max-h-[85vh] flex flex-col overflow-hidden relative my-auto">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
-              <Heart className="w-5 h-5 fill-rose-500" />
+        <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-rose-500" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#002f34]">{t("saved.title")}</h2>
-              <p className="text-xs text-gray-500">{t("saved.subtitle")}</p>
+              <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">{t("saved.title")}</h2>
+              <p className="text-[11px] sm:text-xs text-gray-500">{t("saved.subtitle")}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           {loading ? (
             <div className="py-16 text-center text-gray-400">
               <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600 mb-2" />

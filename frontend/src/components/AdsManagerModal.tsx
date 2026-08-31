@@ -288,30 +288,31 @@ export default function AdsManagerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden relative my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-3xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative my-auto">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
-              <Layers className="w-5 h-5" />
+        <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+              <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#002f34]">Advertisements Hub</h2>
-              <p className="text-xs text-gray-500">Manage your listings and post new classifieds</p>
+              <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">Advertisements Hub</h2>
+              <p className="text-[11px] sm:text-xs text-gray-500">Manage your listings and post new classifieds</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-gray-200 px-6 bg-gray-50/50 shrink-0">
+        <div className="flex border-b border-gray-200 px-4 sm:px-6 bg-gray-50/50 shrink-0">
           <button
             onClick={() => {
               setActiveTab("my-ads");

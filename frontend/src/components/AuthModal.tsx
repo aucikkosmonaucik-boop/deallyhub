@@ -98,11 +98,12 @@ export default function AuthModal({
             callback: handleGoogleCallback,
           });
 
+          const btnWidth = Math.max(240, Math.min(320, window.innerWidth - 64));
           container.innerHTML = "";
           (window as any).google.accounts.id.renderButton(container, {
             theme: "outline",
             size: "large",
-            width: 320,
+            width: btnWidth,
             text: mode === "register" ? "signup_with" : "signin_with",
             shape: "rectangular",
             logo_alignment: "left",
@@ -313,7 +314,7 @@ export default function AuthModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden relative my-auto max-h-[96vh] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden relative my-auto max-h-[92dvh] sm:max-h-[90vh] flex flex-col">
         {/* Close Button */}
         <button
           onClick={onClose}

@@ -194,28 +194,29 @@ export default function AccountSettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-xl overflow-hidden relative my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative my-auto">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white">
+        <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-[#002f34]">{t("settings.title")}</h2>
-            <p className="text-xs text-gray-500">{t("nav.settings")}</p>
+            <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">{t("settings.title")}</h2>
+            <p className="text-[11px] sm:text-xs text-gray-500">{t("nav.settings")}</p>
           </div>
 
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 px-6 bg-gray-50/50">
+        <div className="flex border-b border-gray-200 px-4 sm:px-6 bg-gray-50/50 shrink-0">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`py-3.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`py-3 sm:py-3.5 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === "profile"
                 ? "border-[#002f34] text-[#002f34]"
                 : "border-transparent text-gray-400 hover:text-gray-600"
@@ -227,7 +228,7 @@ export default function AccountSettingsModal({
 
           <button
             onClick={() => setActiveTab("password")}
-            className={`py-3.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`py-3 sm:py-3.5 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === "password"
                 ? "border-[#002f34] text-[#002f34]"
                 : "border-transparent text-gray-400 hover:text-gray-600"
@@ -239,7 +240,7 @@ export default function AccountSettingsModal({
 
           <button
             onClick={() => setActiveTab("danger")}
-            className={`py-3.5 px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`py-3 sm:py-3.5 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === "danger"
                 ? "border-red-600 text-red-600"
                 : "border-transparent text-gray-400 hover:text-red-500"
@@ -251,7 +252,7 @@ export default function AccountSettingsModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           {/* TAB 1: PROFILE */}
           {activeTab === "profile" && (
             <form onSubmit={handleUpdateProfile} className="space-y-4">
