@@ -821,10 +821,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         children: [
                                                           Text(
                                                             isFree ? tr('common_free') : '$price $currency',
-                                                            style: const TextStyle(
+                                                            style: TextStyle(
                                                               fontWeight: FontWeight.w900,
                                                               fontSize: 13,
-                                                              color: Color(0xFF002F34),
+                                                              color: hasPromo ? const Color(0xFF16A34A) : const Color(0xFF002F34),
                                                             ),
                                                             maxLines: 1,
                                                             overflow: TextOverflow.ellipsis,

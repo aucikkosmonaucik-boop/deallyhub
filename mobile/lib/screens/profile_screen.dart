@@ -789,6 +789,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   final images = (ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
                                   final cover = images.isNotEmpty ? images[0] : null;
 
+                                  final numPrice = double.tryParse('${ad['price']}') ?? 0.0;
+                                  final origPrice = ad['original_price'] != null ? double.tryParse('${ad['original_price']}') : null;
+                                  final hasPromo = origPrice != null && origPrice > numPrice && numPrice > 0;
+
                                   return InkWell(
                                     onTap: () {
                                       Navigator.push(
@@ -813,7 +817,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             children: [
                                               Text(ad['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                               const SizedBox(height: 4),
-                                              Text('${ad['price']} ${ad['currency']}', style: const TextStyle(color: Color(0xFF0D9488), fontWeight: FontWeight.bold, fontSize: 13)),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    '${ad['price']} ${ad['currency']}',
+                                                    style: TextStyle(
+                                                      color: hasPromo ? const Color(0xFF16A34A) : const Color(0xFF0D9488),
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                  if (hasPromo) ...[
+                                                    const SizedBox(width: 6),
+                                                    Text(
+                                                      '$origPrice',
+                                                      style: const TextStyle(
+                                                        fontSize: 11,
+                                                        color: Colors.grey,
+                                                        decoration: TextDecoration.lineThrough,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -899,6 +925,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
@@ -930,37 +957,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
             minChildSize: 0.6,
             maxChildSize: 0.95,
             expand: false,
-            builder: (ctx, scrollController) => Column(
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: const BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+            builder: (ctx, scrollController) => SafeArea(
+              top: false,
+              bottom: true,
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.edit_note, color: Color(0xFF0D9488), size: 24),
+                            const SizedBox(width: 8),
+                            Text(
+                              tr('edit_ad_title'),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34)),
+                            ),
+                          ],
+                        ),
+                        IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx, false)),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.edit_note, color: Color(0xFF0D9488), size: 24),
-                          const SizedBox(width: 8),
-                          Text(
-                            tr('edit_ad_title'),
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34)),
-                          ),
-                        ],
-                      ),
-                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx, false)),
-                    ],
-                  ),
-                ),
 
-                // Form Content
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.all(20),
+                  // Form Content
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 40),
                     children: [
                       // Title
                       Text('${tr("post_ad_title")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
@@ -1342,11 +1372,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               : Text(tr('edit_ad_save'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         ),
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ],
             ),
+          ),
           );
         },
       ),

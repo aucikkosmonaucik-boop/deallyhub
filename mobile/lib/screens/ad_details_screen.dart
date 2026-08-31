@@ -321,10 +321,10 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                     children: [
                       Text(
                         isFree ? tr('common_free') : '$price $currency',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF002F34),
+                          color: hasPromo ? const Color(0xFF16A34A) : const Color(0xFF002F34),
                         ),
                       ),
                       if (hasPromo) ...[

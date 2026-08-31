@@ -935,13 +935,18 @@ export default function HomePage() {
 
                           {/* Price & Action */}
                           <div className="text-right shrink-0">
-                            <div className="text-sm font-extrabold text-[#002f34]">
+                            <div className={`text-sm font-extrabold ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
                               {isFree ? (
                                 <span className="text-teal-600">{t("common.free")}</span>
                               ) : (
                                 `${ad.price} ${ad.currency}`
                               )}
                             </div>
+                            {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
+                              <span className="text-[10px] text-gray-400 line-through block">
+                                {ad.original_price} {ad.currency}
+                              </span>
+                            )}
                             <span className="text-[10px] text-teal-600 font-semibold group-hover:underline">
                               {t("feed.details")} &rarr;
                             </span>
@@ -1152,7 +1157,7 @@ export default function HomePage() {
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex items-baseline gap-2 mb-1">
-                          <div className="text-xl font-black text-[#002f34] tracking-tight">
+                          <div className={`text-xl font-black tracking-tight ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
                             {parseFloat(ad.price as string) === 0 ? (
                               <span className="text-teal-600">{t("common.free")}</span>
                             ) : (

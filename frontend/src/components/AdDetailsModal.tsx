@@ -176,7 +176,7 @@ export default function AdDetailsModal({
                   {ad.title}
                 </h1>
                 <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                  <span className="text-3xl font-black text-[#002f34]">
+                  <span className={`text-3xl font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
                     {isFree ? t("common.free") : `${ad.price} ${ad.currency}`}
                   </span>
                   {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (

@@ -443,7 +443,7 @@ export default function AdsManagerModal({
                           <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
                             <div>
                               <div className="flex items-baseline gap-2">
-                                <span className="text-lg font-black text-[#002f34]">
+                                <span className={`text-lg font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
                                   {parseFloat(ad.price as string) === 0
                                     ? t("common.free")
                                     : `${ad.price} ${ad.currency}`}

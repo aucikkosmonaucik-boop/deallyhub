@@ -260,7 +260,11 @@ class _SavedScreenState extends State<SavedScreen> {
                                                       children: [
                                                         Text(
                                                           isFree ? tr('common_free') : '$price $currency',
-                                                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0D9488)),
+                                                          style: TextStyle(
+                                                            fontWeight: FontWeight.w900,
+                                                            fontSize: 13,
+                                                            color: hasPromo ? const Color(0xFF16A34A) : const Color(0xFF0D9488),
+                                                          ),
                                                         ),
                                                         if (hasPromo) ...[
                                                           const SizedBox(width: 4),

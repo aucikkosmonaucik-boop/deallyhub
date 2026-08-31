@@ -189,7 +189,7 @@ export default function SavedItemsModal({
                     <div className="p-3.5 flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex items-baseline gap-1.5 mb-0.5">
-                          <div className="text-base font-black text-[#002f34]">
+                          <div className={`text-base font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
                             {parseFloat(ad.price as string) === 0
                               ? t("common.free")
                               : `${ad.price} ${ad.currency}`}
