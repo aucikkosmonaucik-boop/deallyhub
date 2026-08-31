@@ -1459,6 +1459,7 @@ export default function HomePage() {
         categories={categories}
         token={token}
         onAdCreated={fetchAds}
+        onSelectAd={(ad) => setSelectedAd(ad)}
       />
 
       {/* Saved Items (Wishlist) Modal */}
@@ -1470,6 +1471,7 @@ export default function HomePage() {
         onItemRemoved={(removedId) => {
           setSavedAdIds((prev) => prev.filter((id) => id !== removedId));
         }}
+        onSelectAd={(ad) => setSelectedAd(ad)}
       />
 
       {/* Account Settings Modal */}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   X,
   MapPin,
@@ -12,7 +12,9 @@ import {
   ShieldCheck,
   Image as ImageIcon,
   MessageSquare,
-  ZoomIn
+  ZoomIn,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 import { getApiUrl } from "@/lib/api";
@@ -61,20 +63,111 @@ export default function AdDetailsModal({
   const [showPhone, setShowPhone] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  // Touch Swipe Gesture State
+  const [touchOffset, setTouchOffset] = useState(0);
+  const [isDraggingTouch, setIsDraggingTouch] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const isSwipingGesture = useRef<boolean>(false);
+
   useEffect(() => {
     setSelectedImageIdx(0);
     setShowPhone(false);
     setIsLightboxOpen(false);
+    setTouchOffset(0);
+    setIsDraggingTouch(false);
   }, [ad]);
+
+  const images = ad?.images && ad.images.length > 0 ? ad.images : [];
+  const currentImage = images[selectedImageIdx] || null;
+  const isFree = ad ? parseFloat(ad.price as string) === 0 : false;
+
+  const handlePrevImage = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) e.stopPropagation();
+    if (images.length <= 1) return;
+    setSelectedImageIdx((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNextImage = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) e.stopPropagation();
+    if (images.length <= 1) return;
+    setSelectedImageIdx((prev) => (prev + 1) % images.length);
+  };
+
+  // Keyboard navigation (ArrowLeft / ArrowRight)
+  useEffect(() => {
+    if (!isOpen || isLightboxOpen || images.length <= 1) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        handlePrevImage();
+      } else if (e.key === "ArrowRight") {
+        handleNextImage();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isLightboxOpen, images.length]);
+
+  // Touch handlers for finger swiping
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+      touchStartTime.current = Date.now();
+      isSwipingGesture.current = false;
+      setIsDraggingTouch(false);
+      setTouchOffset(0);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const diffX = currentX - touchStartX.current;
+    const diffY = currentY - touchStartY.current;
+
+    // If horizontal swipe is dominant
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+      isSwipingGesture.current = true;
+      setIsDraggingTouch(true);
+      const clampedOffset = Math.max(Math.min(diffX, 120), -120);
+      setTouchOffset(clampedOffset);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current !== null && isSwipingGesture.current && images.length > 1) {
+      const swipeThreshold = 35;
+      if (touchOffset < -swipeThreshold) {
+        // Swiped LEFT with finger -> Next Image
+        handleNextImage();
+      } else if (touchOffset > swipeThreshold) {
+        // Swiped RIGHT with finger -> Previous Image
+        handlePrevImage();
+      }
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+    setIsDraggingTouch(false);
+    setTouchOffset(0);
+    setTimeout(() => {
+      isSwipingGesture.current = false;
+    }, 80);
+  };
+
+  const handleImageClick = () => {
+    if (isSwipingGesture.current) return;
+    if (currentImage) {
+      setIsLightboxOpen(true);
+    }
+  };
 
   if (!isOpen || !ad) return null;
 
-  const images = ad.images && ad.images.length > 0 ? ad.images : [];
-  const currentImage = images[selectedImageIdx] || null;
-  const isFree = parseFloat(ad.price as string) === 0;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
       <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-4xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative my-auto">
         {/* Modal Header */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
@@ -106,25 +199,87 @@ export default function AdDetailsModal({
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-8 pb-20 md:pb-6">
           {/* Left Column: Photos & Full Description (7 cols) */}
           <div className="md:col-span-7 space-y-5 sm:space-y-6">
-            {/* Main Photo Container */}
+            {/* Main Photo Container with Touch Swipe Gesture */}
             <div
-              onClick={() => currentImage && setIsLightboxOpen(true)}
-              className={`w-full h-64 sm:h-96 bg-gray-100 rounded-2xl overflow-hidden relative flex items-center justify-center border border-gray-200 shadow-xs group ${
+              onClick={handleImageClick}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className={`w-full h-64 sm:h-96 bg-gray-100 rounded-2xl overflow-hidden relative flex items-center justify-center border border-gray-200 shadow-xs group select-none touch-pan-y ${
                 currentImage ? "cursor-zoom-in" : ""
               }`}
             >
               {currentImage ? (
                 <>
-                  <img
-                    src={currentImage}
-                    alt={ad.title}
-                    className="w-full h-full object-contain bg-black/5 transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
+                  <div
+                    className="w-full h-full flex items-center justify-center transition-transform"
+                    style={{
+                      transform: isDraggingTouch
+                        ? `translateX(${touchOffset}px)`
+                        : "translateX(0px)",
+                      transitionDuration: isDraggingTouch ? "0ms" : "200ms"
+                    }}
+                  >
+                    <img
+                      key={selectedImageIdx}
+                      src={currentImage}
+                      alt={ad.title}
+                      draggable={false}
+                      className="w-full h-full object-contain bg-black/5 select-none transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+                  </div>
+
+                  {/* Multiple Photos Counter Badge */}
+                  {images.length > 1 && (
+                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md pointer-events-none z-10">
+                      <ImageIcon className="w-3.5 h-3.5 text-teal-300" />
+                      <span>{selectedImageIdx + 1} / {images.length}</span>
+                    </div>
+                  )}
+
                   {/* Floating Zoom Badge */}
-                  <div className="absolute bottom-3 right-3 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg opacity-90 group-hover:opacity-100 transition-all transform group-hover:scale-105">
+                  <div className="absolute bottom-3 right-3 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-lg opacity-90 group-hover:opacity-100 transition-all pointer-events-none z-10">
                     <ZoomIn className="w-3.5 h-3.5 text-teal-400" />
                     <span>{t("adDetails.zoomIn", "Powiększ")}</span>
                   </div>
+
+                  {/* Navigation Arrows for Prev / Next */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handlePrevImage}
+                        className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-black/80 active:bg-black/90 text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer z-10 touch-manipulation"
+                        title="Poprzednie zdjęcie"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNextImage}
+                        className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-black/80 active:bg-black/90 text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer z-10 touch-manipulation"
+                        title="Następne zdjęcie"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </button>
+
+                      {/* Pagination Dots */}
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/40 backdrop-blur-xs px-2.5 py-1 rounded-full pointer-events-none z-10">
+                        {images.map((_, dotIdx) => (
+                          <span
+                            key={dotIdx}
+                            className={`block rounded-full transition-all ${
+                              selectedImageIdx === dotIdx
+                                ? "w-2.5 h-1.5 bg-teal-400"
+                                : "w-1.5 h-1.5 bg-white/50"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </>
               ) : (
                 <div className="text-gray-400 flex flex-col items-center">

@@ -180,10 +180,10 @@ export default function ImageLightboxModal({
   const handleTouchEnd = () => {
     lastTouchDistRef.current = null;
     setIsDragging(false);
-    if (scale === 1 && Math.abs(swipeTouchDiffRef.current) > 50) {
-      if (swipeTouchDiffRef.current < -50) {
+    if (scale === 1 && Math.abs(swipeTouchDiffRef.current) > 35) {
+      if (swipeTouchDiffRef.current < -35) {
         handleNext();
-      } else if (swipeTouchDiffRef.current > 50) {
+      } else if (swipeTouchDiffRef.current > 35) {
         handlePrev();
       }
     }

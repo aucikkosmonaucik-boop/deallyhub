@@ -42,6 +42,8 @@ interface Advertisement {
   phone?: string;
   status: string;
   created_at: string;
+  author_name?: string;
+  author_email?: string;
 }
 
 interface AdsManagerModalProps {
@@ -51,6 +53,7 @@ interface AdsManagerModalProps {
   categories: Category[];
   token: string | null;
   onAdCreated?: () => void;
+  onSelectAd?: (ad: Advertisement) => void;
 }
 
 export default function AdsManagerModal({
@@ -59,7 +62,8 @@ export default function AdsManagerModal({
   initialTab = "my-ads",
   categories,
   token,
-  onAdCreated
+  onAdCreated,
+  onSelectAd
 }: AdsManagerModalProps) {
   const { t, getCategoryName } = useLanguage();
   const [activeTab, setActiveTab] = useState<"my-ads" | "create">(initialTab);
@@ -468,15 +472,27 @@ export default function AdsManagerModal({
                     return (
                       <div
                         key={ad.id}
-                        className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col"
+                        className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group"
                       >
-                        {/* Photo Thumbnail */}
-                        <div className="h-40 bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                        {/* Photo Thumbnail - clickable to open ad */}
+                        <div
+                          onClick={() => onSelectAd && onSelectAd(ad)}
+                          className="h-40 bg-gray-100 relative overflow-hidden flex items-center justify-center cursor-pointer select-none"
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Open advertisement: ${ad.title}`}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              if (onSelectAd) onSelectAd(ad);
+                            }
+                          }}
+                        >
                           {coverImg ? (
                             <img
                               src={coverImg}
                               alt={ad.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : (
                             <div className="text-gray-400 flex flex-col items-center">
@@ -486,15 +502,26 @@ export default function AdsManagerModal({
                           )}
 
                           {/* Category Badge */}
-                          <span className="absolute top-2.5 left-2.5 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                          <span className="absolute top-2.5 left-2.5 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-2.5 py-1 rounded-full pointer-events-none">
                             {catName}
                           </span>
+
+                          {/* Multiple Images Badge */}
+                          {ad.images && ad.images.length > 1 && (
+                            <span className="absolute bottom-2.5 right-2.5 bg-black/65 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs pointer-events-none">
+                              <ImageIcon className="w-3 h-3" />
+                              <span>{ad.images.length}</span>
+                            </span>
+                          )}
                         </div>
 
                         {/* Card Info */}
                         <div className="p-4 flex-1 flex flex-col justify-between">
-                          <div>
-                            <h4 className="font-bold text-[#002f34] text-base line-clamp-1 mb-1">
+                          <div
+                            onClick={() => onSelectAd && onSelectAd(ad)}
+                            className="cursor-pointer"
+                          >
+                            <h4 className="font-bold text-[#002f34] group-hover:text-teal-700 transition-colors text-base line-clamp-1 mb-1">
                               {ad.title}
                             </h4>
                             <p className="text-xs text-gray-500 line-clamp-2 mb-3">
@@ -503,7 +530,10 @@ export default function AdsManagerModal({
                           </div>
 
                           <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
-                            <div>
+                            <div
+                              onClick={() => onSelectAd && onSelectAd(ad)}
+                              className="cursor-pointer flex-1 mr-2"
+                            >
                               <div className="flex items-baseline gap-2">
                                 <span className={`text-lg font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
                                   {parseFloat(ad.price as string) === 0
@@ -527,18 +557,26 @@ export default function AdsManagerModal({
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 shrink-0">
                               <button
-                                onClick={() => handleStartEdit(ad)}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStartEdit(ad);
+                                }}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 active:bg-teal-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
                                 title={t("common.edit")}
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
                                 <span>{t("common.edit")}</span>
                               </button>
                               <button
-                                onClick={() => handleDeleteAd(ad.id)}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors cursor-pointer"
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteAd(ad.id);
+                                }}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 active:bg-red-100 p-2 rounded-lg transition-colors cursor-pointer"
                                 title={t("common.delete")}
                               >
                                 <Trash2 className="w-4 h-4" />

@@ -24,8 +24,11 @@ interface Advertisement {
   currency: string;
   location: string;
   images: string[];
+  phone?: string;
   status: string;
   created_at: string;
+  author_name?: string;
+  author_email?: string;
 }
 
 interface SavedItemsModalProps {
@@ -34,6 +37,7 @@ interface SavedItemsModalProps {
   token: string | null;
   categories: Category[];
   onItemRemoved?: (adId: number) => void;
+  onSelectAd?: (ad: Advertisement) => void;
 }
 
 export default function SavedItemsModal({
@@ -41,7 +45,8 @@ export default function SavedItemsModal({
   onClose,
   token,
   categories,
-  onItemRemoved
+  onItemRemoved,
+  onSelectAd
 }: SavedItemsModalProps) {
   const { t, getCategoryName } = useLanguage();
   const [savedAds, setSavedAds] = useState<Advertisement[]>([]);
@@ -154,15 +159,27 @@ export default function SavedItemsModal({
                 return (
                   <div
                     key={ad.id}
-                    className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col"
+                    className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group"
                   >
-                    {/* Thumbnail */}
-                    <div className="h-36 bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                    {/* Thumbnail - clickable to open ad */}
+                    <div
+                      onClick={() => onSelectAd && onSelectAd(ad)}
+                      className="h-36 bg-gray-100 relative overflow-hidden flex items-center justify-center cursor-pointer select-none"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Open advertisement: ${ad.title}`}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          if (onSelectAd) onSelectAd(ad);
+                        }
+                      }}
+                    >
                       {coverImg ? (
                         <img
                           src={coverImg}
                           alt={ad.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
                         <div className="text-gray-400 flex flex-col items-center">
@@ -172,22 +189,38 @@ export default function SavedItemsModal({
                       )}
 
                       {cat && (
-                        <span className="absolute top-2 left-2 bg-[#002f34]/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
+                        <span className="absolute top-2 left-2 bg-[#002f34]/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-xs pointer-events-none">
                           {getCategoryName(cat.slug, cat.name)}
                         </span>
                       )}
 
+                      {/* Multiple Images Badge */}
+                      {ad.images && ad.images.length > 1 && (
+                        <span className="absolute bottom-2 right-2 bg-black/65 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs pointer-events-none">
+                          <ImageIcon className="w-3 h-3" />
+                          <span>{ad.images.length}</span>
+                        </span>
+                      )}
+
                       <button
-                        onClick={() => handleRemove(ad.id)}
-                        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 rounded-full shadow-xs transition-colors cursor-pointer"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemove(ad.id);
+                        }}
+                        className="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white text-rose-500 hover:text-rose-600 active:scale-95 rounded-full shadow-xs transition-all cursor-pointer z-10"
                         title={t("saved.remove")}
+                        aria-label={t("saved.remove")}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    {/* Card Content */}
-                    <div className="p-3.5 flex-1 flex flex-col justify-between">
+                    {/* Card Content - clickable to open ad */}
+                    <div
+                      onClick={() => onSelectAd && onSelectAd(ad)}
+                      className="p-3.5 flex-1 flex flex-col justify-between cursor-pointer"
+                    >
                       <div>
                         <div className="flex items-baseline gap-1.5 mb-0.5">
                           <div className={`text-base font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
@@ -206,7 +239,7 @@ export default function SavedItemsModal({
                             </>
                           )}
                         </div>
-                        <h4 className="font-bold text-[#002f34] text-sm line-clamp-1">
+                        <h4 className="font-bold text-[#002f34] group-hover:text-teal-700 transition-colors text-sm line-clamp-1">
                           {ad.title}
                         </h4>
                       </div>
