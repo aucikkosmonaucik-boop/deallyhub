@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import '../l10n/language_controller.dart';
+import '../utils/content_filter.dart';
 
 class ChatScreen extends StatefulWidget {
   final int conversationId;
@@ -76,6 +77,16 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _controller.text.trim();
     if (text.isEmpty || _sending) return;
 
+    if (AppContentFilter.containsProfanity(text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFFDC2626),
+          content: Text(tr('error_profanity')),
+        ),
+      );
+      return;
+    }
+
     _controller.clear();
     setState(() => _sending = true);
 
@@ -86,6 +97,18 @@ class _ChatScreenState extends State<ChatScreen> {
           _messages.add(res['message']);
         });
         _scrollToBottom();
+      } else {
+        final err = res['error']?.toString() ?? '';
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: const Color(0xFFDC2626),
+              content: Text(err.contains('prohibited') || err.contains('offensive')
+                  ? tr('error_profanity')
+                  : err),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -148,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemBuilder: (ctx, idx) {
                           final m = _messages[idx];
                           final isMine = m['is_mine'] == true;
-                          final content = m['content'] ?? '';
+                          final content = AppContentFilter.censorProfanity(m['content']?.toString() ?? '');
 
                           return Align(
                             alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,

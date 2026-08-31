@@ -10,6 +10,7 @@ import '../l10n/app_translations.dart';
 import '../l10n/language_controller.dart';
 import '../widgets/app_image.dart';
 import '../widgets/language_picker_dialog.dart';
+import '../utils/content_filter.dart';
 import 'ad_details_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -88,6 +89,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _authSubmitting = true;
       _authError = null;
     });
+
+    if (!_isLogin && AppContentFilter.containsProfanity(_name)) {
+      setState(() {
+        _authSubmitting = false;
+        _authError = tr('error_profanity');
+      });
+      return;
+    }
 
     try {
       final res = _isLogin
@@ -1330,6 +1339,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     return;
                                   }
 
+                                  final locationVal = locationController.text.trim().isEmpty ? 'Entire Country' : locationController.text.trim();
+                                  if (AppContentFilter.containsProfanity(title) ||
+                                      AppContentFilter.containsProfanity(desc) ||
+                                      AppContentFilter.containsProfanity(locationVal)) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: const Color(0xFFDC2626),
+                                        content: Text(tr('error_profanity')),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
                                   final messenger = ScaffoldMessenger.of(context);
                                   final nav = Navigator.of(ctx);
                                   setEditState(() => saving = true);
@@ -1476,6 +1498,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             : () async {
                                 final newName = nameController.text.trim();
                                 if (newName.isEmpty) return;
+                                if (AppContentFilter.containsProfanity(newName)) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: const Color(0xFFDC2626),
+                                      content: Text(tr('error_profanity')),
+                                    ),
+                                  );
+                                  return;
+                                }
                                 final messenger = ScaffoldMessenger.of(context);
                                 final nav = Navigator.of(ctx);
                                 setSheetState(() => savingName = true);

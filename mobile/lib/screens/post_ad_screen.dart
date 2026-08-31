@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../api/api_service.dart';
 import '../l10n/language_controller.dart';
 import '../widgets/app_image.dart';
+import '../utils/content_filter.dart';
 
 class PostAdScreen extends StatefulWidget {
   final VoidCallback? onAdCreated;
@@ -165,6 +166,19 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
     final locationVal = _locationController.text.trim().isEmpty ? 'Entire Country' : _locationController.text.trim();
     final phoneVal = _phoneController.text.trim();
+
+    if (AppContentFilter.containsProfanity(title) ||
+        AppContentFilter.containsProfanity(description) ||
+        AppContentFilter.containsProfanity(locationVal)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFFDC2626),
+          content: Text(tr('error_profanity')),
+        ),
+      );
+      setState(() => _submitting = false);
+      return;
+    }
 
     try {
       final res = await ApiService.createAd(

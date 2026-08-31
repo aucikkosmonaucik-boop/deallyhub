@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Send } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
+import { containsProfanity } from "@/lib/contentFilter";
 
 export type AuthMode = "login" | "register" | "forgot" | "reset" | "verify_notice";
 
@@ -208,6 +209,13 @@ export default function AuthModal({
 
     try {
       if (mode === "login" || mode === "register") {
+        if (mode === "register") {
+          const nameCheck = containsProfanity(name.trim());
+          if (nameCheck.hasProfanity) {
+            throw new Error(t("errors.profanityName"));
+          }
+        }
+
         const endpoint = mode === "login" ? `${apiUrl}/api/auth/login` : `${apiUrl}/api/auth/register`;
         const payload = mode === "login" ? { email, password } : { name, email, password };
 

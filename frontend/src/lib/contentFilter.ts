@@ -1,12 +1,10 @@
 /**
- * Deallyhub Content & Profanity Filter Module
- * Comprehensive multilingual profanity detection (PL, EN, DE, FR, ES, IT).
- * Features advanced anti-evasion for leetspeak, spacing, symbols, diacritics, and repeated letters,
- * while strictly protecting legitimate classifieds/e-commerce terminology with an intelligent whitelist.
+ * Deallyhub Client-Side Profanity Filter Module
+ * Detects, validates, and censors offensive content in real-time on Web and Mobile Browsers.
  */
 
 // Safe words whitelist - words that contain sub-patterns but are completely legitimate in classifieds/e-commerce
-export const SAFE_WORDS_WHITELIST = new Set([
+export const SAFE_WORDS_WHITELIST = new Set<string>([
   "rabat",
   "rabatu",
   "rabaty",
@@ -65,10 +63,9 @@ export const SAFE_WORDS_WHITELIST = new Set([
   "spitfire"
 ]);
 
-// Base profanity stems & regex patterns (normalized representation: no accents, lowercase)
-export const PROFANITY_PATTERNS = [
+// Base profanity patterns
+export const PROFANITY_PATTERNS: RegExp[] = [
   // --- POLISH (PL) ---
-  // Kurw* & krw*
   /\b(?:w|na|za|od|po|przy|pod|roz|do|s|u)?k+[uou]*r+w+[a-z]*\b/i,
   /\bk+[uou]*r+w+[a-z]*\b/i,
   /\bk+u+r+e+w+s+k+[a-z]*\b/i,
@@ -76,14 +73,12 @@ export const PROFANITY_PATTERNS = [
   /\bk+u+r+w+i+s+k+o[a-z]*\b/i,
   /\bk+u+r+w+i+a+c[a-z]*\b/i,
 
-  // Chuj* / Huj* & chj*
   /\b(?:o|od|za|po|z|u|do|na|w)?(?:ch|h)+[uou]*j+[a-z]*\b/i,
   /\b(?:ch|h)+u+j+e+k[a-z]*\b/i,
   /\b(?:ch|h)+u+j+n+i+[a-z]*\b/i,
   /\b(?:ch|h)+u+j+o+w+[a-z]*\b/i,
   /\b(?:ch|h)+u+j+a+m+i\b/i,
 
-  // Jeb* & jb*
   /\b(?:wy|za|do|od|pod|roz|na|u|s|z|po|prze|przy|w)?j+[eou]*b+[a-z]*\b/i,
   /\bj+[eou]*b+a+n+[a-z]*\b/i,
   /\bj+[eou]*b+a+k+[a-z]*\b/i,
@@ -92,7 +87,6 @@ export const PROFANITY_PATTERNS = [
   /\bj+e+b+n+i+e+t+[a-z]*\b/i,
   /\bj+[eou]*b+a+c\b/i,
 
-  // Pierdol* / Spierdal* & prdl*
   /\b(?:s|wy|za|do|od|roz|o|po|prze|przy|na|w)?p+[i]*[e]?r+d+o+l+[a-z]*\b/i,
   /\b(?:s|wy|za|do|od|roz|o|po|prze|przy|na|w)?p+[i]*[e]?r+d+a+l+[a-z]*\b/i,
   /\b(?:s|wy|za|do|od|roz|o|po|prze|przy|na|w)?p+r+d+l+[a-z]*\b/i,
@@ -102,44 +96,35 @@ export const PROFANITY_PATTERNS = [
   /\bp+i+e+r+d+y+k+n+[a-z]*\b/i,
   /\bp+i+e+r+d+z+i+e+l+[a-z]*\b/i,
 
-  // Pizd* & pzd*
   /\b(?:wy|od|za|s|roz|o)?p+[i]*z+d+[a-z]*\b/i,
   /\bp+i+z+d+a+\b/i,
   /\bp+i+z+d+z+i+e+\b/i,
   /\bp+i+z+d+o+w+a+t+[a-z]*\b/i,
   /\bp+i+z+d+k+[a-z]*\b/i,
 
-  // Cip*
   /\bc+i+p+[aeyoęąu]\b/i,
   /\bc+i+p+k+[a-z]*\b/i,
   /\bc+i+p+s+k+o[a-z]*\b/i,
   /\bc+i+p+e+k[a-z]*\b/i,
 
-  // Kutas*
   /\bk+u+t+a+s+[a-z]*\b/i,
-
-  // Cwel*
   /\bc+w+e+l+[a-z]*\b/i,
 
-  // Pedał (wulgaryzm/slur - wykluczamy kontekst rowerowy/motoryzacyjny w safe words)
   /\bp+e+d+a+l+a+m+i\b/i,
   /\bp+e+d+a+l+s+k+[a-z]*\b/i,
   /\bj+e+b+a+n+y+ +p+e+d+a+l+\b/i,
   /\bt+y+ +p+e+d+a+l+e+\b/i,
   /\bp+e+d+a+l+e+\b/i,
 
-  // Dziwk* / Szmat*
   /\bd+z+i+w+k+[a-z]*\b/i,
   /\bs+z+m+a+t+[aeyoęąu]\b/i,
   /\bs+z+m+a+c+i+e+\b/i,
   /\bs+z+m+a+t+l+a+w+i+e+c\b/i,
 
-  // Skurw*
   /\bs+k+u+r+w+y+s+y+n[a-z]*\b/i,
   /\bs+k+u+r+w+i+e+l[a-z]*\b/i,
   /\bs+u+k+i+n+s+y+n[a-z]*\b/i,
 
-  // Inne ciężkie obelgi
   /\bc+h+u+j+o+z+a\b/i,
   /\bd+o+j+e+b+a+n+[a-z]*\b/i,
   /\br+u+c+h+a+n+i+e\b/i,
@@ -204,32 +189,24 @@ export const PROFANITY_PATTERNS = [
   /\bc+o+g+l+i+o+n+e+[a-z]*\b/i
 ];
 
-/**
- * Normalizes text to handle leetspeak, diacritics, and obfuscations.
- */
-export function normalizeText(text) {
-  if (typeof text !== "string") return "";
+export function normalizeText(text: string): string {
+  if (!text || typeof text !== "string") return "";
 
   let norm = text.toLowerCase();
 
-  // 1. Normalize diacritics across European languages (PL, DE, FR, ES, IT)
-  const diacriticsMap = {
-    // Polish
+  const diacriticsMap: Record<string, string> = {
     ą: "a", ć: "c", ę: "e", ł: "l", ń: "n", ó: "o", ś: "s", ź: "z", ż: "z",
-    // German
     ä: "ae", ö: "oe", ü: "ue", ß: "ss",
-    // French / Spanish / Italian
     é: "e", è: "e", ê: "e", ë: "e",
     á: "a", à: "a", â: "a",
     í: "i", ì: "i", î: "i", ï: "i",
-    ó: "o", ò: "o", ô: "o",
+    ò: "o", ô: "o",
     ú: "u", ù: "u", û: "u",
     ñ: "n", ç: "c"
   };
   norm = norm.replace(/[ąćęłńóśźżäöüßéèêëáàâíìîïóòôúùûñç]/g, (ch) => diacriticsMap[ch] || ch);
 
-  // 2. Normalize Leetspeak and symbol substitutions
-  const leetMap = {
+  const leetMap: Record<string, string> = {
     "@": "a",
     "0": "o",
     "1": "i",
@@ -250,40 +227,32 @@ export function normalizeText(text) {
   return norm;
 }
 
-/**
- * Collapses obfuscations like "k.u.r.w.a", "k u r w a", "k-u-r-w-a", "k_u_r_w_a", "k*r*w*a", "k/u/r/w/a"
- */
-export function collapseObfuscations(text) {
+export function collapseObfuscations(text: string): string {
   return text.replace(/([a-z0-9])[\s._\-*~#^/\\,+]+([a-z0-9])/gi, "$1$2");
 }
 
-/**
- * Reduces repeated characters like "kuuuuurwa" -> "kurwa"
- */
-export function reduceRepeats(text) {
+export function reduceRepeats(text: string): string {
   return text.replace(/(.)\1{2,}/gi, "$1$1");
 }
 
-/**
- * Check if the provided text contains any banned or offensive words.
- * @param {string} text - The input text to check.
- * @returns {{ hasProfanity: boolean, matchedWord: string | null }}
- */
-export function containsProfanity(text) {
+export interface ProfanityCheckResult {
+  hasProfanity: boolean;
+  matchedWord: string | null;
+}
+
+export function containsProfanity(text: string): ProfanityCheckResult {
   if (!text || typeof text !== "string") {
     return { hasProfanity: false, matchedWord: null };
   }
 
   const rawNormalized = normalizeText(text);
 
-  // Check if text is solely a whitelisted safe word
   for (const safe of SAFE_WORDS_WHITELIST) {
     if (rawNormalized.trim() === safe) {
       return { hasProfanity: false, matchedWord: null };
     }
   }
 
-  // Variations to check:
   const collapsed = collapseObfuscations(rawNormalized);
   const collapsedReduced = reduceRepeats(collapsed);
   const collapsed2 = collapseObfuscations(collapsed);
@@ -326,20 +295,13 @@ export function containsProfanity(text) {
   };
 }
 
-/**
- * Censoring helper function that masks profanities with asterisks (e.g., "k****a").
- * @param {string} text - The input text to censor.
- * @returns {string}
- */
-export function censorProfanity(text) {
+export function censorProfanity(text: string): string {
   if (!text || typeof text !== "string") return text;
 
   let censored = text;
 
-  // Check against each pattern
   for (const pattern of PROFANITY_PATTERNS) {
     censored = censored.replace(pattern, (match) => {
-      // Check if matched word is whitelisted
       const normalizedMatch = normalizeText(match);
       if (SAFE_WORDS_WHITELIST.has(normalizedMatch)) {
         return match;

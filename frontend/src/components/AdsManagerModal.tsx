@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
+import { containsProfanity } from "@/lib/contentFilter";
 
 interface Category {
   id: number;
@@ -280,6 +281,15 @@ export default function AdsManagerModal({
 
     if (isPromo && !isFree && origPriceNum !== null && origPriceNum <= currentPriceNum) {
       setError("Regular price must be greater than current promo price.");
+      return;
+    }
+
+    // Client-side profanity validation
+    const titleCheck = containsProfanity(title.trim());
+    const descCheck = containsProfanity(description.trim());
+    const locCheck = containsProfanity(location.trim());
+    if (titleCheck.hasProfanity || descCheck.hasProfanity || locCheck.hasProfanity) {
+      setError(t("errors.profanityAd"));
       return;
     }
 

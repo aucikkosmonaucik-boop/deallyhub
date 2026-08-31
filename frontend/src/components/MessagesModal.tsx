@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
+import { containsProfanity, censorProfanity } from "@/lib/contentFilter";
 
 interface Conversation {
   id: number;
@@ -149,6 +150,14 @@ export default function MessagesModal({
 
     setErrorMsg(null);
     const content = inputText.trim();
+
+    // Client-side profanity validation
+    const profCheck = containsProfanity(content);
+    if (profCheck.hasProfanity) {
+      setErrorMsg(t("errors.profanityMessage"));
+      return;
+    }
+
     setSending(true);
     const apiUrl = getApiUrl();
 
@@ -381,7 +390,7 @@ export default function MessagesModal({
                               : "bg-white text-[#002f34] border border-gray-200 rounded-bl-xs"
                           }`}
                         >
-                          {m.content}
+                          {censorProfanity(m.content)}
                         </div>
                         <span className="text-[10px] text-gray-400 mt-1 px-1 flex items-center gap-1">
                           {new Date(m.created_at).toLocaleTimeString([], {

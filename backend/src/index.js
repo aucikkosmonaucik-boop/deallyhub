@@ -8,7 +8,7 @@ import {
   sendVerificationEmail,
   sendPasswordResetEmail
 } from "./emailService.js";
-import { containsProfanity } from "./contentFilter.js";
+import { containsProfanity, censorProfanity } from "./contentFilter.js";
 import { checkImagesForNudity, initImageFilter } from "./imageFilter.js";
 import {
   initDb,
@@ -759,6 +759,16 @@ app.post("/api/ads", authenticateToken, async (req, res) => {
       });
     }
 
+    if (location && typeof location === "string") {
+      const locCheck = containsProfanity(location);
+      if (locCheck.hasProfanity) {
+        return res.status(400).json({
+          success: false,
+          error: "Advertisement location contains prohibited or offensive words."
+        });
+      }
+    }
+
     // Global Nudity & NSFW Content Filter
     if (Array.isArray(images) && images.length > 0) {
       const imageSafety = await checkImagesForNudity(images);
@@ -832,10 +842,17 @@ app.get("/api/ads", async (req, res) => {
       limit: limit ? parseInt(limit, 10) : 50
     });
 
+    const sanitizedAds = ads.map(a => ({
+      ...a,
+      title: censorProfanity(a.title || ""),
+      description: censorProfanity(a.description || ""),
+      location: censorProfanity(a.location || "")
+    }));
+
     res.json({
       success: true,
-      count: ads.length,
-      ads
+      count: sanitizedAds.length,
+      ads: sanitizedAds
     });
   } catch (err) {
     console.error("Get all ads error:", err);
@@ -855,9 +872,16 @@ app.get("/api/ads/:id", async (req, res) => {
       return res.status(404).json({ success: false, error: "Advertisement not found." });
     }
 
+    const sanitizedAd = {
+      ...ad,
+      title: censorProfanity(ad.title || ""),
+      description: censorProfanity(ad.description || ""),
+      location: censorProfanity(ad.location || "")
+    };
+
     res.json({
       success: true,
-      ad
+      ad: sanitizedAd
     });
   } catch (err) {
     console.error("Get single ad error:", err);
@@ -892,6 +916,16 @@ app.put("/api/ads/:id", authenticateToken, async (req, res) => {
         success: false,
         error: "Advertisement description contains prohibited or offensive words. Please remove them before publishing."
       });
+    }
+
+    if (location && typeof location === "string") {
+      const locCheck = containsProfanity(location);
+      if (locCheck.hasProfanity) {
+        return res.status(400).json({
+          success: false,
+          error: "Advertisement location contains prohibited or offensive words."
+        });
+      }
     }
 
     // Global Nudity & NSFW Content Filter
@@ -1061,10 +1095,14 @@ app.post("/api/conversations", authenticateToken, async (req, res) => {
 app.get("/api/conversations/:id/messages", authenticateToken, async (req, res) => {
   try {
     const messages = await getConversationMessages(req.params.id, req.user.userId);
+    const sanitizedMessages = messages.map(m => ({
+      ...m,
+      content: censorProfanity(m.content || "")
+    }));
     res.json({
       success: true,
-      count: messages.length,
-      messages
+      count: sanitizedMessages.length,
+      messages: sanitizedMessages
     });
   } catch (err) {
     res.status(400).json({

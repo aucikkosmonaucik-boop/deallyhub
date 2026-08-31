@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
+import { containsProfanity } from "@/lib/contentFilter";
 
 interface UserProfile {
   id: number;
@@ -81,6 +82,14 @@ export default function AccountSettingsModal({
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    // Client-side profanity pre-check
+    const nameCheck = containsProfanity(name.trim());
+    if (nameCheck.hasProfanity) {
+      setProfileError(t("errors.profanityName"));
+      return;
+    }
+
     setProfileError(null);
     setProfileSuccess(null);
     setUpdatingProfile(true);
