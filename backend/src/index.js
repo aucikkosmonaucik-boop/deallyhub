@@ -53,8 +53,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "deallyhub_jwt_super_secret_key_202
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: "15mb" }));
-app.use(express.urlencoded({ extended: true, limit: "15mb" }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Auth middleware
 function authenticateToken(req, res, next) {
@@ -1149,7 +1149,28 @@ app.get("/api/admin/users", requireAdmin, async (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: "Endpoint not found" });
+  res.status(404).json({ success: false, error: "Endpoint not found" });
+});
+
+// Global error handler middleware (catches payload too large, JSON parse errors, etc.)
+app.use((err, req, res, next) => {
+  if (err.type === "entity.too.large" || err.status === 413) {
+    return res.status(413).json({
+      success: false,
+      error: "Uploaded payload is too large. Please select smaller images or fewer photos."
+    });
+  }
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid JSON format in request body."
+    });
+  }
+  console.error("Unhandled server error:", err);
+  return res.status(err.status || 500).json({
+    success: false,
+    error: err.message || "An unexpected server error occurred."
+  });
 });
 
 // Start server

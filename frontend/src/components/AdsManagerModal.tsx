@@ -155,22 +155,71 @@ export default function AdsManagerModal({
     }
   };
 
-  // Handle local file uploads with preview
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    Array.from(files).forEach((file) => {
-      if (!file.type.startsWith("image/")) return;
+  // Helper to compress local uploaded images on the client side before converting to Base64
+  const compressImageFile = (file: File, maxDimension = 1600, quality = 0.82): Promise<string> => {
+    return new Promise((resolve) => {
+      if (file.type === "image/svg+xml" || !file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve((e.target?.result as string) || "");
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(file);
+        return;
+      }
 
       const reader = new FileReader();
       reader.onload = (event) => {
-        if (event.target?.result) {
-          setImages((prev) => [...prev, event.target!.result as string]);
-        }
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          } else {
+            resolve((event.target?.result as string) || "");
+          }
+        };
+        img.onerror = () => resolve((event.target?.result as string) || "");
+        img.src = (event.target?.result as string) || "";
       };
+      reader.onerror = () => resolve("");
       reader.readAsDataURL(file);
     });
+  };
+
+  // Handle local file uploads with automatic compression and preview
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileList = Array.from(files).filter((file) => file.type.startsWith("image/"));
+    if (fileList.length === 0) return;
+
+    for (const file of fileList) {
+      try {
+        const compressedBase64 = await compressImageFile(file, 1600, 0.82);
+        if (compressedBase64) {
+          setImages((prev) => [...prev, compressedBase64]);
+        }
+      } catch (err) {
+        console.warn("Failed to process image file:", err);
+      }
+    }
 
     e.target.value = "";
   };
@@ -199,13 +248,16 @@ export default function AdsManagerModal({
           Authorization: `Bearer ${token}`
         }
       });
-      const data = await res.json();
-      if (data.success) {
-        setMyAds((prev) => prev.filter((ad) => ad.id !== adId));
-        if (onAdCreated) onAdCreated();
-      } else {
-        alert(data.error || "Failed to delete advertisement.");
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.success) {
+          setMyAds((prev) => prev.filter((ad) => ad.id !== adId));
+          if (onAdCreated) onAdCreated();
+          return;
+        }
       }
+      alert("Failed to delete advertisement.");
     } catch (err) {
       alert("Network error while deleting advertisement.");
     }
@@ -257,7 +309,16 @@ export default function AdsManagerModal({
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      let data: any;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        if (res.status === 413) {
+          throw new Error("Photos payload is too large. Please select fewer or smaller images.");
+        }
+        throw new Error(`Server returned error ${res.status}. Please try again.`);
+      }
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || `Failed to ${isEditing ? "update" : "publish"} advertisement.`);
