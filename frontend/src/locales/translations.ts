@@ -233,6 +233,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.date": "Date",
     "common.or": "or",
 
+    "nav.home": "Home",
     "nav.messages": "Messages",
     "nav.saved": "Saved",
     "nav.notifications": "Notifications",
@@ -244,6 +245,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "nav.savedItems": "Saved Items",
     "nav.accountSettings": "Account Settings",
     "nav.adminPortal": "Admin Portal (Owner)",
+    "nav.adminPanel": "Admin Portal",
     "nav.logout": "Log Out",
     "nav.signIn": "Sign In",
 
@@ -379,6 +381,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "saved.subtitle": "Your favorite advertisements",
     "saved.empty": "Your saved list is empty",
     "saved.emptyDesc": "Click the heart icon on any advertisement to save it here for quick access.",
+    "saved.browseBtn": "Browse Listings",
     "saved.remove": "Remove",
 
     "messages.title": "Messages",
@@ -400,6 +403,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyDesc": "You're all caught up! Updates about your deals and account will appear here.",
 
     "settings.title": "Account Settings",
+    "settings.subtitle": "Manage your profile, password and account settings",
     "settings.profileTab": "Profile",
     "settings.passwordTab": "Password",
     "settings.dangerTab": "Danger Zone",
@@ -409,9 +413,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "settings.newPassword": "New Password",
     "settings.confirmNewPassword": "Confirm New Password",
     "settings.updatePassword": "Change Password",
+    "settings.updatePasswordBtn": "Change Password",
     "settings.deleteAccount": "Delete Account",
+    "settings.deleteAccountBtn": "Permanently Delete My Account",
     "settings.deleteWarning": "Warning: Deleting your account will permanently remove all your advertisements, messages, and saved items.",
+    "settings.deleteAccountWarning": "Warning: Deleting your account will permanently remove all your advertisements, messages, and saved items.",
     "settings.deleteConfirmText": "Type DELETE to confirm account deletion:",
+    "settings.deleteConfirmPrompt": "Type DELETE to confirm account deletion:",
     "settings.deleteBtn": "Permanently Delete My Account",
 
     "admin.title": "Deallyhub Admin Portal (Owner)",
@@ -523,6 +531,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.date": "Date",
     "common.or": "ou",
 
+    "nav.home": "Accueil",
     "nav.messages": "Messages",
     "nav.saved": "Favoris",
     "nav.notifications": "Notifications",
@@ -534,6 +543,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "nav.savedItems": "Mes Favoris",
     "nav.accountSettings": "Paramètres du compte",
     "nav.adminPortal": "Portail d'administration",
+    "nav.adminPanel": "Panneau d'administration",
     "nav.logout": "Se déconnecter",
     "nav.signIn": "Se connecter",
 
@@ -669,6 +679,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "saved.subtitle": "Annonces sauvegardées",
     "saved.empty": "Votre liste de favoris est vide",
     "saved.emptyDesc": "Cliquez sur le cœur d'une annonce pour la retrouver ici rapidement.",
+    "saved.browseBtn": "Parcourir les annonces",
     "saved.remove": "Retirer",
 
     "messages.title": "Messagerie",
@@ -690,6 +701,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyDesc": "Vous êtes à jour ! Les actualités de vos annonces s'afficheront ici.",
 
     "settings.title": "Paramètres du compte",
+    "settings.subtitle": "Gérez votre profil, mot de passe et paramètres de compte",
     "settings.profileTab": "Profil",
     "settings.passwordTab": "Mot de passe",
     "settings.dangerTab": "Zone de danger",
@@ -699,9 +711,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "settings.newPassword": "Nouveau mot de passe",
     "settings.confirmNewPassword": "Confirmer le nouveau mot de passe",
     "settings.updatePassword": "Modifier le mot de passe",
+    "settings.updatePasswordBtn": "Modifier le mot de passe",
     "settings.deleteAccount": "Supprimer le compte",
+    "settings.deleteAccountBtn": "Supprimer définitivement mon compte",
     "settings.deleteWarning": "Attention : La suppression définitive de votre compte effacera toutes vos annonces, vos messages et vos favoris.",
+    "settings.deleteAccountWarning": "Attention : La suppression définitive de votre compte effacera toutes vos annonces, vos messages et vos favoris.",
     "settings.deleteConfirmText": "Tapez DELETE pour confirmer la suppression :",
+    "settings.deleteConfirmPrompt": "Tapez DELETE pour confirmer la suppression :",
     "settings.deleteBtn": "Supprimer définitivement mon compte",
 
     "admin.title": "Portail d'Administration Deallyhub",
@@ -813,6 +829,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.date": "Fecha",
     "common.or": "o",
 
+    "nav.home": "Inicio",
     "nav.messages": "Mensajes",
     "nav.saved": "Guardados",
     "nav.notifications": "Notificaciones",
@@ -824,6 +841,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "nav.savedItems": "Artículos Guardados",
     "nav.accountSettings": "Configuración de cuenta",
     "nav.adminPortal": "Panel de Administración",
+    "nav.adminPanel": "Panel de Administración",
     "nav.logout": "Cerrar Sesión",
     "nav.signIn": "Iniciar Sesión",
 
@@ -959,6 +977,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "saved.subtitle": "Tus anuncios favoritos",
     "saved.empty": "No tienes anuncios guardados",
     "saved.emptyDesc": "Pulsa en el corazón de cualquier anuncio para tenerlo siempre a mano.",
+    "saved.browseBtn": "Explorar anuncios",
     "saved.remove": "Quitar",
 
     "messages.title": "Mensajes",
@@ -980,6 +999,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyDesc": "¡Estás al día! Aquí verás las novedades sobre tus anuncios y cuenta.",
 
     "settings.title": "Configuración de Cuenta",
+    "settings.subtitle": "Administra tu perfil, contraseña y preferencias de cuenta",
     "settings.profileTab": "Perfil",
     "settings.passwordTab": "Contraseña",
     "settings.dangerTab": "Zona de Peligro",
@@ -989,9 +1009,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "settings.newPassword": "Nueva contraseña",
     "settings.confirmNewPassword": "Confirmar nueva contraseña",
     "settings.updatePassword": "Cambiar contraseña",
+    "settings.updatePasswordBtn": "Cambiar contraseña",
     "settings.deleteAccount": "Eliminar cuenta",
+    "settings.deleteAccountBtn": "Eliminar mi cuenta definitivamente",
     "settings.deleteWarning": "Aviso: Eliminar tu cuenta borrará permanentemente todos tus anuncios, mensajes y artículos guardados.",
+    "settings.deleteAccountWarning": "Aviso: Eliminar tu cuenta borrará permanentemente todos tus anuncios, mensajes y artículos guardados.",
     "settings.deleteConfirmText": "Escribe DELETE para confirmar la eliminación:",
+    "settings.deleteConfirmPrompt": "Escribe DELETE para confirmar la eliminación:",
     "settings.deleteBtn": "Eliminar mi cuenta definitivamente",
 
     "admin.title": "Panel de Administración Deallyhub",
@@ -1103,6 +1127,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.date": "Datum",
     "common.or": "oder",
 
+    "nav.home": "Startseite",
     "nav.messages": "Nachrichten",
     "nav.saved": "Merkliste",
     "nav.notifications": "Benachrichtigungen",
@@ -1114,6 +1139,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "nav.savedItems": "Gespeicherte Anzeigen",
     "nav.accountSettings": "Kontoeinstellungen",
     "nav.adminPortal": "Admin-Portal",
+    "nav.adminPanel": "Admin-Portal",
     "nav.logout": "Abmelden",
     "nav.signIn": "Anmelden",
 
@@ -1249,6 +1275,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "saved.subtitle": "Deine persönliche Merkliste",
     "saved.empty": "Deine Merkliste ist leer",
     "saved.emptyDesc": "Klicke bei einer Anzeige auf das Herz, um sie hier zu speichern.",
+    "saved.browseBtn": "Anzeigen durchsuchen",
     "saved.remove": "Entfernen",
 
     "messages.title": "Nachrichten",
@@ -1270,6 +1297,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyDesc": "Alles erledigt! Neuigkeiten zu deinen Anzeigen erscheinen hier.",
 
     "settings.title": "Kontoeinstellungen",
+    "settings.subtitle": "Verwalten Sie Ihr Profil, Passwort und Ihre Kontoeinstellungen",
     "settings.profileTab": "Profil",
     "settings.passwordTab": "Passwort",
     "settings.dangerTab": "Gefahrenbereich",
@@ -1279,9 +1307,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "settings.newPassword": "Neues Passwort",
     "settings.confirmNewPassword": "Neues Passwort bestätigen",
     "settings.updatePassword": "Passwort ändern",
+    "settings.updatePasswordBtn": "Passwort ändern",
     "settings.deleteAccount": "Konto löschen",
+    "settings.deleteAccountBtn": "Mein Konto endgültig löschen",
     "settings.deleteWarning": "Achtung: Durch das Löschen deines Kontos werden alle Anzeigen, Nachrichten und Favoriten unwiderruflich gelöscht.",
+    "settings.deleteAccountWarning": "Achtung: Durch das Löschen deines Kontos werden alle Anzeigen, Nachrichten und Favoriten unwiderruflich gelöscht.",
     "settings.deleteConfirmText": "Tippe DELETE zur Bestätigung ein:",
+    "settings.deleteConfirmPrompt": "Tippe DELETE zur Bestätigung ein:",
     "settings.deleteBtn": "Mein Konto endgültig löschen",
 
     "admin.title": "Deallyhub Admin-Portal",
@@ -1393,6 +1425,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.date": "Data",
     "common.or": "lub",
 
+    "nav.home": "Strona główna",
     "nav.messages": "Wiadomości",
     "nav.saved": "Obserwowane",
     "nav.notifications": "Powiadomienia",
@@ -1404,6 +1437,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "nav.savedItems": "Obserwowane ogłoszenia",
     "nav.accountSettings": "Ustawienia konta",
     "nav.adminPortal": "Panel Administratora",
+    "nav.adminPanel": "Panel Administratora",
     "nav.logout": "Wyloguj się",
     "nav.signIn": "Zaloguj się",
 
@@ -1539,6 +1573,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "saved.subtitle": "Twoje ulubione i zapisane oferty",
     "saved.empty": "Brak obserwowanych ogłoszeń",
     "saved.emptyDesc": "Kliknij ikonę serduszka przy dowolnym ogłoszeniu, aby zapisać je na później.",
+    "saved.browseBtn": "Przeglądaj ogłoszenia",
     "saved.remove": "Usuń",
 
     "messages.title": "Wiadomości",
@@ -1560,6 +1595,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyDesc": "Wszystko przeczytane! Tutaj pojawią się wiadomości o Twoich ogłoszeniach.",
 
     "settings.title": "Ustawienia Konta",
+    "settings.subtitle": "Zarządzaj profilem, hasłem i preferencjami konta",
     "settings.profileTab": "Profil",
     "settings.passwordTab": "Hasło",
     "settings.dangerTab": "Strefa Ryzyka",
@@ -1569,9 +1605,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "settings.newPassword": "Nowe hasło",
     "settings.confirmNewPassword": "Potwierdź nowe hasło",
     "settings.updatePassword": "Zmień hasło",
+    "settings.updatePasswordBtn": "Zmień hasło",
     "settings.deleteAccount": "Usuń konto",
+    "settings.deleteAccountBtn": "Trwale usuń moje konto",
     "settings.deleteWarning": "Uwaga: Usunięcie konta spowoduje bezpowrotną utratę wszystkich ogłoszeń, wiadomości oraz listy obserwowanych.",
+    "settings.deleteAccountWarning": "Uwaga: Usunięcie konta spowoduje bezpowrotną utratę wszystkich ogłoszeń, wiadomości oraz listy obserwowanych.",
     "settings.deleteConfirmText": "Wpisz DELETE, aby potwierdzić usunięcie konta:",
+    "settings.deleteConfirmPrompt": "Wpisz DELETE, aby potwierdzić usunięcie konta:",
     "settings.deleteBtn": "Trwale usuń moje konto",
 
     "admin.title": "Panel Administratora Deallyhub",
@@ -1683,6 +1723,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.date": "Data",
     "common.or": "o",
 
+    "nav.home": "Home",
     "nav.messages": "Messaggi",
     "nav.saved": "Salvati",
     "nav.notifications": "Notifiche",
@@ -1694,6 +1735,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "nav.savedItems": "Annunci Salvati",
     "nav.accountSettings": "Impostazioni Account",
     "nav.adminPortal": "Portale Amministratore",
+    "nav.adminPanel": "Pannello di Amministrazione",
     "nav.logout": "Esci",
     "nav.signIn": "Accedi",
 
@@ -1829,6 +1871,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "saved.subtitle": "I tuoi annunci preferiti",
     "saved.empty": "Nessun annuncio salvato",
     "saved.emptyDesc": "Clicca sul cuore su qualsiasi annuncio per salvarlo e ritrovarlo qui.",
+    "saved.browseBtn": "Sfoglia annunci",
     "saved.remove": "Rimuovi",
 
     "messages.title": "Messaggi",
@@ -1850,6 +1893,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyDesc": "Tutto aggiornato! Qui riceverai novità su annunci e account.",
 
     "settings.title": "Impostazioni Account",
+    "settings.subtitle": "Gestisci il tuo profilo, password e impostazioni dell'account",
     "settings.profileTab": "Profilo",
     "settings.passwordTab": "Password",
     "settings.dangerTab": "Zona Pericolosa",
@@ -1859,9 +1903,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "settings.newPassword": "Nuova password",
     "settings.confirmNewPassword": "Conferma nuova password",
     "settings.updatePassword": "Cambia password",
+    "settings.updatePasswordBtn": "Cambia password",
     "settings.deleteAccount": "Elimina account",
+    "settings.deleteAccountBtn": "Elimina definitivamente il mio account",
     "settings.deleteWarning": "Attenzione: Eliminando il tuo account cancellerai definitivamente tutti i tuoi annunci, messaggi e preferiti.",
+    "settings.deleteAccountWarning": "Attenzione: Eliminando il tuo account cancellerai definitivamente tutti i tuoi annunci, messaggi e preferiti.",
     "settings.deleteConfirmText": "Digita DELETE per confermare l'eliminazione:",
+    "settings.deleteConfirmPrompt": "Digita DELETE per confermare l'eliminazione:",
     "settings.deleteBtn": "Elimina definitivamente il mio account",
 
     "admin.title": "Portale Amministratore Deallyhub",
@@ -1973,6 +2021,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.date": "Ημερομηνία",
     "common.or": "ή",
 
+    "nav.home": "Αρχική",
     "nav.messages": "Μηνύματα",
     "nav.saved": "Αποθηκευμένα",
     "nav.notifications": "Ειδοποιήσεις",
@@ -1984,6 +2033,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "nav.savedItems": "Αποθηκευμένες Αγγελίες",
     "nav.accountSettings": "Ρυθμίσεις Λογαριασμού",
     "nav.adminPortal": "Πύλη Διαχειριστή",
+    "nav.adminPanel": "Πίνακας Διαχειριστή",
     "nav.logout": "Αποσύνδεση",
     "nav.signIn": "Σύνδεση",
 
@@ -2119,6 +2169,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "saved.subtitle": "Οι αγαπημένες σας προσφορές",
     "saved.empty": "Δεν έχετε αποθηκεύσει αγγελίες",
     "saved.emptyDesc": "Πατήστε την καρδιά σε οποιαδήποτε αγγελία για να την αποθηκεύσετε εδώ.",
+    "saved.browseBtn": "Περιήγηση σε αγγελίες",
     "saved.remove": "Αφαίρεση",
 
     "messages.title": "Μηνύματα",
@@ -2140,6 +2191,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyDesc": "Όλα διαβάστηκαν! Ενημερώσεις για τις αγγελίες σας θα εμφανίζονται εδώ.",
 
     "settings.title": "Ρυθμίσεις Λογαριασμού",
+    "settings.subtitle": "Διαχειριστείτε το προφίλ, τον κωδικό πρόσβασης και τις ρυθμίσεις του λογαριασμού σας",
     "settings.profileTab": "Προφίλ",
     "settings.passwordTab": "Κωδικός",
     "settings.dangerTab": "Επικίνδυνη Ζώνη",
@@ -2149,9 +2201,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "settings.newPassword": "Νέος κωδικός",
     "settings.confirmNewPassword": "Επιβεβαίωση νέου κωδικού",
     "settings.updatePassword": "Αλλαγή κωδικού",
+    "settings.updatePasswordBtn": "Αλλαγή κωδικού",
     "settings.deleteAccount": "Διαγραφή λογαριασμού",
+    "settings.deleteAccountBtn": "Οριστική διαγραφή λογαριασμού",
     "settings.deleteWarning": "Προσοχή: Η διαγραφή του λογαριασμού σας θα διαγράψει οριστικά όλες τις αγγελίες, τα μηνύματα και τα αποθηκευμένα σας.",
+    "settings.deleteAccountWarning": "Προσοχή: Η διαγραφή του λογαριασμού σας θα διαγράψει οριστικά όλες τις αγγελίες, τα μηνύματα και τα αποθηκευμένα σας.",
     "settings.deleteConfirmText": "Πληκτρολογήστε DELETE για επιβεβαίωση διαγραφής:",
+    "settings.deleteConfirmPrompt": "Πληκτρολογήστε DELETE για επιβεβαίωση διαγραφής:",
     "settings.deleteBtn": "Οριστική διαγραφή λογαριασμού",
 
     "admin.title": "Πύλη Διαχειριστή Deallyhub",

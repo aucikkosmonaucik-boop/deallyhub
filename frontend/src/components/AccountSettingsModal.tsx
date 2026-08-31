@@ -200,7 +200,7 @@ export default function AccountSettingsModal({
         <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">{t("settings.title")}</h2>
-            <p className="text-[11px] sm:text-xs text-gray-500">{t("nav.settings")}</p>
+            <p className="text-[11px] sm:text-xs text-gray-500">{t("settings.subtitle")}</p>
           </div>
 
           <button
@@ -422,7 +422,7 @@ export default function AccountSettingsModal({
                       <span>{t("common.loading")}</span>
                     </>
                   ) : (
-                    <span>{t("settings.updatePasswordBtn")}</span>
+                    <span>{t("settings.updatePassword")}</span>
                   )}
                 </button>
               </div>
@@ -435,8 +435,8 @@ export default function AccountSettingsModal({
               <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
                 <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                 <div className="text-xs text-red-900 leading-relaxed">
-                  <strong className="font-bold block mb-1">{t("settings.deleteAccountBtn")}</strong>
-                  {t("settings.deleteAccountWarning")}
+                  <strong className="font-bold block mb-1">{t("settings.deleteAccount")}</strong>
+                  {t("settings.deleteWarning")}
                 </div>
               </div>
 
@@ -449,7 +449,7 @@ export default function AccountSettingsModal({
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  {t("settings.deleteConfirmPrompt")}
+                  {t("settings.deleteConfirmText")}
                 </label>
                 <input
                   type="text"
@@ -475,7 +475,7 @@ export default function AccountSettingsModal({
                   ) : (
                     <>
                       <Trash2 className="w-4 h-4" />
-                      <span>{t("settings.deleteAccountBtn")}</span>
+                      <span>{t("settings.deleteBtn")}</span>
                     </>
                   )}
                 </button>
