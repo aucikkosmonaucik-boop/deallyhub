@@ -68,13 +68,13 @@ export default function NotificationsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 flex flex-col max-h-[92dvh] sm:max-h-[85vh] overflow-hidden"
+        className="bg-white rounded-none sm:rounded-2xl w-full max-w-lg shadow-2xl border-0 sm:border border-gray-100 flex flex-col h-full sm:h-auto max-h-[100dvh] sm:max-h-[85vh] overflow-hidden sm:my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 shrink-0">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-5">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-700 shrink-0">
               <Bell className="w-4 h-4 sm:w-5 sm:h-5" />

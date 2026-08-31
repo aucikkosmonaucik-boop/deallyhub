@@ -194,10 +194,10 @@ export default function AccountSettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
+      <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 w-full max-w-xl h-full sm:h-auto max-h-[100dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+        <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-5">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">{t("settings.title")}</h2>
             <p className="text-[11px] sm:text-xs text-gray-500">{t("settings.subtitle")}</p>

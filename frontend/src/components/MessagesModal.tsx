@@ -182,10 +182,10 @@ export default function MessagesModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-4xl h-[92dvh] sm:h-[88vh] flex flex-col overflow-hidden relative my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-hidden animate-in fade-in duration-150">
+      <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 w-full max-w-4xl h-[100dvh] sm:h-[88vh] flex flex-col overflow-hidden relative sm:my-auto">
         {/* Top Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
               <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -206,15 +206,15 @@ export default function MessagesModal({
         </div>
 
         {/* Main Body (2 Columns) */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 min-h-0 flex overflow-hidden">
           {/* Left Column: Conversations List */}
           <div
-            className={`w-full md:w-80 border-r border-gray-200 flex flex-col bg-gray-50/50 shrink-0 ${
+            className={`w-full md:w-80 border-r border-gray-200 flex flex-col bg-gray-50/50 shrink-0 min-h-0 ${
               selectedConvId ? "hidden md:flex" : "flex"
             }`}
           >
             {/* Search Threads */}
-            <div className="p-3 border-b border-gray-200/80 bg-white">
+            <div className="p-3 border-b border-gray-200/80 bg-white shrink-0">
               <div className="relative">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -222,13 +222,13 @@ export default function MessagesModal({
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder={t("common.search")}
-                  className="w-full pl-9 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none"
+                  className="w-full pl-9 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-base sm:text-xs text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none"
                 />
               </div>
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-gray-100 overscroll-contain">
               {loadingConvs ? (
                 <div className="py-12 text-center text-gray-400">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-teal-600 mb-2" />
@@ -297,34 +297,36 @@ export default function MessagesModal({
 
           {/* Right Column: Active Chat */}
           <div
-            className={`flex-1 flex flex-col bg-white ${
+            className={`flex-1 min-h-0 flex flex-col bg-white ${
               !selectedConvId ? "hidden md:flex" : "flex"
             }`}
           >
             {currentConv ? (
               <>
                 {/* Chat Top Banner */}
-                <div className="p-3.5 px-5 border-b border-gray-200 bg-white flex items-center justify-between shrink-0 shadow-2xs">
-                  <div className="flex items-center gap-3">
+                <div className="p-3 sm:p-3.5 px-4 sm:px-5 border-b border-gray-200 bg-white flex items-center justify-between shrink-0 shadow-2xs">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     <button
                       onClick={() => setSelectedConvId(null)}
-                      className="md:hidden p-1 text-gray-500 hover:text-[#002f34] rounded-lg"
+                      className="md:hidden p-2 -ml-1 text-gray-600 hover:text-[#002f34] hover:bg-gray-100 rounded-lg shrink-0 transition-colors"
+                      title={t("common.back")}
+                      aria-label={t("common.back")}
                     >
                       <ArrowLeft className="w-5 h-5" />
                     </button>
 
-                    <div className="w-10 h-10 rounded-full bg-teal-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-teal-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
                       {currentConv.other_user_name.charAt(0).toUpperCase()}
                     </div>
 
-                    <div>
-                      <h3 className="text-sm font-bold text-[#002f34] leading-tight">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-[#002f34] leading-tight truncate">
                         {currentConv.other_user_name}
                       </h3>
-                      <div className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
-                        <span className="font-medium text-teal-700">{currentConv.ad_title}</span>
+                      <div className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5 truncate">
+                        <span className="font-medium text-teal-700 truncate">{currentConv.ad_title}</span>
                         <span>&bull;</span>
-                        <span className="font-bold text-[#002f34]">
+                        <span className="font-bold text-[#002f34] shrink-0">
                           {currentConv.ad_price} {currentConv.ad_currency}
                         </span>
                       </div>
@@ -333,7 +335,7 @@ export default function MessagesModal({
                 </div>
 
                 {/* Messages Bubbles Stream */}
-                <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-3 bg-[#f8f9fa]">
+                <div className="flex-1 min-h-0 p-3.5 sm:p-6 overflow-y-auto space-y-3 bg-[#f8f9fa] overscroll-contain">
                   {loadingMsgs ? (
                     <div className="py-16 text-center text-gray-400">
                       <Loader2 className="w-6 h-6 animate-spin mx-auto text-teal-600 mb-2" />
@@ -357,7 +359,7 @@ export default function MessagesModal({
                         }`}
                       >
                         <div
-                          className={`max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs ${
+                          className={`max-w-[85%] sm:max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs ${
                             m.is_mine
                               ? "bg-[#002f34] text-white rounded-br-xs"
                               : "bg-white text-[#002f34] border border-gray-200 rounded-bl-xs"
@@ -378,28 +380,32 @@ export default function MessagesModal({
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Message Input Box */}
+                {/* Message Input Box - Fixed and anchored at bottom */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-3 sm:p-4 bg-white border-t border-gray-200 flex items-center gap-2 pb-safe shrink-0"
+                  className="p-2.5 sm:p-4 bg-white border-t border-gray-200 flex items-center gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shrink-0 z-20 shadow-xs sm:shadow-none"
                 >
                   <input
                     type="text"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
+                    onFocus={() => {
+                      setTimeout(scrollToBottom, 250);
+                    }}
                     placeholder={t("messages.placeholder")}
-                    className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none font-normal"
+                    className="flex-1 px-4 py-2.5 sm:py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none font-normal min-w-0 transition-all"
                   />
                   <button
                     type="submit"
                     disabled={!inputText.trim() || sending}
-                    className="p-3 bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white rounded-xl transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs active:scale-95"
+                    className="w-11 h-11 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white rounded-xl transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs active:scale-95 flex items-center justify-center"
                     title={t("messages.send")}
+                    aria-label={t("messages.send")}
                   >
                     {sending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <Send className="w-4 h-4" />
+                      <Send className="w-5 h-5 sm:w-4 sm:h-4" />
                     )}
                   </button>
                 </form>

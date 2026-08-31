@@ -167,10 +167,10 @@ export default function AdDetailsModal({
   if (!isOpen || !ad) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-4xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative my-auto">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
+      <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 w-full max-w-4xl h-full sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto">
         {/* Modal Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4">
           <div className="flex items-center gap-2 sm:gap-2.5 truncate mr-2">
             <span className="bg-[#002f34] text-white text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shrink-0">
               {getCategoryName(ad.category_slug, categoryName)}
@@ -196,7 +196,7 @@ export default function AdDetailsModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-8 pb-20 md:pb-6">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-8 pb-24 md:pb-6">
           {/* Left Column: Photos & Full Description (7 cols) */}
           <div className="md:col-span-7 space-y-5 sm:space-y-6">
             {/* Main Photo Container with Touch Swipe Gesture */}
@@ -454,7 +454,7 @@ export default function AdDetailsModal({
         </div>
 
         {/* Sticky Mobile Contact Action Bar (Android & Mobile browsers) */}
-        <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-2.5 flex items-center justify-between gap-2.5 z-30 shadow-lg pb-safe">
+        <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-2.5 flex items-center justify-between gap-2.5 z-30 shadow-lg pb-[max(0.625rem,env(safe-area-inset-bottom))]">
           <div className="flex items-center gap-2">
             <button
               onClick={() => onToggleSave(ad.id)}
