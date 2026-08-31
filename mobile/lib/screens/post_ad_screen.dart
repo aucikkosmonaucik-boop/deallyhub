@@ -137,13 +137,12 @@ class _PostAdScreenState extends State<PostAdScreen> {
     _formKey.currentState!.save();
 
     final token = await ApiService.getToken();
+    if (!mounted) return;
     if (token == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please sign in before posting an advertisement.')),
-        );
-        widget.onGoToAccount?.call();
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please sign in before posting an advertisement.')),
+      );
+      widget.onGoToAccount?.call();
       return;
     }
 

@@ -268,7 +268,7 @@ class ApiService {
         'title': title,
         'description': description,
         'price': price,
-        if (originalPrice != null) 'originalPrice': originalPrice,
+        'originalPrice': ?originalPrice,
         'currency': currency,
         'location': location,
         'phone': phone,
