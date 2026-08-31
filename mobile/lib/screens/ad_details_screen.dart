@@ -477,12 +477,17 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                           const SizedBox(height: 8),
                           SizedBox(
                             width: double.infinity,
-                            child: TextButton.icon(
+                            child: OutlinedButton.icon(
                               onPressed: () => _emailSeller(authorEmail, title),
                               icon: const Icon(Icons.mail_outline, size: 18),
                               label: Text(tr('details_email')),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey[700],
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.grey[800],
+                                side: const BorderSide(color: Color(0xFFE5E7EB)),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
                           ),
@@ -490,6 +495,37 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+
+                  // Safety Tips Banner
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDFA),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFCCFBF1)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.shield_outlined, size: 18, color: Color(0xFF0D9488)),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            tr('details_safety_tips'),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF134E4A),
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // System navigation bar buffer / Safe bottom inset
+                  SizedBox(height: 16 + MediaQuery.paddingOf(context).bottom),
                 ],
               ),
             ),
