@@ -123,6 +123,7 @@ export async function initDb() {
           title VARCHAR(255) NOT NULL,
           description TEXT NOT NULL,
           price NUMERIC(12, 2) NOT NULL DEFAULT 0,
+          original_price NUMERIC(12, 2) DEFAULT NULL,
           currency VARCHAR(10) NOT NULL DEFAULT 'USD',
           location VARCHAR(255) NOT NULL DEFAULT 'Entire Country',
           images TEXT[] NOT NULL DEFAULT '{}',
@@ -131,9 +132,10 @@ export async function initDb() {
         );
       `);
 
-      // Phone column migration
+      // Phone & original_price column migrations
       await client.query(`
         ALTER TABLE advertisements ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+        ALTER TABLE advertisements ADD COLUMN IF NOT EXISTS original_price NUMERIC(12, 2) DEFAULT NULL;
       `);
 
       // 4. Saved Ads Table
@@ -500,7 +502,11 @@ export async function deleteUserAccount(userId) {
 
 // ================= ADVERTISEMENTS OPERATIONS ================= //
 
-export async function createAd({ userId, categorySlug, title, description, price, currency = "USD", location = "Entire Country", images = [], phone = "" }) {
+export async function createAd({ userId, categorySlug, title, description, price, originalPrice = null, currency = "USD", location = "Entire Country", images = [], phone = "" }) {
+  const parsedOriginalPrice = originalPrice !== undefined && originalPrice !== null && originalPrice !== "" && parseFloat(originalPrice) > 0
+    ? parseFloat(originalPrice)
+    : null;
+
   if (!pool) {
     const newAd = {
       id: nextAdId++,
@@ -509,6 +515,7 @@ export async function createAd({ userId, categorySlug, title, description, price
       title: title.trim(),
       description: description.trim(),
       price: parseFloat(price) || 0,
+      original_price: parsedOriginalPrice,
       currency: currency || "USD",
       location: location.trim() || "Entire Country",
       images: Array.isArray(images) ? images : [],
@@ -522,10 +529,10 @@ export async function createAd({ userId, categorySlug, title, description, price
 
   try {
     const { rows } = await pool.query(`
-      INSERT INTO advertisements (user_id, category_slug, title, description, price, currency, location, images, phone)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO advertisements (user_id, category_slug, title, description, price, original_price, currency, location, images, phone)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
-    `, [userId, categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images, phone ? phone.trim() : ""]);
+    `, [userId, categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, parsedOriginalPrice, currency, location.trim(), images, phone ? phone.trim() : ""]);
     return rows[0];
   } catch (err) {
     console.error("Error creating advertisement in DB:", err.message);
@@ -630,8 +637,12 @@ export async function getAdById(adId) {
   }
 }
 
-export async function updateAd({ adId, userId, categorySlug, title, description, price, currency = "USD", location = "Entire Country", images = [], phone = "", isAdmin = false }) {
+export async function updateAd({ adId, userId, categorySlug, title, description, price, originalPrice, currency = "USD", location = "Entire Country", images = [], phone = "", isAdmin = false }) {
   const parsedId = parseInt(adId, 10);
+  const parsedOriginalPrice = originalPrice !== undefined && originalPrice !== null && originalPrice !== "" && parseFloat(originalPrice) > 0
+    ? parseFloat(originalPrice)
+    : null;
+
   if (!pool) {
     const ad = inMemoryAds.find(a => a.id === parsedId && (a.user_id === userId || isAdmin));
     if (!ad) return null;
@@ -639,6 +650,7 @@ export async function updateAd({ adId, userId, categorySlug, title, description,
     if (title !== undefined) ad.title = title.trim();
     if (description !== undefined) ad.description = description.trim();
     if (price !== undefined) ad.price = parseFloat(price) || 0;
+    if (originalPrice !== undefined) ad.original_price = parsedOriginalPrice;
     if (currency !== undefined) ad.currency = currency;
     if (location !== undefined) ad.location = location.trim() || "Entire Country";
     if (images !== undefined) ad.images = Array.isArray(images) ? images : [];
@@ -652,19 +664,19 @@ export async function updateAd({ adId, userId, categorySlug, title, description,
     if (isAdmin) {
       query = `
         UPDATE advertisements
-        SET category_slug = $1, title = $2, description = $3, price = $4, currency = $5, location = $6, images = $7, phone = $8
-        WHERE id = $9
+        SET category_slug = $1, title = $2, description = $3, price = $4, original_price = $5, currency = $6, location = $7, images = $8, phone = $9
+        WHERE id = $10
         RETURNING *
       `;
-      params = [categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images, phone ? phone.trim() : "", parsedId];
+      params = [categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, parsedOriginalPrice, currency, location.trim(), images, phone ? phone.trim() : "", parsedId];
     } else {
       query = `
         UPDATE advertisements
-        SET category_slug = $1, title = $2, description = $3, price = $4, currency = $5, location = $6, images = $7, phone = $8
-        WHERE id = $9 AND user_id = $10
+        SET category_slug = $1, title = $2, description = $3, price = $4, original_price = $5, currency = $6, location = $7, images = $8, phone = $9
+        WHERE id = $10 AND user_id = $11
         RETURNING *
       `;
-      params = [categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, currency, location.trim(), images, phone ? phone.trim() : "", parsedId, userId];
+      params = [categorySlug, title.trim(), description.trim(), parseFloat(price) || 0, parsedOriginalPrice, currency, location.trim(), images, phone ? phone.trim() : "", parsedId, userId];
     }
     const { rows } = await pool.query(query, params);
     return rows[0] || null;
@@ -1192,6 +1204,7 @@ export async function adminGetAllAds({ search = "", category = "", limit = 50, o
         a.title,
         a.description,
         a.price,
+        a.original_price,
         a.currency,
         a.location,
         a.phone,

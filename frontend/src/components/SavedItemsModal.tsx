@@ -20,6 +20,7 @@ interface Advertisement {
   title: string;
   description: string;
   price: number | string;
+  original_price?: number | string | null;
   currency: string;
   location: string;
   images: string[];
@@ -187,10 +188,22 @@ export default function SavedItemsModal({
                     {/* Card Content */}
                     <div className="p-3.5 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="text-base font-black text-[#002f34] mb-0.5">
-                          {parseFloat(ad.price as string) === 0
-                            ? t("common.free")
-                            : `${ad.price} ${ad.currency}`}
+                        <div className="flex items-baseline gap-1.5 mb-0.5">
+                          <div className="text-base font-black text-[#002f34]">
+                            {parseFloat(ad.price as string) === 0
+                              ? t("common.free")
+                              : `${ad.price} ${ad.currency}`}
+                          </div>
+                          {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
+                            <>
+                              <span className="text-[11px] font-semibold text-gray-400 line-through">
+                                {ad.original_price} {ad.currency}
+                              </span>
+                              <span className="text-[9px] font-bold px-1 py-0.2 bg-rose-100 text-rose-700 rounded">
+                                -{Math.round(((parseFloat(ad.original_price as string) - parseFloat(ad.price as string)) / parseFloat(ad.original_price as string)) * 100)}%
+                              </span>
+                            </>
+                          )}
                         </div>
                         <h4 className="font-bold text-[#002f34] text-sm line-clamp-1">
                           {ad.title}

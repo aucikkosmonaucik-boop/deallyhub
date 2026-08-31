@@ -35,6 +35,7 @@ interface Advertisement {
   title: string;
   description: string;
   price: number | string;
+  original_price?: number | string | null;
   currency: string;
   location: string;
   images: string[];
@@ -69,6 +70,8 @@ export default function AdsManagerModal({
   const [title, setTitle] = useState("");
   const [categorySlug, setCategorySlug] = useState(categories[0]?.slug || "antiques-collectibles");
   const [price, setPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState("");
+  const [isPromo, setIsPromo] = useState(false);
   const [currency, setCurrency] = useState("USD");
   const [isFree, setIsFree] = useState(false);
   const [location, setLocation] = useState("Entire Country");
@@ -86,6 +89,8 @@ export default function AdsManagerModal({
     setTitle("");
     setDescription("");
     setPrice("");
+    setOriginalPrice("");
+    setIsPromo(false);
     setPhone("");
     setImages([]);
     setIsFree(false);
@@ -99,6 +104,9 @@ export default function AdsManagerModal({
     setTitle(ad.title || "");
     setCategorySlug(ad.category_slug || categories[0]?.slug || "");
     setPrice(ad.price ? String(ad.price) : "");
+    const origPriceVal = ad.original_price ? String(ad.original_price) : "";
+    setOriginalPrice(origPriceVal);
+    setIsPromo(!!(ad.original_price && parseFloat(String(ad.original_price)) > parseFloat(String(ad.price || 0))));
     setIsFree(parseFloat(String(ad.price)) === 0);
     setCurrency(ad.currency || "USD");
     setLocation(ad.location || "Entire Country");
@@ -211,6 +219,14 @@ export default function AdsManagerModal({
       return;
     }
 
+    const currentPriceNum = isFree ? 0 : parseFloat(price) || 0;
+    const origPriceNum = isPromo && !isFree && originalPrice ? parseFloat(originalPrice) : null;
+
+    if (isPromo && !isFree && origPriceNum !== null && origPriceNum <= currentPriceNum) {
+      setError("Regular price must be greater than current promo price.");
+      return;
+    }
+
     setError(null);
     setSubmitting(true);
     const apiUrl = getApiUrl();
@@ -219,7 +235,8 @@ export default function AdsManagerModal({
       categorySlug,
       title: title.trim(),
       description: description.trim(),
-      price: isFree ? 0 : parseFloat(price) || 0,
+      price: currentPriceNum,
+      originalPrice: origPriceNum,
       currency,
       location: location.trim() || "Entire Country",
       phone: phone.trim(),
@@ -425,11 +442,23 @@ export default function AdsManagerModal({
 
                           <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
                             <div>
-                              <span className="text-lg font-black text-[#002f34]">
-                                {parseFloat(ad.price as string) === 0
-                                  ? t("common.free")
-                                  : `${ad.price} ${ad.currency}`}
-                              </span>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-lg font-black text-[#002f34]">
+                                  {parseFloat(ad.price as string) === 0
+                                    ? t("common.free")
+                                    : `${ad.price} ${ad.currency}`}
+                                </span>
+                                {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
+                                  <>
+                                    <span className="text-xs font-semibold text-gray-400 line-through">
+                                      {ad.original_price} {ad.currency}
+                                    </span>
+                                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 bg-rose-100 text-rose-700 rounded">
+                                      -{Math.round(((parseFloat(ad.original_price as string) - parseFloat(ad.price as string)) / parseFloat(ad.original_price as string)) * 100)}%
+                                    </span>
+                                  </>
+                                )}
+                              </div>
                               <div className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
                                 <MapPin className="w-3 h-3" />
                                 <span>{ad.location}</span>
@@ -546,11 +575,61 @@ export default function AdsManagerModal({
                     <input
                       type="checkbox"
                       checked={isFree}
-                      onChange={(e) => setIsFree(e.target.checked)}
+                      onChange={(e) => {
+                        setIsFree(e.target.checked);
+                        if (e.target.checked) setIsPromo(false);
+                      }}
                       className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-gray-300"
                     />
                     <span className="text-xs text-gray-600 font-medium">{t("adsManager.freeItem")}</span>
                   </label>
+
+                  {/* Promo Checkbox */}
+                  {!isFree && (
+                    <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={isPromo}
+                        onChange={(e) => setIsPromo(e.target.checked)}
+                        className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-gray-300"
+                      />
+                      <span className="text-xs text-rose-700 font-semibold flex items-center gap-1">
+                        <Tag className="w-3.5 h-3.5" />
+                        {t("adsManager.isPromo")}
+                      </span>
+                    </label>
+                  )}
+
+                  {/* Original / Regular Price Input */}
+                  {isPromo && !isFree && (
+                    <div className="mt-3 p-3 bg-rose-50/70 border border-rose-200/80 rounded-xl space-y-2">
+                      <label className="block text-[11px] font-bold text-rose-900 uppercase tracking-wider">
+                        {t("adsManager.originalPriceLabel")} *
+                      </label>
+                      <div className="relative">
+                        <DollarSign className="w-4 h-4 text-rose-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={originalPrice}
+                          onChange={(e) => setOriginalPrice(e.target.value)}
+                          placeholder={t("adsManager.originalPricePlaceholder")}
+                          className="w-full pl-9 pr-3 py-2 bg-white border border-rose-300 rounded-lg text-xs font-bold text-gray-900 placeholder-rose-300 focus:ring-2 focus:ring-rose-500"
+                        />
+                      </div>
+                      {parseFloat(originalPrice) > parseFloat(price || "0") && parseFloat(price || "0") > 0 && (
+                        <div className="flex items-center justify-between text-xs font-bold text-rose-700">
+                          <span>
+                            {t("adsManager.youSave")}: {(parseFloat(originalPrice) - parseFloat(price)).toFixed(2)} {currency}
+                          </span>
+                          <span className="px-2 py-0.5 bg-rose-600 text-white rounded-md text-[11px]">
+                            -{Math.round(((parseFloat(originalPrice) - parseFloat(price)) / parseFloat(originalPrice)) * 100)}% {t("adsManager.discountBadge")}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div>

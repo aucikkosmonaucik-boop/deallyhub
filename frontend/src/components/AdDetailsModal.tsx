@@ -26,6 +26,7 @@ interface Advertisement {
   title: string;
   description: string;
   price: number | string;
+  original_price?: number | string | null;
   currency: string;
   location: string;
   images: string[];
@@ -174,10 +175,20 @@ export default function AdDetailsModal({
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002f34] tracking-tight leading-snug">
                   {ad.title}
                 </h1>
-                <div className="mt-3 flex items-baseline gap-2">
+                <div className="mt-3 flex flex-wrap items-baseline gap-3">
                   <span className="text-3xl font-black text-[#002f34]">
                     {isFree ? t("common.free") : `${ad.price} ${ad.currency}`}
                   </span>
+                  {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-gray-400 line-through">
+                        {ad.original_price} {ad.currency}
+                      </span>
+                      <span className="px-2.5 py-1 bg-gradient-to-r from-rose-600 to-red-500 text-white rounded-lg text-xs font-black shadow-xs tracking-wider">
+                        -{Math.round(((parseFloat(ad.original_price as string) - parseFloat(ad.price as string)) / parseFloat(ad.original_price as string)) * 100)}% {t("adsManager.discountBadge")}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 

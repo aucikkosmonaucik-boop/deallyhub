@@ -30,6 +30,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _origPriceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController(text: 'Entire Country');
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _imgUrlController = TextEditingController();
@@ -37,6 +38,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
   String _currency = 'USD';
   String _categorySlug = 'antiques-collectibles';
   bool _isFree = false;
+  bool _isPromo = false;
 
   final List<String> _images = [];
 
@@ -49,6 +51,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
     _titleController.dispose();
     _descController.dispose();
     _priceController.dispose();
+    _origPriceController.dispose();
     _locationController.dispose();
     _phoneController.dispose();
     _imgUrlController.dispose();
@@ -149,6 +152,18 @@ class _PostAdScreenState extends State<PostAdScreen> {
     final title = _titleController.text.trim();
     final description = _descController.text.trim();
     final parsedPrice = _isFree ? 0.0 : (double.tryParse(_priceController.text.trim()) ?? 0.0);
+    final parsedOrigPrice = (_isPromo && !_isFree && _origPriceController.text.trim().isNotEmpty)
+        ? double.tryParse(_origPriceController.text.trim())
+        : null;
+
+    if (_isPromo && !_isFree && parsedOrigPrice != null && parsedOrigPrice <= parsedPrice) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Regular price must be higher than current promotional price.')),
+      );
+      setState(() => _submitting = false);
+      return;
+    }
+
     final locationVal = _locationController.text.trim().isEmpty ? 'Entire Country' : _locationController.text.trim();
     final phoneVal = _phoneController.text.trim();
 
@@ -158,6 +173,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
         title: title,
         description: description,
         price: parsedPrice,
+        originalPrice: parsedOrigPrice,
         currency: _currency,
         location: locationVal,
         phone: phoneVal,
@@ -178,10 +194,12 @@ class _PostAdScreenState extends State<PostAdScreen> {
           _titleController.clear();
           _descController.clear();
           _priceController.clear();
+          _origPriceController.clear();
           _phoneController.clear();
           _locationController.text = 'Entire Country';
           _images.clear();
           _isFree = false;
+          _isPromo = false;
         });
       } else {
         if (!mounted) return;
@@ -405,9 +423,92 @@ class _PostAdScreenState extends State<PostAdScreen> {
                     title: Text(tr('post_free'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                     value: _isFree,
                     activeColor: const Color(0xFF0D9488),
-                    onChanged: (val) => setState(() => _isFree = val ?? false),
+                    onChanged: (val) {
+                      setState(() {
+                        _isFree = val ?? false;
+                        if (_isFree) _isPromo = false;
+                      });
+                    },
                   ),
-                  const SizedBox(height: 8),
+                  if (!_isFree) ...[
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        tr('post_is_promo'),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                      ),
+                      secondary: const Icon(Icons.local_offer_outlined, color: Colors.deepOrange, size: 20),
+                      value: _isPromo,
+                      activeColor: Colors.deepOrange,
+                      onChanged: (val) => setState(() => _isPromo = val ?? false),
+                    ),
+                    if (_isPromo) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${tr("post_regular_price")} *',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade900),
+                            ),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: _origPriceController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (_) => setState(() {}),
+                              decoration: InputDecoration(
+                                hintText: 'e.g. 120.00',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.red.shade300)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              ),
+                            ),
+                            Builder(
+                              builder: (context) {
+                                final curP = double.tryParse(_priceController.text.trim()) ?? 0.0;
+                                final origP = double.tryParse(_origPriceController.text.trim()) ?? 0.0;
+                                if (origP > curP && curP > 0) {
+                                  final discount = ((origP - curP) / origP * 100).round();
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '${tr("post_you_save")}: ${(origP - curP).toStringAsFixed(2)} $_currency',
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade800),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.shade600,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            '-$discount% ${tr("post_discount_off")}',
+                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ],
 
                   // Location & Phone
                   Row(

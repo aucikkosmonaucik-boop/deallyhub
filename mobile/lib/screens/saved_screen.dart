@@ -175,6 +175,11 @@ class _SavedScreenState extends State<SavedScreen> {
                                     final catSlug = (ad['category_slug'] ?? ad['category'] ?? '').toString();
                                     final catName = (ad['category_name'] ?? ad['category'] ?? '').toString();
 
+                                    final numPrice = double.tryParse('$price') ?? 0.0;
+                                    final origPrice = ad['original_price'] != null ? double.tryParse('${ad['original_price']}') : null;
+                                    final hasPromo = origPrice != null && origPrice > numPrice && numPrice > 0;
+                                    final discountPct = hasPromo ? ((origPrice - numPrice) / origPrice * 100).round() : 0;
+
                                     return Card(
                                       margin: const EdgeInsets.only(bottom: 12),
                                       shape: RoundedRectangleBorder(
@@ -202,7 +207,32 @@ class _SavedScreenState extends State<SavedScreen> {
                                             SizedBox(
                                               width: 110,
                                               height: 100,
-                                              child: AppImage(imageUrl: cover, fit: BoxFit.cover),
+                                              child: Stack(
+                                                fit: StackFit.expand,
+                                                children: [
+                                                  AppImage(imageUrl: cover, fit: BoxFit.cover),
+                                                  if (hasPromo)
+                                                    Positioned(
+                                                      bottom: 4,
+                                                      left: 4,
+                                                      child: Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                                        decoration: BoxDecoration(
+                                                          color: const Color(0xFFDC2626),
+                                                          borderRadius: BorderRadius.circular(4),
+                                                        ),
+                                                        child: Text(
+                                                          '-$discountPct%',
+                                                          style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight: FontWeight.w900,
+                                                            fontSize: 9,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
                                             ),
                                             Expanded(
                                               child: Padding(
@@ -226,9 +256,28 @@ class _SavedScreenState extends State<SavedScreen> {
                                                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002F34)),
                                                     ),
                                                     const SizedBox(height: 4),
-                                                    Text(
-                                                      isFree ? tr('common_free') : '$price $currency',
-                                                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0D9488)),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          isFree ? tr('common_free') : '$price $currency',
+                                                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0D9488)),
+                                                        ),
+                                                        if (hasPromo) ...[
+                                                          const SizedBox(width: 4),
+                                                          Expanded(
+                                                            child: Text(
+                                                              '$origPrice',
+                                                              style: const TextStyle(
+                                                                fontSize: 10,
+                                                                color: Colors.grey,
+                                                                decoration: TextDecoration.lineThrough,
+                                                              ),
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ],
                                                     ),
                                                     const SizedBox(height: 6),
                                                     Row(

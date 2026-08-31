@@ -133,6 +133,10 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
     final authorName = widget.ad['author_name'] ?? 'Verified Seller';
     final authorEmail = widget.ad['author_email'] ?? '';
     final isFree = (double.tryParse('$price') ?? 0) == 0;
+    final numPrice = double.tryParse('$price') ?? 0.0;
+    final origPrice = widget.ad['original_price'] != null ? double.tryParse('${widget.ad['original_price']}') : null;
+    final hasPromo = origPrice != null && origPrice > numPrice && numPrice > 0;
+    final discountPct = hasPromo ? ((origPrice - numPrice) / origPrice * 100).round() : 0;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -309,14 +313,53 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                     },
                   ),
 
-                  // Price Tag
-                  Text(
-                    isFree ? tr('common_free') : '$price $currency',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF002F34),
-                    ),
+                  // Price Tag & Promo
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 10,
+                    runSpacing: 4,
+                    children: [
+                      Text(
+                        isFree ? tr('common_free') : '$price $currency',
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF002F34),
+                        ),
+                      ),
+                      if (hasPromo) ...[
+                        Text(
+                          '$origPrice $currency',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFE11D48), Color(0xFFEF4444)],
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: const [
+                              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                            ],
+                          ),
+                          child: Text(
+                            '-$discountPct% ${tr("post_discount_off")}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 6),
 

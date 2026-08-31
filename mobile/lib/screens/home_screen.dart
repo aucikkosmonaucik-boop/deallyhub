@@ -701,14 +701,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 (ctx, idx) {
                                   final ad = _ads[idx];
                                   final images = (ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
-                                  final cover = images.isNotEmpty ? images[0] : null;
+                              final cover = images.isNotEmpty ? images[0] : null;
                                   final price = ad['price'] ?? 0;
                                   final currency = ad['currency'] ?? 'USD';
                                   final title = ad['title'] ?? '';
                                   final location = ad['location'] ?? 'Entire Country';
                                   final adId = ad['id'] as int;
                                   final isSaved = _savedAdIds.contains(adId);
-                                  final isFree = (double.tryParse('$price') ?? 0) == 0;
+                                  final numPrice = double.tryParse('$price') ?? 0.0;
+                                  final isFree = numPrice == 0;
+                                  final origPrice = ad['original_price'] != null ? double.tryParse('${ad['original_price']}') : null;
+                                  final hasPromo = origPrice != null && origPrice > numPrice && numPrice > 0;
+                                  final discountPct = hasPromo ? ((origPrice - numPrice) / origPrice * 100).round() : 0;
                                   final catSlug = (ad['category_slug'] ?? ad['category'] ?? '').toString();
                                   final catName = (ad['category_name'] ?? ad['category'] ?? '').toString();
 
@@ -749,6 +753,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                 ),
                                               ),
+                                              if (hasPromo)
+                                                Positioned(
+                                                  bottom: 6,
+                                                  left: 6,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFFDC2626),
+                                                      borderRadius: BorderRadius.circular(6),
+                                                      boxShadow: const [
+                                                        BoxShadow(color: Colors.black26, blurRadius: 2),
+                                                      ],
+                                                    ),
+                                                    child: Text(
+                                                      '-$discountPct%',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.w900,
+                                                        fontSize: 10,
+                                                        letterSpacing: 0.2,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
                                               Positioned(
                                                 top: 4,
                                                 right: 4,
@@ -789,15 +817,34 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Text(
-                                                        isFree ? tr('common_free') : '$price $currency',
-                                                        style: const TextStyle(
-                                                          fontWeight: FontWeight.w900,
-                                                          fontSize: 14,
-                                                          color: Color(0xFF002F34),
-                                                        ),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            isFree ? tr('common_free') : '$price $currency',
+                                                            style: const TextStyle(
+                                                              fontWeight: FontWeight.w900,
+                                                              fontSize: 13,
+                                                              color: Color(0xFF002F34),
+                                                            ),
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis,
+                                                          ),
+                                                          if (hasPromo) ...[
+                                                            const SizedBox(width: 4),
+                                                            Expanded(
+                                                              child: Text(
+                                                                '$origPrice',
+                                                                style: const TextStyle(
+                                                                  fontSize: 10,
+                                                                  color: Colors.grey,
+                                                                  decoration: TextDecoration.lineThrough,
+                                                                ),
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow.ellipsis,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ],
                                                       ),
                                                       const SizedBox(height: 2),
                                                       Text(

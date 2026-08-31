@@ -709,7 +709,7 @@ app.delete("/api/auth/account", authenticateToken, async (req, res) => {
 // 1. Create Advertisement (Protected)
 app.post("/api/ads", authenticateToken, async (req, res) => {
   try {
-    const { categorySlug, title, description, price, currency, location, images, phone } = req.body;
+    const { categorySlug, title, description, price, originalPrice, currency, location, images, phone } = req.body;
 
     const trimmedTitle = typeof title === "string" ? title.trim() : "";
     const trimmedCategory = typeof categorySlug === "string" ? categorySlug.trim() : "";
@@ -731,6 +731,7 @@ app.post("/api/ads", authenticateToken, async (req, res) => {
       title: trimmedTitle,
       description: trimmedDesc,
       price: price ?? 0,
+      originalPrice: originalPrice ?? null,
       currency: currency || "USD",
       location: location || "Entire Country",
       images: Array.isArray(images) ? images : [],
@@ -819,7 +820,7 @@ app.get("/api/ads/:id", async (req, res) => {
 app.put("/api/ads/:id", authenticateToken, async (req, res) => {
   try {
     const adId = req.params.id;
-    const { categorySlug, title, description, price, currency, location, images, phone } = req.body;
+    const { categorySlug, title, description, price, originalPrice, currency, location, images, phone } = req.body;
 
     if (!title || !categorySlug || !description) {
       return res.status(400).json({
@@ -838,6 +839,7 @@ app.put("/api/ads/:id", authenticateToken, async (req, res) => {
       title,
       description,
       price,
+      originalPrice,
       currency,
       location,
       images,

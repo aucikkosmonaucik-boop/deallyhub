@@ -127,6 +127,7 @@ interface Advertisement {
   title: string;
   description: string;
   price: number | string;
+  original_price?: number | string | null;
   currency: string;
   location: string;
   images: string[];
@@ -1138,16 +1139,30 @@ export default function HomePage() {
                           }`}
                         />
                       </button>
+
+                      {/* Promo discount badge on photo */}
+                      {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
+                        <span className="absolute bottom-3 left-3 bg-gradient-to-r from-rose-600 to-red-500 text-white text-[11px] font-black px-2.5 py-0.5 rounded-md shadow-md tracking-wider flex items-center gap-1 z-10">
+                          <span>-{Math.round(((parseFloat(ad.original_price as string) - parseFloat(ad.price as string)) / parseFloat(ad.original_price as string)) * 100)}%</span>
+                        </span>
+                      )}
                     </div>
 
                     {/* Listing Content */}
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="text-xl font-black text-[#002f34] mb-1 tracking-tight">
-                          {parseFloat(ad.price as string) === 0 ? (
-                            <span className="text-teal-600">{t("common.free")}</span>
-                          ) : (
-                            `${ad.price} ${ad.currency}`
+                        <div className="flex items-baseline gap-2 mb-1">
+                          <div className="text-xl font-black text-[#002f34] tracking-tight">
+                            {parseFloat(ad.price as string) === 0 ? (
+                              <span className="text-teal-600">{t("common.free")}</span>
+                            ) : (
+                              `${ad.price} ${ad.currency}`
+                            )}
+                          </div>
+                          {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
+                            <span className="text-xs font-semibold text-gray-400 line-through">
+                              {ad.original_price} {ad.currency}
+                            </span>
                           )}
                         </div>
 

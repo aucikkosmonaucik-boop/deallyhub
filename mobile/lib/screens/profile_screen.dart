@@ -877,6 +877,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<bool?> _showEditAdModal(Map<String, dynamic> ad) async {
     final titleController = TextEditingController(text: ad['title'] ?? '');
     final priceController = TextEditingController(text: '${ad['price'] ?? 0}');
+    final origPriceController = TextEditingController(
+      text: ad['original_price'] != null && double.tryParse('${ad['original_price']}') != null && (double.tryParse('${ad['original_price']}') ?? 0) > (double.tryParse('${ad['price'] ?? 0}') ?? 0)
+          ? '${ad['original_price']}'
+          : '',
+    );
+    bool isPromo = ad['original_price'] != null &&
+        double.tryParse('${ad['original_price']}') != null &&
+        (double.tryParse('${ad['original_price']}') ?? 0) > (double.tryParse('${ad['price'] ?? 0}') ?? 0);
     final descController = TextEditingController(text: ad['description'] ?? '');
     final phoneController = TextEditingController(text: ad['phone'] ?? '');
     final locationController = TextEditingController(text: ad['location'] ?? 'Entire Country');
@@ -1047,6 +1055,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 8),
+
+                      // Promo Checkbox & Original Price Input
+                      CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          tr('post_is_promo'),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                        ),
+                        secondary: const Icon(Icons.local_offer_outlined, color: Colors.deepOrange, size: 20),
+                        value: isPromo,
+                        activeColor: Colors.deepOrange,
+                        onChanged: (val) => setEditState(() => isPromo = val ?? false),
+                      ),
+                      if (isPromo) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.red.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${tr("post_regular_price")} *',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade900),
+                              ),
+                              const SizedBox(height: 6),
+                              TextField(
+                                controller: origPriceController,
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                onChanged: (_) => setEditState(() {}),
+                                decoration: InputDecoration(
+                                  hintText: 'e.g. 120.00',
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.red.shade300)),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                ),
+                              ),
+                              Builder(
+                                builder: (context) {
+                                  final curP = double.tryParse(priceController.text.trim()) ?? 0.0;
+                                  final origP = double.tryParse(origPriceController.text.trim()) ?? 0.0;
+                                  if (origP > curP && curP > 0) {
+                                    final discount = ((origP - curP) / origP * 100).round();
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            '${tr("post_you_save")}: ${(origP - curP).toStringAsFixed(2)} $currency',
+                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade800),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red.shade600,
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              '-$discount% ${tr("post_discount_off")}',
+                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 16),
 
                       // Location & Phone
@@ -1195,10 +1282,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   final title = titleController.text.trim();
                                   final desc = descController.text.trim();
                                   final priceVal = double.tryParse(priceController.text.trim()) ?? 0.0;
+                                  final origPVal = (isPromo && origPriceController.text.trim().isNotEmpty)
+                                      ? double.tryParse(origPriceController.text.trim())
+                                      : null;
 
                                   if (title.isEmpty || desc.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text(tr('edit_ad_req_error'))),
+                                    );
+                                    return;
+                                  }
+
+                                  if (isPromo && origPVal != null && origPVal <= priceVal) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Regular price must be higher than current price.')),
                                     );
                                     return;
                                   }
@@ -1213,6 +1310,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     title: title,
                                     description: desc,
                                     price: priceVal,
+                                    originalPrice: origPVal,
                                     currency: currency,
                                     location: locationController.text.trim().isEmpty ? 'Entire Country' : locationController.text.trim(),
                                     phone: phoneController.text.trim(),
