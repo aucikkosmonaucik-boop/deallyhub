@@ -322,11 +322,11 @@ export default function AuthModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden relative my-auto max-h-[92dvh] sm:max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 w-full max-w-md overflow-hidden relative my-auto max-h-[92dvh] sm:max-h-[90vh] flex flex-col text-[#002f34] dark:text-slate-100">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer z-10"
+          className="absolute top-4 right-4 text-gray-400 hover:text-[#002f34] dark:hover:text-white p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer z-10"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -335,25 +335,25 @@ export default function AuthModal({
         {/* 1. Mode: Verify Notice (Shown right after registration) */}
         {mode === "verify_notice" ? (
           <div className="p-6 sm:p-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-50 text-teal-600 mb-4 ring-8 ring-teal-50/50">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 mb-4 ring-8 ring-teal-50/50 dark:ring-teal-950/30">
               <Mail className="w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-extrabold text-[#002f34]">{t("auth.verifyTitle")}</h2>
-            <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+            <h2 className="text-2xl font-extrabold text-[#002f34] dark:text-white">{t("auth.verifyTitle")}</h2>
+            <p className="text-sm text-gray-600 dark:text-slate-300 mt-2 leading-relaxed">
               {t("auth.verifyNotice")}{" "}
-              <strong className="text-[#002f34]">{registeredUser?.email || email}</strong>.
+              <strong className="text-[#002f34] dark:text-teal-300">{registeredUser?.email || email}</strong>.
             </p>
 
             {successMsg && (
-              <div className="mt-4 flex items-center gap-2 p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 text-xs text-left">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-teal-600" />
+              <div className="mt-4 flex items-center gap-2 p-3 rounded-xl bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-200 text-xs text-left">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-teal-600 dark:text-teal-400" />
                 <span>{successMsg}</span>
               </div>
             )}
 
             {error && (
-              <div className="mt-4 flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs text-left">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+              <div className="mt-4 flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs text-left">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-400" />
                 <span>{error}</span>
               </div>
             )}
@@ -363,12 +363,12 @@ export default function AuthModal({
                 type="button"
                 onClick={handleResendVerification}
                 disabled={resending}
-                className="w-full py-2.5 px-4 border border-gray-300 hover:border-teal-600 text-[#002f34] hover:text-teal-700 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 px-4 border border-gray-300 dark:border-slate-700 hover:border-teal-600 dark:hover:border-teal-500 text-[#002f34] dark:text-slate-200 hover:text-teal-700 dark:hover:text-teal-400 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-50"
               >
                 {resending ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
+                  <Loader2 className="w-4 h-4 animate-spin text-teal-600 dark:text-teal-400" />
                 ) : (
-                  <Send className="w-4 h-4 text-teal-600" />
+                  <Send className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                 )}
                 <span>{t("auth.resendVerification")}</span>
               </button>
@@ -380,7 +380,7 @@ export default function AuthModal({
                   setError(null);
                   setSuccessMsg(null);
                 }}
-                className="w-full py-3 px-4 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl transition-all shadow-sm cursor-pointer text-sm"
+                className="w-full py-3 px-4 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 text-white font-bold rounded-xl transition-all shadow-sm cursor-pointer text-sm"
               >
                 {t("auth.signInBtn")}
               </button>
@@ -390,16 +390,16 @@ export default function AuthModal({
           <>
             {/* Modal Header */}
             <div className="p-6 pb-2 text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-teal-50 text-teal-600 mb-3">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 mb-3">
                 {mode === "forgot" || mode === "reset" ? <Lock className="w-6 h-6" /> : <User className="w-6 h-6" />}
               </div>
-              <h2 className="text-2xl font-extrabold text-[#002f34]">
+              <h2 className="text-2xl font-extrabold text-[#002f34] dark:text-white">
                 {mode === "login" && t("auth.loginTitle")}
                 {mode === "register" && t("auth.registerTitle")}
                 {mode === "forgot" && t("auth.forgotTitle")}
                 {mode === "reset" && t("auth.resetTitle")}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                 {mode === "login" && t("auth.loginSubtitle")}
                 {mode === "register" && t("auth.registerSubtitle")}
                 {mode === "forgot" && t("auth.forgotSubtitle")}
@@ -409,7 +409,7 @@ export default function AuthModal({
 
             {/* Mode Switcher Tabs (Only for login & register) */}
             {(mode === "login" || mode === "register") && (
-              <div className="flex border-b border-gray-200 mx-6 mt-4">
+              <div className="flex border-b border-gray-200 dark:border-slate-800 mx-6 mt-4">
                 <button
                   type="button"
                   onClick={() => {
@@ -419,8 +419,8 @@ export default function AuthModal({
                   }}
                   className={`flex-1 py-3 text-sm font-semibold text-center border-b-2 transition-colors cursor-pointer ${
                     mode === "login"
-                      ? "border-[#002f34] text-[#002f34]"
-                      : "border-transparent text-gray-400 hover:text-gray-600"
+                      ? "border-[#002f34] dark:border-teal-400 text-[#002f34] dark:text-teal-400 font-bold"
+                      : "border-transparent text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
                   }`}
                 >
                   {t("auth.signInBtn")}
@@ -434,8 +434,8 @@ export default function AuthModal({
                   }}
                   className={`flex-1 py-3 text-sm font-semibold text-center border-b-2 transition-colors cursor-pointer ${
                     mode === "register"
-                      ? "border-[#002f34] text-[#002f34]"
-                      : "border-transparent text-gray-400 hover:text-gray-600"
+                      ? "border-[#002f34] dark:border-teal-400 text-[#002f34] dark:text-teal-400 font-bold"
+                      : "border-transparent text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
                   }`}
                 >
                   {t("auth.registerBtn")}
@@ -453,7 +453,7 @@ export default function AuthModal({
                     setError(null);
                     setSuccessMsg(null);
                   }}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#002f34] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-slate-400 hover:text-[#002f34] dark:hover:text-white transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>{t("common.back")}</span>
@@ -466,7 +466,7 @@ export default function AuthModal({
               {/* Error Message */}
               {error && (
                 <div className="space-y-2">
-                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
                     <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                     <span className="flex-1">{error}</span>
                   </div>
@@ -475,7 +475,7 @@ export default function AuthModal({
                       type="button"
                       onClick={handleResendVerification}
                       disabled={resending}
-                      className="w-full py-2.5 px-3 text-xs font-bold text-teal-700 bg-teal-50 border border-teal-200 rounded-xl hover:bg-teal-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="w-full py-2.5 px-3 text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 rounded-xl hover:bg-teal-100 dark:hover:bg-teal-900/60 transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>{resending ? t("common.loading") : `${t("auth.resendTo")} ${email}`}</span>
@@ -486,8 +486,8 @@ export default function AuthModal({
 
               {/* Success Message */}
               {successMsg && (
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 text-sm">
-                  <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-teal-600" />
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-200 text-sm">
+                  <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-teal-600 dark:text-teal-400" />
                   <span>{successMsg}</span>
                 </div>
               )}
@@ -495,18 +495,18 @@ export default function AuthModal({
               {/* Name Field (Register mode only) */}
               {mode === "register" && (
                 <div>
-                  <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {t("auth.nameLabel")}
                   </label>
                   <div className="relative">
-                    <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <User className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={t("auth.namePlaceholder")}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                     />
                   </div>
                 </div>
@@ -515,18 +515,18 @@ export default function AuthModal({
               {/* Email Field (Login, Register, Forgot) */}
               {mode !== "reset" && (
                 <div>
-                  <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {t("auth.emailLabel")}
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Mail className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={t("auth.emailPlaceholder")}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                     />
                   </div>
                 </div>
@@ -538,7 +538,7 @@ export default function AuthModal({
                   <input type="hidden" value={resetToken} />
                 ) : (
                   <div>
-                    <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-semibold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                       {t("auth.securityToken")}
                     </label>
                     <input
@@ -547,7 +547,7 @@ export default function AuthModal({
                       value={resetToken}
                       onChange={(e) => setResetToken(e.target.value)}
                       placeholder={t("auth.pasteToken")}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                      className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                     />
                   </div>
                 )
@@ -557,7 +557,7 @@ export default function AuthModal({
               {mode !== "forgot" && (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider">
+                    <label className="block text-xs font-semibold text-[#002f34] dark:text-slate-200 uppercase tracking-wider">
                       {mode === "reset" ? t("auth.resetTitle") : t("auth.passwordLabel")}
                     </label>
                     {mode === "login" && (
@@ -568,14 +568,14 @@ export default function AuthModal({
                           setError(null);
                           setSuccessMsg(null);
                         }}
-                        className="text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline cursor-pointer"
+                        className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 hover:underline cursor-pointer"
                       >
                         {t("auth.forgotPasswordLink")}
                       </button>
                     )}
                   </div>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type={showPassword ? "text" : "password"}
                       required
@@ -583,12 +583,12 @@ export default function AuthModal({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={t("auth.passwordPlaceholder")}
-                      className="w-full pl-10 pr-11 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-11 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -599,11 +599,11 @@ export default function AuthModal({
               {/* Confirm Password (Reset mode) */}
               {mode === "reset" && (
                 <div>
-                  <label className="block text-xs font-semibold text-[#002f34] uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-semibold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {t("auth.confirmPasswordLabel")}
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Lock className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type={showPassword ? "text" : "password"}
                       required
@@ -611,7 +611,7 @@ export default function AuthModal({
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder={t("auth.confirmPasswordPlaceholder")}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                     />
                   </div>
                 </div>
@@ -621,7 +621,7 @@ export default function AuthModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-4 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer mt-2"
+                className="w-full py-3 px-4 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer mt-2"
               >
                 {loading ? (
                   <>
@@ -640,7 +640,7 @@ export default function AuthModal({
 
               {/* Footer Switcher */}
               <div className="text-center pt-2">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-slate-400">
                   {mode === "login" && (
                     <>
                       {t("auth.noAccount")}{" "}
@@ -651,7 +651,7 @@ export default function AuthModal({
                           setError(null);
                           setSuccessMsg(null);
                         }}
-                        className="font-semibold text-teal-600 hover:underline cursor-pointer"
+                        className="font-semibold text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
                       >
                         {t("auth.signUpLink")}
                       </button>
@@ -667,7 +667,7 @@ export default function AuthModal({
                           setError(null);
                           setSuccessMsg(null);
                         }}
-                        className="font-semibold text-teal-600 hover:underline cursor-pointer"
+                        className="font-semibold text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
                       >
                         {t("auth.signInLink")}
                       </button>
@@ -681,10 +681,10 @@ export default function AuthModal({
                 <div className="pt-3 flex flex-col items-center gap-2.5">
                   <div className="relative w-full my-1">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-200" />
+                      <div className="w-full border-t border-gray-200 dark:border-slate-800" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-3 text-gray-400 font-semibold tracking-wider text-[11px]">
+                      <span className="bg-white dark:bg-slate-900 px-3 text-gray-400 dark:text-slate-500 font-semibold tracking-wider text-[11px]">
                         {t("auth.orContinueWith")}
                       </span>
                     </div>

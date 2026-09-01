@@ -168,19 +168,19 @@ export default function AdDetailsModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 w-full max-w-4xl h-full sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-slate-800 w-full max-w-4xl h-full sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto text-[#002f34] dark:text-slate-100">
         {/* Modal Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4">
           <div className="flex items-center gap-2 sm:gap-2.5 truncate mr-2">
-            <span className="bg-[#002f34] text-white text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shrink-0">
+            <span className="bg-[#002f34] dark:bg-teal-900/90 text-white dark:text-teal-200 border border-transparent dark:border-teal-700/50 text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full shrink-0">
               {getCategoryName(ad.category_slug, categoryName)}
             </span>
-            <div className="flex items-center gap-1 text-xs text-gray-500 truncate">
-              <MapPin className="w-3.5 h-3.5 shrink-0 text-teal-600" />
+            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400 truncate">
+              <MapPin className="w-3.5 h-3.5 shrink-0 text-teal-600 dark:text-teal-400" />
               <span className="truncate">{ad.location}</span>
             </div>
-            <span className="text-gray-300 hidden sm:inline">&bull;</span>
-            <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400">
+            <span className="text-gray-300 dark:text-slate-700 hidden sm:inline">&bull;</span>
+            <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400 dark:text-slate-500">
               <Calendar className="w-3.5 h-3.5" />
               <span>{new Date(ad.created_at).toLocaleDateString()}</span>
             </div>
@@ -188,7 +188,7 @@ export default function AdDetailsModal({
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
+            className="text-gray-400 hover:text-[#002f34] dark:hover:text-white p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -205,7 +205,7 @@ export default function AdDetailsModal({
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
-              className={`w-full h-64 sm:h-96 bg-gray-100 rounded-2xl overflow-hidden relative flex items-center justify-center border border-gray-200 shadow-xs group select-none touch-pan-y ${
+              className={`w-full h-64 sm:h-96 bg-gray-100 dark:bg-slate-950 rounded-2xl overflow-hidden relative flex items-center justify-center border border-gray-200 dark:border-slate-800 shadow-xs group select-none touch-pan-y ${
                 currentImage ? "cursor-zoom-in" : ""
               }`}
             >
@@ -225,7 +225,7 @@ export default function AdDetailsModal({
                       src={currentImage}
                       alt={ad.title}
                       draggable={false}
-                      className="w-full h-full object-contain bg-black/5 select-none transition-transform duration-300 group-hover:scale-[1.02]"
+                      className="w-full h-full object-contain bg-black/5 dark:bg-black/20 select-none transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                   </div>
 
@@ -282,7 +282,7 @@ export default function AdDetailsModal({
                   )}
                 </>
               ) : (
-                <div className="text-gray-400 flex flex-col items-center">
+                <div className="text-gray-400 dark:text-slate-500 flex flex-col items-center">
                   <ImageIcon className="w-12 h-12 mb-2" />
                   <span className="text-sm font-medium">{t("adDetails.noPhoto")}</span>
                 </div>
@@ -298,8 +298,8 @@ export default function AdDetailsModal({
                     onClick={() => setSelectedImageIdx(idx)}
                     className={`relative w-14 h-14 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
                       selectedImageIdx === idx
-                        ? "border-teal-600 ring-2 ring-teal-500/30 scale-105"
-                        : "border-gray-200 opacity-70 hover:opacity-100"
+                        ? "border-teal-600 dark:border-teal-400 ring-2 ring-teal-500/30 scale-105"
+                        : "border-gray-200 dark:border-slate-800 opacity-70 hover:opacity-100"
                     }`}
                   >
                     <img
@@ -313,11 +313,11 @@ export default function AdDetailsModal({
             )}
 
             {/* Description Section */}
-            <div className="border-t border-gray-100 pt-4 sm:pt-5">
-              <h3 className="text-xs sm:text-sm font-bold text-[#002f34] uppercase tracking-wider mb-2">
+            <div className="border-t border-gray-100 dark:border-slate-800 pt-4 sm:pt-5">
+              <h3 className="text-xs sm:text-sm font-bold text-[#002f34] dark:text-slate-100 uppercase tracking-wider mb-2">
                 {t("adsManager.descLabel")}
               </h3>
-              <p className="text-xs sm:text-sm text-gray-700 leading-relaxed whitespace-pre-line font-normal">
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-slate-300 leading-relaxed whitespace-pre-line font-normal">
                 {ad.description}
               </p>
             </div>
@@ -328,16 +328,16 @@ export default function AdDetailsModal({
             <div className="space-y-4">
               {/* Title & Price */}
               <div>
-                <h1 className="text-xl sm:text-3xl font-extrabold text-[#002f34] tracking-tight leading-snug">
+                <h1 className="text-xl sm:text-3xl font-extrabold text-[#002f34] dark:text-white tracking-tight leading-snug">
                   {ad.title}
                 </h1>
                 <div className="mt-2.5 sm:mt-3 flex flex-wrap items-baseline gap-2.5 sm:gap-3">
-                  <span className={`text-2xl sm:text-3xl font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
+                  <span className={`text-2xl sm:text-3xl font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600 dark:text-green-400" : "text-[#002f34] dark:text-teal-400"}`}>
                     {isFree ? t("common.free") : `${ad.price} ${ad.currency}`}
                   </span>
                   {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
                     <div className="flex items-center gap-2">
-                      <span className="text-base sm:text-lg font-bold text-gray-400 line-through">
+                      <span className="text-base sm:text-lg font-bold text-gray-400 dark:text-slate-500 line-through">
                         {ad.original_price} {ad.currency}
                       </span>
                       <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-gradient-to-r from-rose-600 to-red-500 text-white rounded-lg text-[11px] sm:text-xs font-black shadow-xs tracking-wider">
@@ -353,21 +353,21 @@ export default function AdDetailsModal({
                 onClick={() => onToggleSave(ad.id)}
                 className={`hidden md:flex w-full py-3 px-4 rounded-xl text-sm font-bold items-center justify-center gap-2 border transition-all cursor-pointer shadow-xs active:scale-95 ${
                   isSaved
-                    ? "bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100"
-                    : "bg-gray-50 border-gray-200 text-[#002f34] hover:bg-gray-100"
+                    ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/60"
+                    : "bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-[#002f34] dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-700/80"
                 }`}
               >
                 <Heart
                   className={`w-4 h-4 transition-colors ${
-                    isSaved ? "fill-rose-500 text-rose-500" : "text-gray-400"
+                    isSaved ? "fill-rose-500 text-rose-500 dark:text-rose-400" : "text-gray-400 dark:text-slate-400"
                   }`}
                 />
                 <span>{isSaved ? t("saved.remove") : t("common.save")}</span>
               </button>
 
               {/* Seller Information Card */}
-              <div className="p-4 sm:p-5 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-4">
-                <h4 className="text-xs font-bold text-[#002f34] uppercase tracking-wider">
+              <div className="p-4 sm:p-5 bg-gray-50/80 dark:bg-slate-800/60 rounded-2xl border border-gray-200/80 dark:border-slate-700/80 space-y-4">
+                <h4 className="text-xs font-bold text-[#002f34] dark:text-slate-300 uppercase tracking-wider">
                   {t("adDetails.seller")}
                 </h4>
 
@@ -376,18 +376,18 @@ export default function AdDetailsModal({
                     {(ad.author_name || "S").charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-[#002f34] text-sm sm:text-base leading-tight truncate">
+                    <p className="font-bold text-[#002f34] dark:text-white text-sm sm:text-base leading-tight truncate">
                       {ad.author_name || t("adDetails.verifiedMember")}
                     </p>
-                    <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                    <span className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
                       <span>{t("adDetails.verifiedMember")}</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Contact Options */}
-                <div className="space-y-2.5 pt-2 border-t border-gray-200/60">
+                <div className="space-y-2.5 pt-2 border-t border-gray-200/60 dark:border-slate-700/60">
                   {/* Chat with Seller Button */}
                   {onStartChat && (
                     <button
@@ -416,15 +416,15 @@ export default function AdDetailsModal({
                     ) : (
                       <button
                         onClick={() => setShowPhone(true)}
-                        className="w-full py-3 px-4 bg-[#002f34] hover:bg-[#003e45] active:bg-[#001e22] text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+                        className="w-full py-3 px-4 bg-[#002f34] dark:bg-slate-700 hover:bg-[#003e45] dark:hover:bg-slate-600 active:bg-[#001e22] text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
                       >
                         <Phone className="w-4 h-4 text-teal-300" />
                         <span>{t("adDetails.showPhone")}</span>
                       </button>
                     )
                   ) : (
-                    <div className="py-2.5 px-4 bg-gray-100 rounded-xl text-xs text-gray-500 flex items-center justify-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-gray-400" />
+                    <div className="py-2.5 px-4 bg-gray-100 dark:bg-slate-800 rounded-xl text-xs text-gray-500 dark:text-slate-400 flex items-center justify-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                       <span>{t("adDetails.noPhone")}</span>
                     </div>
                   )}
@@ -433,9 +433,9 @@ export default function AdDetailsModal({
                   {ad.author_email && (
                     <a
                       href={`mailto:${ad.author_email}?subject=Regarding your offer: ${encodeURIComponent(ad.title)} on Deallyhub`}
-                      className="w-full py-3 px-4 bg-white hover:bg-gray-100 text-[#002f34] font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 border border-gray-300 shadow-xs active:scale-95"
+                      className="w-full py-3 px-4 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-[#002f34] dark:text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 border border-gray-300 dark:border-slate-700 shadow-xs active:scale-95"
                     >
-                      <Mail className="w-4 h-4 text-teal-600" />
+                      <Mail className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                       <span>{t("adDetails.emailBtn")}</span>
                     </a>
                   )}
@@ -443,8 +443,8 @@ export default function AdDetailsModal({
               </div>
 
               {/* Safety Tips Banner */}
-              <div className="p-3.5 sm:p-4 rounded-xl bg-teal-50/70 border border-teal-200/60 text-[11px] text-teal-900 leading-relaxed space-y-1">
-                <span className="font-bold block text-teal-950">{t("adDetails.safetyTip")}</span>
+              <div className="p-3.5 sm:p-4 rounded-xl bg-teal-50/70 dark:bg-teal-950/40 border border-teal-200/60 dark:border-teal-800/40 text-[11px] text-teal-900 dark:text-teal-200 leading-relaxed space-y-1">
+                <span className="font-bold block text-teal-950 dark:text-teal-100">{t("adDetails.safetyTip")}</span>
                 <p>&bull; {t("adDetails.safetyTip1")}</p>
                 <p>&bull; {t("adDetails.safetyTip2")}</p>
                 <p>&bull; {t("adDetails.safetyTip3")}</p>
@@ -454,23 +454,23 @@ export default function AdDetailsModal({
         </div>
 
         {/* Sticky Mobile Contact Action Bar (Android & Mobile browsers) */}
-        <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-2.5 flex items-center justify-between gap-2.5 z-30 shadow-lg pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+        <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-2.5 z-30 shadow-lg pb-[max(0.625rem,env(safe-area-inset-bottom))]">
           <div className="flex items-center gap-2">
             <button
               onClick={() => onToggleSave(ad.id)}
               className={`p-2.5 rounded-xl border transition-colors ${
                 isSaved
-                  ? "bg-rose-50 border-rose-200 text-rose-600"
-                  : "bg-gray-50 border-gray-200 text-gray-500"
+                  ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-600 dark:text-rose-400"
+                  : "bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-300"
               }`}
               title={isSaved ? t("saved.remove") : t("common.save")}
             >
-              <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-500 text-rose-500" : ""}`} />
+              <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-500 text-rose-500 dark:text-rose-400" : ""}`} />
             </button>
             {ad.phone && (
               <a
                 href={`tel:${ad.phone}`}
-                className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center"
+                className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center"
                 title={t("adDetails.callBtn")}
               >
                 <Phone className="w-4 h-4" />

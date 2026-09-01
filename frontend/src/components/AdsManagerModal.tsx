@@ -386,22 +386,22 @@ export default function AdsManagerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 w-full max-w-3xl h-full sm:h-auto max-h-[100dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-slate-800 w-full max-w-3xl h-full sm:h-auto max-h-[100dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto text-[#002f34] dark:text-slate-100">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-5">
+        <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-5">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
               <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">Advertisements Hub</h2>
-              <p className="text-[11px] sm:text-xs text-gray-500">Manage your listings and post new classifieds</p>
+              <h2 className="text-lg sm:text-xl font-bold text-[#002f34] dark:text-white">{t("nav.myAdvertisements", "Advertisements Hub")}</h2>
+              <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400">Manage your listings and post new classifieds</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            className="text-gray-400 hover:text-[#002f34] dark:hover:text-white p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -409,20 +409,20 @@ export default function AdsManagerModal({
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-gray-200 px-4 sm:px-6 bg-gray-50/50 shrink-0">
+        <div className="flex border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 bg-gray-50/50 dark:bg-slate-900/50 shrink-0">
           <button
             onClick={() => {
               setActiveTab("my-ads");
               setError(null);
             }}
-            className={`py-3.5 px-4 text-sm font-bold border-b-2 flex items-center gap-2 transition-colors ${
+            className={`py-3.5 px-4 text-sm font-bold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
               activeTab === "my-ads"
-                ? "border-[#002f34] text-[#002f34]"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "border-[#002f34] dark:border-teal-400 text-[#002f34] dark:text-teal-400"
+                : "border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200"
             }`}
           >
             <span>{t("adsManager.myAds")}</span>
-            <span className="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full font-semibold">
+            <span className="bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 text-xs px-2 py-0.5 rounded-full font-semibold">
               {myAds.length}
             </span>
           </button>
@@ -435,20 +435,20 @@ export default function AdsManagerModal({
               setActiveTab("create");
               setError(null);
             }}
-            className={`py-3.5 px-4 text-sm font-bold border-b-2 flex items-center gap-2 transition-colors ${
+            className={`py-3.5 px-4 text-sm font-bold border-b-2 flex items-center gap-2 transition-colors cursor-pointer ${
               activeTab === "create"
-                ? "border-[#002f34] text-[#002f34]"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "border-[#002f34] dark:border-teal-400 text-[#002f34] dark:text-teal-400"
+                : "border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200"
             }`}
           >
             {editingAdId ? (
               <>
-                <Edit3 className="w-4 h-4 text-teal-600" />
+                <Edit3 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                 <span>{t("adsManager.editAd")}</span>
               </>
             ) : (
               <>
-                <Plus className="w-4 h-4 text-teal-600" />
+                <Plus className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                 <span>{t("adsManager.postNew")}</span>
               </>
             )}
@@ -460,7 +460,7 @@ export default function AdsManagerModal({
                 resetForm();
                 setActiveTab("my-ads");
               }}
-              className="ml-auto my-auto text-xs text-gray-500 hover:text-red-500 font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:border-red-200 transition-colors"
+              className="ml-auto my-auto text-xs text-gray-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-rose-400 font-medium px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-red-200 dark:hover:border-rose-800 transition-colors"
             >
               {t("common.cancel")}
             </button>
@@ -473,22 +473,22 @@ export default function AdsManagerModal({
           {activeTab === "my-ads" && (
             <div>
               {loadingAds ? (
-                <div className="py-16 text-center text-gray-400">
-                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600 mb-2" />
+                <div className="py-16 text-center text-gray-400 dark:text-slate-500">
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600 dark:text-teal-400 mb-2" />
                   <p className="text-sm">{t("common.loading")}</p>
                 </div>
               ) : myAds.length === 0 ? (
                 <div className="py-16 text-center max-w-sm mx-auto">
-                  <div className="w-16 h-16 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 flex items-center justify-center mx-auto mb-4">
                     <ImageIcon className="w-8 h-8" />
                   </div>
-                  <h3 className="text-lg font-bold text-[#002f34]">{t("adsManager.noMyAds")}</h3>
-                  <p className="text-xs text-gray-500 mt-1 mb-5">
+                  <h3 className="text-lg font-bold text-[#002f34] dark:text-white">{t("adsManager.noMyAds")}</h3>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-5">
                     {t("feed.noAdsDesc")}
                   </p>
                   <button
                     onClick={() => setActiveTab("create")}
-                    className="inline-flex items-center gap-2 bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-all"
+                    className="inline-flex items-center gap-2 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-all cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>{t("adsManager.postNew")}</span>
@@ -504,12 +504,12 @@ export default function AdsManagerModal({
                     return (
                       <div
                         key={ad.id}
-                        className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group"
+                        className="bg-white dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group"
                       >
                         {/* Photo Thumbnail - clickable to open ad */}
                         <div
                           onClick={() => onSelectAd && onSelectAd(ad)}
-                          className="h-40 bg-gray-100 relative overflow-hidden flex items-center justify-center cursor-pointer select-none"
+                          className="h-40 bg-gray-100 dark:bg-slate-950 relative overflow-hidden flex items-center justify-center cursor-pointer select-none"
                           role="button"
                           tabIndex={0}
                           aria-label={`Open advertisement: ${ad.title}`}
@@ -527,14 +527,14 @@ export default function AdsManagerModal({
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : (
-                            <div className="text-gray-400 flex flex-col items-center">
+                            <div className="text-gray-400 dark:text-slate-500 flex flex-col items-center">
                               <ImageIcon className="w-8 h-8 mb-1" />
                               <span className="text-xs">{t("adDetails.noPhoto")}</span>
                             </div>
                           )}
 
                           {/* Category Badge */}
-                          <span className="absolute top-2.5 left-2.5 bg-[#002f34]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-2.5 py-1 rounded-full pointer-events-none">
+                          <span className="absolute top-2.5 left-2.5 bg-[#002f34]/85 dark:bg-teal-900/90 backdrop-blur-xs text-white text-[11px] font-semibold px-2.5 py-1 rounded-full pointer-events-none">
                             {catName}
                           </span>
 
@@ -553,37 +553,37 @@ export default function AdsManagerModal({
                             onClick={() => onSelectAd && onSelectAd(ad)}
                             className="cursor-pointer"
                           >
-                            <h4 className="font-bold text-[#002f34] group-hover:text-teal-700 transition-colors text-base line-clamp-1 mb-1">
+                            <h4 className="font-bold text-[#002f34] dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors text-base line-clamp-1 mb-1">
                               {ad.title}
                             </h4>
-                            <p className="text-xs text-gray-500 line-clamp-2 mb-3">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 line-clamp-2 mb-3">
                               {ad.description}
                             </p>
                           </div>
 
-                          <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                          <div className="pt-2 border-t border-gray-100 dark:border-slate-700 flex items-center justify-between">
                             <div
                               onClick={() => onSelectAd && onSelectAd(ad)}
                               className="cursor-pointer flex-1 mr-2"
                             >
                               <div className="flex items-baseline gap-2">
-                                <span className={`text-lg font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600" : "text-[#002f34]"}`}>
+                                <span className={`text-lg font-black ${ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) ? "text-green-600 dark:text-green-400" : "text-[#002f34] dark:text-teal-400"}`}>
                                   {parseFloat(ad.price as string) === 0
                                     ? t("common.free")
                                     : `${ad.price} ${ad.currency}`}
                                 </span>
                                 {ad.original_price && parseFloat(ad.original_price as string) > parseFloat(ad.price as string) && (
                                   <>
-                                    <span className="text-xs font-semibold text-gray-400 line-through">
+                                    <span className="text-xs font-semibold text-gray-400 dark:text-slate-500 line-through">
                                       {ad.original_price} {ad.currency}
                                     </span>
-                                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 bg-rose-100 text-rose-700 rounded">
+                                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 rounded">
                                       -{Math.round(((parseFloat(ad.original_price as string) - parseFloat(ad.price as string)) / parseFloat(ad.original_price as string)) * 100)}%
                                     </span>
                                   </>
                                 )}
                               </div>
-                              <div className="text-[11px] text-gray-400 flex items-center gap-1 mt-0.5">
+                              <div className="text-[11px] text-gray-400 dark:text-slate-400 flex items-center gap-1 mt-0.5">
                                 <MapPin className="w-3 h-3" />
                                 <span>{ad.location}</span>
                               </div>
@@ -596,7 +596,7 @@ export default function AdsManagerModal({
                                   e.stopPropagation();
                                   handleStartEdit(ad);
                                 }}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 active:bg-teal-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                                className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900 active:bg-teal-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer border border-transparent dark:border-teal-800/60"
                                 title={t("common.edit")}
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
@@ -608,7 +608,7 @@ export default function AdsManagerModal({
                                   e.stopPropagation();
                                   handleDeleteAd(ad.id);
                                 }}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 active:bg-red-100 p-2 rounded-lg transition-colors cursor-pointer"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/50 active:bg-red-100 p-2 rounded-lg transition-colors cursor-pointer"
                                 title={t("common.delete")}
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -629,33 +629,33 @@ export default function AdsManagerModal({
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Feedback Banners */}
               {error && (
-                <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
                   <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{error}</span>
                 </div>
               )}
 
               {successMessage && (
-                <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm font-semibold">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{successMessage}</span>
                 </div>
               )}
 
               {/* 1. Category Selection */}
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-2">
                   {t("adsManager.categoryLabel")} *
                 </label>
                 <div className="relative">
-                  <Tag className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Tag className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <select
                     value={categorySlug}
                     onChange={(e) => setCategorySlug(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-[#002f34] focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all appearance-none cursor-pointer"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-medium text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all appearance-none cursor-pointer"
                   >
                     {categories.map((c) => (
-                      <option key={c.slug} value={c.slug}>
+                      <option key={c.slug} value={c.slug} className="dark:bg-slate-900">
                         {getCategoryName(c.slug, c.name)}
                       </option>
                     ))}
@@ -666,10 +666,10 @@ export default function AdsManagerModal({
               {/* 2. Title */}
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider">
                     {t("adsManager.titleLabel")} *
                   </label>
-                  <span className="text-[11px] text-gray-400">{title.length}/100</span>
+                  <span className="text-[11px] text-gray-400 dark:text-slate-500">{title.length}/100</span>
                 </div>
                 <input
                   type="text"
@@ -678,18 +678,18 @@ export default function AdsManagerModal({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={t("adsManager.titlePlaceholder")}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-medium"
+                  className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-medium"
                 />
               </div>
 
               {/* 3. Price & Currency */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {t("adsManager.priceLabel")} *
                   </label>
                   <div className="relative">
-                    <DollarSign className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <DollarSign className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="number"
                       step="0.01"
@@ -699,7 +699,7 @@ export default function AdsManagerModal({
                       value={isFree ? "0" : price}
                       onChange={(e) => setPrice(e.target.value)}
                       placeholder={t("adsManager.pricePlaceholder")}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-bold disabled:bg-gray-100 disabled:text-gray-400"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-bold disabled:bg-gray-100 dark:disabled:bg-slate-800/50 disabled:text-gray-400 dark:disabled:text-slate-600"
                     />
                   </div>
 
@@ -711,9 +711,9 @@ export default function AdsManagerModal({
                         setIsFree(e.target.checked);
                         if (e.target.checked) setIsPromo(false);
                       }}
-                      className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-gray-300"
+                      className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-gray-300 dark:border-slate-700"
                     />
-                    <span className="text-xs text-gray-600 font-medium">{t("adsManager.freeItem")}</span>
+                    <span className="text-xs text-gray-600 dark:text-slate-300 font-medium">{t("adsManager.freeItem")}</span>
                   </label>
 
                   {/* Promo Checkbox */}
@@ -723,9 +723,9 @@ export default function AdsManagerModal({
                         type="checkbox"
                         checked={isPromo}
                         onChange={(e) => setIsPromo(e.target.checked)}
-                        className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-gray-300"
+                        className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-gray-300 dark:border-slate-700"
                       />
-                      <span className="text-xs text-rose-700 font-semibold flex items-center gap-1">
+                      <span className="text-xs text-rose-700 dark:text-rose-400 font-semibold flex items-center gap-1">
                         <Tag className="w-3.5 h-3.5" />
                         {t("adsManager.isPromo")}
                       </span>
@@ -734,8 +734,8 @@ export default function AdsManagerModal({
 
                   {/* Original / Regular Price Input */}
                   {isPromo && !isFree && (
-                    <div className="mt-3 p-3 bg-rose-50/70 border border-rose-200/80 rounded-xl space-y-2">
-                      <label className="block text-[11px] font-bold text-rose-900 uppercase tracking-wider">
+                    <div className="mt-3 p-3 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-800/60 rounded-xl space-y-2">
+                      <label className="block text-[11px] font-bold text-rose-900 dark:text-rose-200 uppercase tracking-wider">
                         {t("adsManager.originalPriceLabel")} *
                       </label>
                       <div className="relative">
@@ -747,11 +747,11 @@ export default function AdsManagerModal({
                           value={originalPrice}
                           onChange={(e) => setOriginalPrice(e.target.value)}
                           placeholder={t("adsManager.originalPricePlaceholder")}
-                          className="w-full pl-9 pr-3 py-2 bg-white border border-rose-300 rounded-lg text-xs font-bold text-gray-900 placeholder-rose-300 focus:ring-2 focus:ring-rose-500"
+                          className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded-lg text-xs font-bold text-gray-900 dark:text-slate-100 placeholder-rose-300 dark:placeholder-slate-500 focus:ring-2 focus:ring-rose-500"
                         />
                       </div>
                       {parseFloat(originalPrice) > parseFloat(price || "0") && parseFloat(price || "0") > 0 && (
-                        <div className="flex items-center justify-between text-xs font-bold text-rose-700">
+                        <div className="flex items-center justify-between text-xs font-bold text-rose-700 dark:text-rose-300">
                           <span>
                             {t("adsManager.youSave")}: {(parseFloat(originalPrice) - parseFloat(price)).toFixed(2)} {currency}
                           </span>
@@ -765,34 +765,34 @@ export default function AdsManagerModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {t("adsManager.currencyLabel")}
                   </label>
                   <select
                     disabled={isFree}
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-[#002f34] focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all disabled:bg-gray-100 disabled:text-gray-400 cursor-pointer"
+                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-medium text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all disabled:bg-gray-100 dark:disabled:bg-slate-800/50 disabled:text-gray-400 dark:disabled:text-slate-600 cursor-pointer"
                   >
-                    <option value="USD">USD ($)</option>
-                    <option value="EUR">EUR (€)</option>
-                    <option value="PLN">PLN (zł)</option>
-                    <option value="GBP">GBP (£)</option>
+                    <option value="USD" className="dark:bg-slate-900">USD ($)</option>
+                    <option value="EUR" className="dark:bg-slate-900">EUR (€)</option>
+                    <option value="PLN" className="dark:bg-slate-900">PLN (zł)</option>
+                    <option value="GBP" className="dark:bg-slate-900">GBP (£)</option>
                   </select>
                 </div>
               </div>
 
               {/* 4. Photos / Images */}
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-2">
                   {t("adsManager.photosLabel")} ({images.length})
                 </label>
 
                 {/* Upload Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   {/* File Upload Button */}
-                  <label className="flex items-center justify-center gap-2.5 p-3.5 border-2 border-dashed border-gray-300 hover:border-teal-500 rounded-xl bg-gray-50 hover:bg-teal-50/50 cursor-pointer transition-all text-sm font-semibold text-[#002f34]">
-                    <Upload className="w-4 h-4 text-teal-600" />
+                  <label className="flex items-center justify-center gap-2.5 p-3.5 border-2 border-dashed border-gray-300 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-400 rounded-xl bg-gray-50 dark:bg-slate-800/60 hover:bg-teal-50/50 dark:hover:bg-slate-800 cursor-pointer transition-all text-sm font-semibold text-[#002f34] dark:text-slate-200">
+                    <Upload className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <span>{t("adsManager.uploadLocal")}</span>
                     <input
                       type="file"
@@ -810,12 +810,12 @@ export default function AdsManagerModal({
                       value={imageUrlInput}
                       onChange={(e) => setImageUrlInput(e.target.value)}
                       placeholder={t("adsManager.orUrl")}
-                      className="flex-1 px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                      className="flex-1 px-3.5 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                     />
                     <button
                       type="button"
                       onClick={handleAddImageUrl}
-                      className="px-3 bg-gray-100 hover:bg-gray-200 text-[#002f34] rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                      className="px-3 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-[#002f34] dark:text-slate-200 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-transparent dark:border-slate-700"
                     >
                       {t("adsManager.addUrlBtn")}
                     </button>
@@ -824,11 +824,11 @@ export default function AdsManagerModal({
 
                 {/* Image Thumbnails Preview Grid */}
                 {images.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 p-3 bg-gray-50 dark:bg-slate-800/80 rounded-xl border border-gray-200 dark:border-slate-700">
                     {images.map((img, idx) => (
                       <div
                         key={idx}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-300 bg-white group"
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 group"
                       >
                         <img
                           src={img}
@@ -856,21 +856,21 @@ export default function AdsManagerModal({
               {/* 5. Location */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {t("adsManager.locationLabel")}
                   </label>
                   <div className="relative">
                     <div
                       onClick={() => setIsLocationPickerOpen((prev) => !prev)}
-                      className="w-full pl-10 pr-9 py-2.5 bg-gray-50 hover:bg-gray-100/80 border border-gray-200 rounded-xl text-sm text-[#002f34] focus:ring-2 focus:ring-teal-500 transition-all font-medium flex items-center justify-between cursor-pointer"
+                      className="w-full pl-10 pr-9 py-2.5 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/80 dark:hover:bg-slate-700/80 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 transition-all font-medium flex items-center justify-between cursor-pointer"
                     >
-                      <MapPin className="w-4 h-4 text-teal-600 absolute left-3.5 top-3.5" />
+                      <MapPin className="w-4 h-4 text-teal-600 dark:text-teal-400 absolute left-3.5 top-3.5" />
                       <span className="truncate">
                         {location || t("adsManager.locationPlaceholder")}
                       </span>
                       <ChevronDown
-                        className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${
-                          isLocationPickerOpen ? "rotate-180 text-teal-600" : ""
+                        className={`w-4 h-4 text-gray-400 dark:text-slate-400 transition-transform duration-200 shrink-0 ${
+                          isLocationPickerOpen ? "rotate-180 text-teal-600 dark:text-teal-400" : ""
                         }`}
                       />
                     </div>
@@ -891,17 +891,17 @@ export default function AdsManagerModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     {t("adsManager.phoneLabel")}
                   </label>
                   <div className="relative">
-                    <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Phone className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder={t("adsManager.phonePlaceholder")}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-medium"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-medium"
                     />
                   </div>
                 </div>
@@ -909,7 +909,7 @@ export default function AdsManagerModal({
 
               {/* 6. Description */}
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                   {t("adsManager.descLabel")} *
                 </label>
                 <textarea
@@ -918,7 +918,7 @@ export default function AdsManagerModal({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t("adsManager.descPlaceholder")}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-normal leading-relaxed"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-normal leading-relaxed"
                 />
               </div>
 
@@ -927,7 +927,7 @@ export default function AdsManagerModal({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-3.5 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3.5 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 text-white font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {submitting ? (
                     <>

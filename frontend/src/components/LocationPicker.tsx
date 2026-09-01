@@ -195,7 +195,7 @@ export default function LocationPicker({
   return (
     <div
       ref={pickerRef}
-      className={`bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-150 ${
+      className={`bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-800 z-50 overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-150 text-[#002f34] dark:text-slate-100 ${
         mode === "dropdown"
           ? "absolute top-full left-0 right-0 mt-1.5 w-full sm:min-w-[360px] md:min-w-[400px] max-w-full"
           : "relative w-full max-h-[85vh]"
@@ -203,21 +203,21 @@ export default function LocationPicker({
       style={{ maxHeight: "540px" }}
     >
       {/* 1. Light Mint/Teal Header with 7 Countries Flags */}
-      <div className="bg-[#E8F6F7] border-b border-[#D2ECEF] px-3.5 py-2.5 flex items-center justify-between gap-2">
+      <div className="bg-[#E8F6F7] dark:bg-slate-950 border-b border-[#D2ECEF] dark:border-slate-800 px-3.5 py-2.5 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-full bg-[#002f34] flex items-center justify-center text-white shrink-0 shadow-2xs">
-            <MapPin className="w-4 h-4 text-teal-300" />
+          <div className="w-7 h-7 rounded-full bg-[#002f34] dark:bg-teal-600 flex items-center justify-center text-white shrink-0 shadow-2xs">
+            <MapPin className="w-4 h-4 text-teal-300 dark:text-teal-100" />
           </div>
           <div className="flex items-center gap-1.5 min-w-0">
             <CountryFlag code={currentCountry.code} className="w-4 h-3 shrink-0" />
-            <span className="text-xs font-black text-[#002f34] tracking-tight truncate">
+            <span className="text-xs font-black text-[#002f34] dark:text-white tracking-tight truncate">
               {countryDisplayName}
             </span>
           </div>
         </div>
 
         {/* 7 Countries Pills Selector with vector flags */}
-        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-[#C5E5E9] shadow-2xs overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-[#C5E5E9] dark:border-slate-700 shadow-2xs overflow-x-auto no-scrollbar">
           {COUNTRIES_DATA.map((c) => {
             const isSelected = c.code === selectedCountryCode;
             const cName = t(`country.${c.code}`, c.nativeName);
@@ -234,12 +234,12 @@ export default function LocationPicker({
                 title={cName}
                 className={`px-2 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 transition-all duration-150 cursor-pointer ${
                   isSelected
-                    ? "bg-[#002f34] text-white shadow-xs scale-105"
-                    : "text-[#002f34] hover:bg-teal-50 hover:text-teal-950 hover:scale-105"
+                    ? "bg-[#002f34] dark:bg-teal-600 text-white shadow-xs scale-105"
+                    : "text-[#002f34] dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-slate-800 hover:text-teal-950 dark:hover:text-teal-300 hover:scale-105"
                 }`}
               >
                 <CountryFlag code={c.code} className="w-3.5 h-2.5" />
-                <span className={isSelected ? "text-white font-bold" : "text-[#002f34] font-bold"}>{c.code}</span>
+                <span className={isSelected ? "text-white font-bold" : "text-[#002f34] dark:text-slate-200 font-bold"}>{c.code}</span>
               </button>
             );
           })}
@@ -249,18 +249,18 @@ export default function LocationPicker({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-teal-100/60 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="p-1.5 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-teal-100/60 dark:hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
             aria-label="Close"
           >
-            <X className="w-4 h-4 text-[#002f34]" />
+            <X className="w-4 h-4 text-[#002f34] dark:text-slate-300" />
           </button>
         )}
       </div>
 
       {/* 2. Fast Search Bar */}
-      <div className="px-3.5 py-2 bg-gray-50/80 border-b border-gray-100">
+      <div className="px-3.5 py-2 bg-gray-50/80 dark:bg-slate-900/80 border-b border-gray-100 dark:border-slate-800">
         <div className="relative">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
@@ -270,13 +270,13 @@ export default function LocationPicker({
                 ? `${t("location.searchIn")} ${selectedRegion.name}...`
                 : `${t("location.searchPlaceholder")} (${countryDisplayName})...`
             }
-            className="w-full pl-8 pr-7 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 font-semibold transition-all"
+            className="w-full pl-8 pr-7 py-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-xs text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 font-semibold transition-all"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="p-1 text-gray-400 hover:text-gray-700 absolute right-2 top-1/2 -translate-y-1/2 text-xs cursor-pointer hover:bg-gray-100 rounded-full"
+              className="p-1 text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-200 absolute right-2 top-1/2 -translate-y-1/2 text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full"
             >
               ✕
             </button>
@@ -285,7 +285,7 @@ export default function LocationPicker({
       </div>
 
       {/* 3. Main Content Views */}
-      <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+      <div className="flex-1 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-800">
         {/* A) Search Results View (when searching) */}
         {searchQuery.trim().length > 0 ? (
           <div className="p-2 space-y-0.5">
@@ -295,29 +295,29 @@ export default function LocationPicker({
                   key={`${match.displayName}-${idx}`}
                   type="button"
                   onClick={() => handleSearchMatchClick(match)}
-                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-teal-50/90 hover:pl-4.5 rounded-xl transition-all duration-150 cursor-pointer group"
+                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-teal-50/90 dark:hover:bg-slate-800/80 hover:pl-4.5 rounded-xl transition-all duration-150 cursor-pointer group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     {match.type === "city" && (
-                      <Building2 className="w-4 h-4 text-teal-600 shrink-0 group-hover:scale-110 transition-transform" />
+                      <Building2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 group-hover:scale-110 transition-transform" />
                     )}
                     {match.type === "region" && (
-                      <Map className="w-4 h-4 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
+                      <Map className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
                     )}
-                    <span className="text-sm font-bold text-[#002f34] group-hover:text-teal-950 truncate">
+                    <span className="text-sm font-bold text-[#002f34] dark:text-slate-100 group-hover:text-teal-950 dark:group-hover:text-teal-300 truncate">
                       {match.displayName}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500 group-hover:text-teal-700 font-bold shrink-0 ml-2">
+                  <span className="text-xs text-gray-500 dark:text-slate-400 group-hover:text-teal-700 dark:group-hover:text-teal-400 font-bold shrink-0 ml-2">
                     {match.type === "city" ? t("location.city") : t("location.region")}
                   </span>
                 </button>
               ))
             ) : (
               <div className="py-6 text-center px-4">
-                <p className="text-xs font-medium text-gray-600">
+                <p className="text-xs font-medium text-gray-600 dark:text-slate-400">
                   {t("location.noResults")}{" "}
-                  <strong className="text-[#002f34]">"{searchQuery}"</strong>
+                  <strong className="text-[#002f34] dark:text-white">"{searchQuery}"</strong>
                 </p>
                 <button
                   type="button"
@@ -325,7 +325,7 @@ export default function LocationPicker({
                     onChange(searchQuery.trim());
                     if (onClose) onClose();
                   }}
-                  className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#002f34] hover:bg-[#003e45] text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                  className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                   <span className="text-white">{t("location.use")} "{searchQuery.trim()}"</span>
@@ -343,9 +343,9 @@ export default function LocationPicker({
                 setSelectedRegion(null);
                 setCitySearchQuery("");
               }}
-              className="w-full px-4 py-2.5 bg-gray-50 hover:bg-teal-100/70 hover:pl-5 text-left text-xs font-black text-[#002f34] hover:text-teal-950 flex items-center gap-2 transition-all duration-150 cursor-pointer border-b border-gray-200 group"
+              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-900 hover:bg-teal-100/70 dark:hover:bg-slate-800 hover:pl-5 text-left text-xs font-black text-[#002f34] dark:text-slate-100 hover:text-teal-950 dark:hover:text-teal-300 flex items-center gap-2 transition-all duration-150 cursor-pointer border-b border-gray-200 dark:border-slate-800 group"
             >
-              <ChevronLeft className="w-4 h-4 text-teal-600 group-hover:-translate-x-0.5 transition-transform shrink-0" />
+              <ChevronLeft className="w-4 h-4 text-teal-600 dark:text-teal-400 group-hover:-translate-x-0.5 transition-transform shrink-0" />
               <span>{t("location.backToRegions")}</span>
             </button>
 
@@ -353,38 +353,38 @@ export default function LocationPicker({
             <button
               type="button"
               onClick={() => handleSelectEntireRegion(selectedRegion)}
-              className="w-full px-4 py-3 text-left hover:bg-teal-50/90 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer border-b border-gray-100 group"
+              className="w-full px-4 py-3 text-left hover:bg-teal-50/90 dark:hover:bg-slate-800/80 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer border-b border-gray-100 dark:border-slate-800 group"
             >
               <div>
-                <div className="text-sm font-bold text-[#002f34] group-hover:text-teal-900">
+                <div className="text-sm font-bold text-[#002f34] dark:text-white group-hover:text-teal-900 dark:group-hover:text-teal-300">
                   {t("location.entireRegionPrefix")} {selectedRegion.name}
                 </div>
-                <div className="text-xs text-gray-500 group-hover:text-teal-700">
+                <div className="text-xs text-gray-500 dark:text-slate-400 group-hover:text-teal-700 dark:group-hover:text-teal-400">
                   {t("location.entireRegionSub")}
                 </div>
               </div>
-              <Check className="w-4 h-4 text-teal-600 group-hover:scale-125 transition-transform" />
+              <Check className="w-4 h-4 text-teal-600 dark:text-teal-400 group-hover:scale-125 transition-transform" />
             </button>
 
             {/* Section Header */}
-            <div className="px-4 py-2 bg-gray-50/90 text-[11px] font-bold text-[#002f34] tracking-wide border-b border-gray-100 flex items-center justify-between">
+            <div className="px-4 py-2 bg-gray-50/90 dark:bg-slate-950 text-[11px] font-bold text-[#002f34] dark:text-slate-200 tracking-wide border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
               <span>{t("location.citiesInPrefix")} {selectedRegion.name}</span>
-              <span className="text-gray-500 font-bold">
+              <span className="text-gray-500 dark:text-slate-400 font-bold">
                 ({filteredCities.length})
               </span>
             </div>
 
             {/* Cities List with rich hover */}
-            <div className="divide-y divide-gray-100 max-h-[260px] overflow-y-auto">
+            <div className="divide-y divide-gray-100 dark:divide-slate-800 max-h-[260px] overflow-y-auto">
               {filteredCities.map((city) => (
                 <button
                   key={city}
                   type="button"
                   onClick={() => handleSelectCity(city)}
-                  className="w-full px-4 py-2.5 text-left text-sm font-bold text-[#002f34] hover:text-teal-900 hover:bg-teal-50/90 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer group"
+                  className="w-full px-4 py-2.5 text-left text-sm font-bold text-[#002f34] dark:text-slate-100 hover:text-teal-900 dark:hover:text-teal-300 hover:bg-teal-50/90 dark:hover:bg-slate-800 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer group"
                 >
                   <span className="truncate">{city}</span>
-                  <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all duration-150" />
+                  <ChevronRight className="w-4 h-4 text-gray-400 dark:text-slate-500 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-1 transition-all duration-150" />
                 </button>
               ))}
             </div>
@@ -392,64 +392,64 @@ export default function LocationPicker({
             {/* Custom City Entry Field */}
             <form
               onSubmit={handleCustomCitySubmit}
-              className="p-3 bg-gray-50 border-t border-gray-200 flex items-center gap-2"
+              className="p-3 bg-gray-50 dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2"
             >
               <input
                 type="text"
                 value={customCityInput}
                 onChange={(e) => setCustomCityInput(e.target.value)}
                 placeholder={t("location.customCityPlaceholder")}
-                className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="flex-1 px-3 py-1.5 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-xs text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
               />
               <button
                 type="submit"
                 disabled={!customCityInput.trim()}
-                className="px-3 py-1.5 bg-[#002f34] hover:bg-[#003e45] disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95"
+                className="px-3 py-1.5 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95"
               >
                 <span className="text-white">{t("location.customCityAdd")}</span>
               </button>
             </form>
           </div>
         ) : (
-          /* C) Level 1: Main View (Exact layout from user screenshot with rich hover and full translation) */
+          /* C) Level 1: Main View */
           <div>
             {/* Primary Action: Cała Polska / Cały Kraj / Entire Country */}
             <button
               type="button"
               onClick={() => handleSelectEntireCountry()}
-              className="w-full px-4 py-3.5 text-left hover:bg-teal-50/90 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer border-b border-gray-100 group"
+              className="w-full px-4 py-3.5 text-left hover:bg-teal-50/90 dark:hover:bg-slate-800/80 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer border-b border-gray-100 dark:border-slate-800 group"
             >
               <div>
-                <div className="text-sm font-bold text-[#002f34] group-hover:text-teal-900">
+                <div className="text-sm font-bold text-[#002f34] dark:text-white group-hover:text-teal-900 dark:group-hover:text-teal-300">
                   {currentCountry.code === "PL" && language === "pl"
                     ? "Cała Polska"
                     : `${t("location.allCountry")} (${countryDisplayName})`}
                 </div>
-                <div className="text-xs text-gray-500 mt-0.5 group-hover:text-teal-700">
+                <div className="text-xs text-gray-500 dark:text-slate-400 mt-0.5 group-hover:text-teal-700 dark:group-hover:text-teal-400">
                   {t("location.allCountrySub")}
                 </div>
               </div>
-              <Check className="w-4 h-4 text-teal-600 group-hover:scale-125 transition-transform" />
+              <Check className="w-4 h-4 text-teal-600 dark:text-teal-400 group-hover:scale-125 transition-transform" />
             </button>
 
             {/* Section Header: Wybierz województwo / region */}
-            <div className="px-4 py-2 bg-gray-50/90 text-[11px] font-bold text-[#002f34] tracking-wide border-b border-gray-100">
+            <div className="px-4 py-2 bg-gray-50/90 dark:bg-slate-950 text-[11px] font-bold text-[#002f34] dark:text-slate-200 tracking-wide border-b border-gray-100 dark:border-slate-800">
               {t("location.chooseRegion")} ({countryDisplayName})
             </div>
 
             {/* List of Regions with '>' Chevron and smooth slide-in hover */}
-            <div className="divide-y divide-gray-100 max-h-[300px] overflow-y-auto">
+            <div className="divide-y divide-gray-100 dark:divide-slate-800 max-h-[300px] overflow-y-auto">
               {currentCountry.regions.map((region) => (
                 <button
                   key={region.id}
                   type="button"
                   onClick={() => setSelectedRegion(region)}
-                  className="w-full px-4 py-3 text-left text-sm font-bold text-[#002f34] hover:bg-teal-50/90 hover:text-teal-900 hover:pl-5 transition-all duration-150 ease-out flex items-center justify-between cursor-pointer group"
+                  className="w-full px-4 py-3 text-left text-sm font-bold text-[#002f34] dark:text-slate-100 hover:bg-teal-50/90 dark:hover:bg-slate-800 hover:text-teal-900 dark:hover:text-teal-300 hover:pl-5 transition-all duration-150 ease-out flex items-center justify-between cursor-pointer group"
                 >
                   <span className="truncate">
                     {region.name}
                   </span>
-                  <ChevronRight className="w-5 h-5 text-[#002f34] group-hover:text-teal-600 group-hover:translate-x-1.5 transition-all duration-150 shrink-0" />
+                  <ChevronRight className="w-5 h-5 text-[#002f34] dark:text-slate-300 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-1.5 transition-all duration-150 shrink-0" />
                 </button>
               ))}
             </div>
@@ -458,10 +458,10 @@ export default function LocationPicker({
       </div>
 
       {/* 4. Footer */}
-      <div className="px-4 py-2 bg-gray-50/95 border-t border-gray-200 flex items-center justify-between text-xs">
-        <div className="flex items-center gap-1 text-gray-500 truncate max-w-[70%]">
-          <span className="font-bold text-gray-400">{t("location.selected")}</span>
-          <span className="font-extrabold text-[#002f34] truncate">
+      <div className="px-4 py-2 bg-gray-50/95 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1 text-gray-500 dark:text-slate-400 truncate max-w-[70%]">
+          <span className="font-bold text-gray-400 dark:text-slate-500">{t("location.selected")}</span>
+          <span className="font-extrabold text-[#002f34] dark:text-white truncate">
             {value ||
               (currentCountry.code === "PL" && language === "pl"
                 ? "Cała Polska"
@@ -476,7 +476,7 @@ export default function LocationPicker({
               onChange("");
               if (onClose) onClose();
             }}
-            className="text-[11px] font-bold text-gray-500 hover:text-red-600 transition-colors cursor-pointer hover:underline"
+            className="text-[11px] font-bold text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-rose-400 transition-colors cursor-pointer hover:underline"
           >
             {t("location.clear")}
           </button>
