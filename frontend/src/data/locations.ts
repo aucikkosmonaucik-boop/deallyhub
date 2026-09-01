@@ -44,6 +44,7 @@ export const POPULAR_POLISH_CITIES: Array<{ city: string; region: string }> = [
 ];
 
 export const COUNTRIES_DATA: CountryInfo[] = [
+  // 1. POLSKA (Wszystkie 16 województw)
   {
     code: "PL",
     name: "Poland",
@@ -199,88 +200,155 @@ export const COUNTRIES_DATA: CountryInfo[] = [
       }
     ]
   },
+
+  // 2. NIEMCY (Wszystkie 16 krajów związkowych - Bundesländer)
   {
     code: "DE",
     name: "Germany",
     nativeName: "Deutschland",
     flag: "🇩🇪",
     regions: [
+      { id: "baden-wuerttemberg", name: "Baden-Württemberg", cities: ["Stuttgart", "Karlsruhe", "Mannheim", "Freiburg", "Heidelberg", "Ulm", "Heilbronn", "Pforzheim"] },
+      { id: "bayern", name: "Bayern", cities: ["München", "Nürnberg", "Augsburg", "Regensburg", "Ingolstadt", "Würzburg", "Fürth", "Erlangen", "Bamberg"] },
       { id: "berlin", name: "Berlin", cities: ["Berlin"] },
-      { id: "bayern", name: "Bayern", cities: ["München", "Nürnberg", "Augsburg", "Regensburg", "Ingolstadt", "Würzburg"] },
-      { id: "baden-wuerttemberg", name: "Baden-Württemberg", cities: ["Stuttgart", "Karlsruhe", "Mannheim", "Freiburg", "Heidelberg", "Ulm"] },
-      { id: "nordrhein-westfalen", name: "Nordrhein-Westfalen", cities: ["Köln", "Düsseldorf", "Dortmund", "Essen", "Bonn", "Münster", "Aachen", "Bielefeld"] },
-      { id: "hessen", name: "Hessen", cities: ["Frankfurt am Main", "Wiesbaden", "Kassel", "Darmstadt", "Offenbach"] },
-      { id: "sachsen", name: "Sachsen", cities: ["Leipzig", "Dresden", "Chemnitz", "Zwickau"] },
+      { id: "brandenburg", name: "Brandenburg", cities: ["Potsdam", "Cottbus", "Brandenburg an der Havel", "Frankfurt (Oder)", "Oranienburg"] },
+      { id: "bremen", name: "Bremen", cities: ["Bremen", "Bremerhaven"] },
       { id: "hamburg", name: "Hamburg", cities: ["Hamburg"] },
-      { id: "niedersachsen", name: "Niedersachsen", cities: ["Hannover", "Braunschweig", "Oldenburg", "Osnabrück", "Wolfsburg"] }
+      { id: "hessen", name: "Hessen", cities: ["Frankfurt am Main", "Wiesbaden", "Kassel", "Darmstadt", "Offenbach am Main", "Hanau", "Gießen"] },
+      { id: "mecklenburg-vorpommern", name: "Mecklenburg-Vorpommern", cities: ["Rostock", "Schwerin", "Neubrandenburg", "Stralsund", "Greifswald"] },
+      { id: "niedersachsen", name: "Niedersachsen", cities: ["Hannover", "Braunschweig", "Oldenburg", "Osnabrück", "Wolfsburg", "Göttingen", "Salzgitter", "Hildesheim"] },
+      { id: "nordrhein-westfalen", name: "Nordrhein-Westfalen", cities: ["Köln", "Düsseldorf", "Dortmund", "Essen", "Bonn", "Münster", "Aachen", "Bielefeld", "Duisburg", "Bochum", "Wuppertal"] },
+      { id: "rheinland-pfalz", name: "Rheinland-Pfalz", cities: ["Mainz", "Ludwigshafen", "Koblenz", "Trier", "Kaiserslautern", "Worms"] },
+      { id: "saarland", name: "Saarland", cities: ["Saarbrücken", "Neunkirchen", "Homburg", "Völklingen"] },
+      { id: "sachsen", name: "Sachsen", cities: ["Leipzig", "Dresden", "Chemnitz", "Zwickau", "Plauen", "Görlitz"] },
+      { id: "sachsen-anhalt", name: "Sachsen-Anhalt", cities: ["Magdeburg", "Halle (Saale)", "Dessau-Roßlau", "Lutherstadt Wittenberg"] },
+      { id: "schleswig-holstein", name: "Schleswig-Holstein", cities: ["Kiel", "Lübeck", "Flensburg", "Neumünster", "Norderstedt"] },
+      { id: "thueringen", name: "Thüringen", cities: ["Erfurt", "Jena", "Gera", "Weimar", "Gotha", "Eisenach"] }
     ]
   },
+
+  // 3. FRANCJA (Wszystkie 13 regionów metropolitalnych)
   {
     code: "FR",
     name: "France",
     nativeName: "France",
     flag: "🇫🇷",
     regions: [
-      { id: "ile-de-france", name: "Île-de-France", cities: ["Paris", "Boulogne-Billancourt", "Saint-Denis", "Argenteuil", "Montreuil", "Versailles"] },
-      { id: "auvergne-rhone-alpes", name: "Auvergne-Rhône-Alpes", cities: ["Lyon", "Grenoble", "Saint-Étienne", "Clermont-Ferrand", "Annecy"] },
-      { id: "provence-alpes-cote-azur", name: "Provence-Alpes-Côte d'Azur", cities: ["Marseille", "Nice", "Toulon", "Aix-en-Provence", "Cannes", "Avignon"] },
-      { id: "occitanie", name: "Occitanie", cities: ["Toulouse", "Montpellier", "Nîmes", "Perpignan", "Béziers"] },
-      { id: "nouvelle-aquitaine", name: "Nouvelle-Aquitaine", cities: ["Bordeaux", "Limoges", "Poitiers", "Pau", "La Rochelle"] },
-      { id: "grand-est", name: "Grand Est", cities: ["Strasbourg", "Reims", "Metz", "Mulhouse", "Nancy"] }
+      { id: "auvergne-rhone-alpes", name: "Auvergne-Rhône-Alpes", cities: ["Lyon", "Grenoble", "Saint-Étienne", "Clermont-Ferrand", "Annecy", "Chambéry", "Valence"] },
+      { id: "bourgogne-franche-comte", name: "Bourgogne-Franche-Comté", cities: ["Dijon", "Besançon", "Belfort", "Chalon-sur-Saône", "Nevers", "Auxerre"] },
+      { id: "bretagne", name: "Bretagne", cities: ["Rennes", "Brest", "Quimper", "Lorient", "Vannes", "Saint-Malo"] },
+      { id: "centre-val-de-loire", name: "Centre-Val de Loire", cities: ["Tours", "Orléans", "Bourges", "Blois", "Chartres", "Châteauroux"] },
+      { id: "corse", name: "Corse", cities: ["Ajaccio", "Bastia", "Porto-Vecchio", "Corte"] },
+      { id: "grand-est", name: "Grand Est", cities: ["Strasbourg", "Reims", "Metz", "Mulhouse", "Nancy", "Colmar", "Troyes"] },
+      { id: "hauts-de-france", name: "Hauts-de-France", cities: ["Lille", "Amiens", "Roubaix", "Tourcoing", "Dunkerque", "Calais", "Beauvais"] },
+      { id: "ile-de-france", name: "Île-de-France", cities: ["Paris", "Boulogne-Billancourt", "Saint-Denis", "Argenteuil", "Montreuil", "Versailles", "Nanterre", "Créteil"] },
+      { id: "normandie", name: "Normandie", cities: ["Rouen", "Le Havre", "Caen", "Cherbourg-en-Cotentin", "Évreux"] },
+      { id: "nouvelle-aquitaine", name: "Nouvelle-Aquitaine", cities: ["Bordeaux", "Limoges", "Poitiers", "Pau", "La Rochelle", "Mérignac", "Bayonne"] },
+      { id: "occitanie", name: "Occitanie", cities: ["Toulouse", "Montpellier", "Nîmes", "Perpignan", "Béziers", "Montauban", "Narbonne"] },
+      { id: "pays-de-la-loire", name: "Pays de la Loire", cities: ["Nantes", "Angers", "Le Mans", "Saint-Nazaire", "Cholet", "La Roche-sur-Yon"] },
+      { id: "provence-alpes-cote-azur", name: "Provence-Alpes-Côte d'Azur", cities: ["Marseille", "Nice", "Toulon", "Aix-en-Provence", "Cannes", "Avignon", "Antibes"] }
     ]
   },
+
+  // 4. HISZPANIA (Wszystkie 17 wspólnot autonomicznych - Comunidades Autónomas)
   {
     code: "ES",
     name: "Spain",
     nativeName: "España",
     flag: "🇪🇸",
     regions: [
-      { id: "madrid", name: "Comunidad de Madrid", cities: ["Madrid", "Móstoles", "Alcalá de Henares", "Fuenlabrada", "Leganés", "Getafe"] },
-      { id: "cataluna", name: "Cataluña", cities: ["Barcelona", "L'Hospitalet de Llobregat", "Badalona", "Terrassa", "Sabadell", "Tarragona", "Girona"] },
-      { id: "andalucia", name: "Andalucía", cities: ["Sevilla", "Málaga", "Córdoba", "Granada", "Jerez de la Frontera", "Almería", "Cádiz"] },
-      { id: "comunidad-valenciana", name: "Comunidad Valenciana", cities: ["Valencia", "Alicante", "Elche", "Castellón de la Plana", "Torrevieja"] },
-      { id: "pais-vasco", name: "País Vasco", cities: ["Bilbao", "Vitoria-Gasteiz", "San Sebastián", "Barakaldo"] },
-      { id: "galicia", name: "Galicia", cities: ["Vigo", "A Coruña", "Ourense", "Santiago de Compostela", "Lugo"] }
+      { id: "andalucia", name: "Andalucía", cities: ["Sevilla", "Málaga", "Córdoba", "Granada", "Jerez de la Frontera", "Almería", "Cádiz", "Huelva", "Jaén", "Marbella"] },
+      { id: "aragon", name: "Aragón", cities: ["Zaragoza", "Huesca", "Teruel"] },
+      { id: "asturias", name: "Principado de Asturias", cities: ["Gijón", "Oviedo", "Avilés", "Siero"] },
+      { id: "baleares", name: "Islas Baleares", cities: ["Palma de Mallorca", "Ibiza", "Manacor", "Ciutadella", "Mahón"] },
+      { id: "canarias", name: "Canarias", cities: ["Las Palmas de Gran Canaria", "Santa Cruz de Tenerife", "San Cristóbal de La Laguna", "Telde", "Arona"] },
+      { id: "cantabria", name: "Cantabria", cities: ["Santander", "Torrelavega", "Castro-Urdiales"] },
+      { id: "castilla-la-mancha", name: "Castilla-La Mancha", cities: ["Albacete", "Toledo", "Talavera de la Reina", "Guadalajara", "Ciudad Real", "Cuenca"] },
+      { id: "castilla-y-leon", name: "Castilla y León", cities: ["Valladolid", "Burgos", "Salamanca", "León", "Palencia", "Ponferrada", "Zamora", "Segovia", "Ávila", "Soria"] },
+      { id: "cataluna", name: "Cataluña", cities: ["Barcelona", "L'Hospitalet de Llobregat", "Badalona", "Terrassa", "Sabadell", "Tarragona", "Lleida", "Mataró", "Girona"] },
+      { id: "comunidad-valenciana", name: "Comunidad Valenciana", cities: ["Valencia", "Alicante", "Elche", "Castellón de la Plana", "Torrevieja", "Orihuela", "Gandia", "Benidorm"] },
+      { id: "extremadura", name: "Extremadura", cities: ["Badajoz", "Cáceres", "Mérida", "Plasencia"] },
+      { id: "galicia", name: "Galicia", cities: ["Vigo", "A Coruña", "Ourense", "Lugo", "Santiago de Compostela", "Pontevedra", "Ferrol"] },
+      { id: "la-rioja", name: "La Rioja", cities: ["Logroño", "Calahorra", "Arnedo"] },
+      { id: "madrid", name: "Comunidad de Madrid", cities: ["Madrid", "Móstoles", "Alcalá de Henares", "Fuenlabrada", "Leganés", "Getafe", "Alcorcón", "Torrejón de Ardoz", "Parla"] },
+      { id: "murcia", name: "Región de Murcia", cities: ["Murcia", "Cartagena", "Lorca", "Molina de Segura"] },
+      { id: "navarra", name: "Comunidad Foral de Navarra", cities: ["Pamplona", "Tudela", "Barañáin", "Valle de Egüés"] },
+      { id: "pais-vasco", name: "País Vasco", cities: ["Bilbao", "Vitoria-Gasteiz", "San Sebastián", "Barakaldo", "Getxo", "Irun"] }
     ]
   },
+
+  // 5. WŁOCHY (Wszystkie 20 regionów administracyjnych - Regioni d'Italia)
   {
     code: "IT",
     name: "Italy",
     nativeName: "Italia",
     flag: "🇮🇹",
     regions: [
-      { id: "lombardia", name: "Lombardia", cities: ["Milano", "Brescia", "Monza", "Bergamo", "Como", "Varese", "Pavia"] },
-      { id: "lazio", name: "Lazio", cities: ["Roma", "Latina", "Guidonia Montecelio", "Fiumicino", "Viterbo"] },
-      { id: "campania", name: "Campania", cities: ["Napoli", "Salerno", "Giugliano in Campania", "Torre del Greco", "Caserta"] },
-      { id: "veneto", name: "Veneto", cities: ["Venezia", "Verona", "Padova", "Vicenza", "Treviso"] },
-      { id: "piemonte", name: "Piemonte", cities: ["Torino", "Novara", "Alessandria", "Asti"] },
-      { id: "toscana", name: "Toscana", cities: ["Firenze", "Prato", "Livorno", "Arezzo", "Pisa", "Lucca"] },
-      { id: "sicilia", name: "Sicilia", cities: ["Palermo", "Catania", "Messina", "Siracusa", "Trapani"] }
+      { id: "abruzzo", name: "Abruzzo", cities: ["Pescara", "L'Aquila", "Teramo", "Chieti", "Montesilvano"] },
+      { id: "basilicata", name: "Basilicata", cities: ["Potenza", "Matera", "Policoro"] },
+      { id: "calabria", name: "Calabria", cities: ["Reggio Calabria", "Catanzaro", "Cosenza", "Lamezia Terme", "Crotone"] },
+      { id: "campania", name: "Campania", cities: ["Napoli", "Salerno", "Giugliano in Campania", "Torre del Greco", "Caserta", "Castellammare di Stabia", "Benevento"] },
+      { id: "emilia-romagna", name: "Emilia-Romagna", cities: ["Bologna", "Parma", "Modena", "Reggio Emilia", "Ravenna", "Rimini", "Ferrara", "Forlì", "Piacenza", "Cesena"] },
+      { id: "friuli-venezia-giulia", name: "Friuli-Venezia Giulia", cities: ["Trieste", "Udine", "Pordenone", "Gorizia"] },
+      { id: "lazio", name: "Lazio", cities: ["Roma", "Latina", "Guidonia Montecelio", "Fiumicino", "Viterbo", "Pomezia", "Tivoli", "Anzio", "Velletri"] },
+      { id: "liguria", name: "Liguria", cities: ["Genova", "La Spezia", "Savona", "Sanremo", "Imperia"] },
+      { id: "lombardia", name: "Lombardia", cities: ["Milano", "Brescia", "Monza", "Bergamo", "Como", "Busto Arsizio", "Sesto San Giovanni", "Varese", "Pavia", "Cremona"] },
+      { id: "marche", name: "Marche", cities: ["Ancona", "Pesaro", "Fano", "San Benedetto del Tronto", "Ascoli Piceno", "Macerata"] },
+      { id: "molise", name: "Molise", cities: ["Campobasso", "Termoli", "Isernia"] },
+      { id: "piemonte", name: "Piemonte", cities: ["Torino", "Novara", "Alessandria", "Asti", "Moncalieri", "Cuneo", "Vercelli", "Biella"] },
+      { id: "puglia", name: "Puglia", cities: ["Bari", "Taranto", "Foggia", "Andria", "Lecce", "Barletta", "Brindisi", "Altamura", "Molfetta"] },
+      { id: "sardegna", name: "Sardegna", cities: ["Cagliari", "Sassari", "Quartu Sant'Elena", "Olbia", "Alghero", "Nuoro"] },
+      { id: "sicilia", name: "Sicilia", cities: ["Palermo", "Catania", "Messina", "Siracusa", "Marsala", "Gela", "Ragusa", "Trapani", "Agrigento"] },
+      { id: "toscana", name: "Toscana", cities: ["Firenze", "Prato", "Livorno", "Arezzo", "Pistoia", "Pisa", "Lucca", "Grosseto", "Massa", "Siena"] },
+      { id: "trentino-alto-adige", name: "Trentino-Alto Adige", cities: ["Trento", "Bolzano", "Rovereto", "Merano"] },
+      { id: "umbria", name: "Umbria", cities: ["Perugia", "Terni", "Foligno", "Città di Castello", "Spoleto"] },
+      { id: "valle-d-aosta", name: "Valle d'Aosta", cities: ["Aosta"] },
+      { id: "veneto", name: "Veneto", cities: ["Venezia", "Verona", "Padova", "Vicenza", "Treviso", "Chioggia", "Rovigo", "Bassano del Grappa"] }
     ]
   },
+
+  // 6. WIELKA BRYTANIA (Wszystkie kraje składowe i główne regiony)
   {
     code: "GB",
     name: "United Kingdom",
     nativeName: "United Kingdom",
     flag: "🇬🇧",
     regions: [
-      { id: "greater-london", name: "Greater London", cities: ["London", "Croydon", "Barnet", "Ealing", "Bromley"] },
-      { id: "greater-manchester", name: "Greater Manchester", cities: ["Manchester", "Salford", "Bolton", "Stockport", "Oldham"] },
-      { id: "west-midlands", name: "West Midlands", cities: ["Birmingham", "Coventry", "Wolverhampton", "Solihull", "Walsall"] },
-      { id: "scotland", name: "Scotland", cities: ["Edinburgh", "Glasgow", "Aberdeen", "Dundee", "Inverness"] },
-      { id: "west-yorkshire", name: "West Yorkshire", cities: ["Leeds", "Bradford", "Wakefield", "Huddersfield", "Halifax"] }
+      { id: "greater-london", name: "Greater London", cities: ["London", "Croydon", "Barnet", "Ealing", "Bromley", "Enfield", "Brent"] },
+      { id: "south-east", name: "South East (England)", cities: ["Brighton", "Southampton", "Portsmouth", "Oxford", "Reading", "Milton Keynes", "Slough"] },
+      { id: "north-west", name: "North West (England)", cities: ["Manchester", "Liverpool", "Salford", "Bolton", "Stockport", "Oldham", "Blackpool", "Preston"] },
+      { id: "west-midlands", name: "West Midlands", cities: ["Birmingham", "Coventry", "Wolverhampton", "Solihull", "Walsall", "Dudley", "Stoke-on-Trent"] },
+      { id: "yorkshire-and-the-humber", name: "Yorkshire and the Humber", cities: ["Leeds", "Sheffield", "Bradford", "Kingston upon Hull", "York", "Wakefield", "Huddersfield"] },
+      { id: "east-of-england", name: "East of England", cities: ["Cambridge", "Norwich", "Ipswich", "Luton", "Peterborough", "Southend-on-Sea", "Colchester"] },
+      { id: "south-west", name: "South West (England)", cities: ["Bristol", "Plymouth", "Bournemouth", "Swindon", "Poole", "Exeter", "Gloucester", "Bath"] },
+      { id: "east-midlands", name: "East Midlands", cities: ["Leicester", "Nottingham", "Derby", "Northampton", "Lincoln", "Mansfield"] },
+      { id: "north-east", name: "North East (England)", cities: ["Newcastle upon Tyne", "Sunderland", "Middlesbrough", "Gateshead", "Darlington", "Hartlepool"] },
+      { id: "scotland", name: "Scotland", cities: ["Glasgow", "Edinburgh", "Aberdeen", "Dundee", "Paisley", "East Kilbride", "Inverness", "Stirling"] },
+      { id: "wales", name: "Wales", cities: ["Cardiff", "Swansea", "Newport", "Wrexham", "Barry", "Bridgend"] },
+      { id: "northern-ireland", name: "Northern Ireland", cities: ["Belfast", "Derry", "Lisburn", "Newry", "Armagh", "Bangor"] }
     ]
   },
+
+  // 7. GRECJA (Wszystkie 13 regionów administracyjnych - Peripheries of Greece)
   {
     code: "GR",
     name: "Greece",
     nativeName: "Ελλάδα",
     flag: "🇬🇷",
     regions: [
-      { id: "attica", name: "Attica", cities: ["Athens", "Piraeus", "Peristeri", "Kallithea", "Glyfada", "Marousi"] },
-      { id: "central-macedonia", name: "Central Macedonia", cities: ["Thessaloniki", "Katerini", "Serres", "Veria", "Giannitsa"] },
-      { id: "crete", name: "Crete", cities: ["Heraklion", "Chania", "Rethymno", "Agios Nikolaos"] },
-      { id: "western-greece", name: "Western Greece", cities: ["Patras", "Agrinio", "Aigio"] }
+      { id: "attica", name: "Attica", cities: ["Athens", "Piraeus", "Peristeri", "Kallithea", "Glyfada", "Marousi", "Nea Smyrni", "Chalandri"] },
+      { id: "central-greece", name: "Central Greece", cities: ["Chalcis", "Lamia", "Livadeia", "Thebes", "Amfissa"] },
+      { id: "central-macedonia", name: "Central Macedonia", cities: ["Thessaloniki", "Kalamaria", "Katerini", "Serres", "Veria", "Giannitsa", "Kilkis"] },
+      { id: "crete", name: "Crete", cities: ["Heraklion", "Chania", "Rethymno", "Agios Nikolaos", "Ierapetra"] },
+      { id: "eastern-macedonia-thrace", name: "Eastern Macedonia and Thrace", cities: ["Alexandroupoli", "Kavala", "Komotini", "Xanthi", "Drama", "Orestiada"] },
+      { id: "epirus", name: "Epirus", cities: ["Ioannina", "Arta", "Preveza", "Igoumenitsa"] },
+      { id: "ionian-islands", name: "Ionian Islands", cities: ["Corfu", "Zakynthos", "Argostoli", "Lefkada"] },
+      { id: "north-aegean", name: "North Aegean", cities: ["Mytilene", "Chios", "Samos", "Myrina"] },
+      { id: "peloponnese", name: "Peloponnese", cities: ["Kalamata", "Corinth", "Tripoli", "Argos", "Sparta", "Nafplio"] },
+      { id: "south-aegean", name: "South Aegean", cities: ["Rhodes", "Kos", "Ermoupoli", "Mykonos", "Naxos", "Santorini"] },
+      { id: "thessaly", name: "Thessaly", cities: ["Larissa", "Volos", "Trikala", "Karditsa"] },
+      { id: "western-greece", name: "Western Greece", cities: ["Patras", "Agrinio", "Aigio", "Pyrgos", "Mesolongi"] },
+      { id: "western-macedonia", name: "Western Macedonia", cities: ["Kozani", "Ptolemaida", "Kastoria", "Florina", "Grevena"] }
     ]
   }
 ];
