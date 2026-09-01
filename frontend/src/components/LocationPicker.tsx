@@ -22,6 +22,75 @@ import {
   normalizeText,
 } from "@/data/locations";
 
+function CountryFlag({ code, className = "w-4 h-3" }: { code: string; className?: string }) {
+  switch (code) {
+    case "PL":
+      return (
+        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
+          <rect width="16" height="5.5" fill="#FFFFFF" />
+          <rect y="5.5" width="16" height="5.5" fill="#DC143C" />
+        </svg>
+      );
+    case "DE":
+      return (
+        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
+          <rect width="16" height="3.67" fill="#000000" />
+          <rect y="3.67" width="16" height="3.67" fill="#DD0000" />
+          <rect y="7.34" width="16" height="3.67" fill="#FFCE00" />
+        </svg>
+      );
+    case "FR":
+      return (
+        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
+          <rect width="5.33" height="11" fill="#002395" />
+          <rect x="5.33" width="5.33" height="11" fill="#FFFFFF" />
+          <rect x="10.66" width="5.34" height="11" fill="#ED2939" />
+        </svg>
+      );
+    case "ES":
+      return (
+        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
+          <rect width="16" height="2.75" fill="#AA151B" />
+          <rect y="2.75" width="16" height="5.5" fill="#F1BF00" />
+          <rect y="8.25" width="16" height="2.75" fill="#AA151B" />
+        </svg>
+      );
+    case "IT":
+      return (
+        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
+          <rect width="5.33" height="11" fill="#009246" />
+          <rect x="5.33" width="5.33" height="11" fill="#FFFFFF" />
+          <rect x="10.66" width="5.34" height="11" fill="#CE2B37" />
+        </svg>
+      );
+    case "GB":
+      return (
+        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
+          <rect width="16" height="11" fill="#012169" />
+          <path d="M0,0 L16,11 M16,0 L0,11" stroke="#FFFFFF" strokeWidth="2.5" />
+          <path d="M0,0 L16,11 M16,0 L0,11" stroke="#C8102E" strokeWidth="1.2" />
+          <path d="M8,0 V11 M0,5.5 H16" stroke="#FFFFFF" strokeWidth="3.5" />
+          <path d="M8,0 V11 M0,5.5 H16" stroke="#C8102E" strokeWidth="2" />
+        </svg>
+      );
+    case "GR":
+      return (
+        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
+          <rect width="16" height="11" fill="#0D5EAF" />
+          <rect y="1.22" width="16" height="1.22" fill="#FFFFFF" />
+          <rect y="3.66" width="16" height="1.22" fill="#FFFFFF" />
+          <rect y="6.1" width="16" height="1.22" fill="#FFFFFF" />
+          <rect y="8.54" width="16" height="1.22" fill="#FFFFFF" />
+          <rect width="6" height="6" fill="#0D5EAF" />
+          <rect x="2.4" width="1.2" height="6" fill="#FFFFFF" />
+          <rect y="2.4" width="6" height="1.2" fill="#FFFFFF" />
+        </svg>
+      );
+    default:
+      return <span className="text-xs">🌍</span>;
+  }
+}
+
 interface LocationPickerProps {
   value: string;
   onChange: (value: string) => void;
@@ -148,17 +217,20 @@ export default function LocationPicker({
     >
       {/* 1. Light Mint/Teal Header with 7 Countries Flags */}
       <div className="bg-[#E8F6F7] border-b border-[#D2ECEF] px-3.5 py-2.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <div className="w-7 h-7 rounded-full bg-[#002f34] flex items-center justify-center text-white shrink-0 shadow-2xs">
             <MapPin className="w-4 h-4 text-teal-300" />
           </div>
-          <span className="text-xs font-extrabold text-[#002f34] tracking-tight">
-            {currentCountry.nativeName}
-          </span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <CountryFlag code={currentCountry.code} className="w-4 h-3 shrink-0" />
+            <span className="text-xs font-black text-[#002f34] tracking-tight truncate">
+              {currentCountry.nativeName}
+            </span>
+          </div>
         </div>
 
-        {/* 7 Countries Pills Selector with interactive Hover */}
-        <div className="flex items-center gap-1 bg-white/90 backdrop-blur-xs p-1 rounded-xl border border-[#C5E5E9] shadow-2xs overflow-x-auto no-scrollbar">
+        {/* 7 Countries Pills Selector with vector flags */}
+        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-[#C5E5E9] shadow-2xs overflow-x-auto no-scrollbar">
           {COUNTRIES_DATA.map((c) => {
             const isSelected = c.code === selectedCountryCode;
             return (
@@ -172,14 +244,14 @@ export default function LocationPicker({
                   setCitySearchQuery("");
                 }}
                 title={c.nativeName}
-                className={`px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer ${
+                className={`px-2 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 transition-all duration-150 cursor-pointer ${
                   isSelected
                     ? "bg-[#002f34] text-white shadow-xs scale-105"
-                    : "text-gray-700 hover:bg-teal-50 hover:text-teal-900 hover:scale-105 active:scale-95"
+                    : "text-[#002f34] hover:bg-teal-50 hover:text-teal-950 hover:scale-105"
                 }`}
               >
-                <span className="text-sm leading-none">{c.flag}</span>
-                <span className="hidden sm:inline text-[11px]">{c.code}</span>
+                <CountryFlag code={c.code} className="w-3.5 h-2.5" />
+                <span className={isSelected ? "text-white font-bold" : "text-[#002f34] font-bold"}>{c.code}</span>
               </button>
             );
           })}
@@ -189,10 +261,10 @@ export default function LocationPicker({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-teal-100/60 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="p-1.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-teal-100/60 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
             aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 text-[#002f34]" />
           </button>
         )}
       </div>
@@ -244,11 +316,11 @@ export default function LocationPicker({
                     {match.type === "region" && (
                       <Map className="w-4 h-4 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
                     )}
-                    <span className="text-sm font-semibold text-[#002f34] group-hover:text-teal-900 truncate">
+                    <span className="text-sm font-bold text-[#002f34] group-hover:text-teal-950 truncate">
                       {match.displayName}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-400 group-hover:text-teal-700 font-medium shrink-0 ml-2">
+                  <span className="text-xs text-gray-500 group-hover:text-teal-700 font-bold shrink-0 ml-2">
                     {match.type === "city" ? t("location.city") : t("location.region")}
                   </span>
                 </button>
@@ -267,7 +339,7 @@ export default function LocationPicker({
                   className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#002f34] hover:bg-[#003e45] text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Użyj "{searchQuery.trim()}"</span>
+                  <span className="text-white">Użyj "{searchQuery.trim()}"</span>
                 </button>
               </div>
             )}
@@ -282,7 +354,7 @@ export default function LocationPicker({
                 setSelectedRegion(null);
                 setCitySearchQuery("");
               }}
-              className="w-full px-4 py-2.5 bg-gray-50 hover:bg-teal-100/70 hover:pl-5 text-left text-xs font-bold text-[#002f34] hover:text-teal-950 flex items-center gap-2 transition-all duration-150 cursor-pointer border-b border-gray-200 group"
+              className="w-full px-4 py-2.5 bg-gray-50 hover:bg-teal-100/70 hover:pl-5 text-left text-xs font-black text-[#002f34] hover:text-teal-950 flex items-center gap-2 transition-all duration-150 cursor-pointer border-b border-gray-200 group"
             >
               <ChevronLeft className="w-4 h-4 text-teal-600 group-hover:-translate-x-0.5 transition-transform shrink-0" />
               <span>← Wybierz inne województwo / region</span>
@@ -308,7 +380,7 @@ export default function LocationPicker({
             {/* Section Header */}
             <div className="px-4 py-2 bg-gray-50/90 text-[11px] font-bold text-[#002f34] tracking-wide border-b border-gray-100 flex items-center justify-between">
               <span>Miejscowości w {selectedRegion.name}</span>
-              <span className="text-gray-500 font-semibold">
+              <span className="text-gray-500 font-bold">
                 ({filteredCities.length})
               </span>
             </div>
@@ -320,7 +392,7 @@ export default function LocationPicker({
                   key={city}
                   type="button"
                   onClick={() => handleSelectCity(city)}
-                  className="w-full px-4 py-2.5 text-left text-sm font-semibold text-[#002f34] hover:text-teal-900 hover:bg-teal-50/90 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer group"
+                  className="w-full px-4 py-2.5 text-left text-sm font-bold text-[#002f34] hover:text-teal-900 hover:bg-teal-50/90 hover:pl-5 transition-all duration-150 flex items-center justify-between cursor-pointer group"
                 >
                   <span className="truncate">{city}</span>
                   <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all duration-150" />
@@ -345,7 +417,7 @@ export default function LocationPicker({
                 disabled={!customCityInput.trim()}
                 className="px-3 py-1.5 bg-[#002f34] hover:bg-[#003e45] disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95"
               >
-                Wybierz
+                <span className="text-white">Wybierz</span>
               </button>
             </form>
           </div>
@@ -366,7 +438,7 @@ export default function LocationPicker({
                   Wszystkie w całym kraju
                 </div>
               </div>
-              <Check className="w-5 h-5 text-teal-600 group-hover:scale-125 transition-transform" />
+              <Check className="w-4 h-4 text-teal-600 group-hover:scale-125 transition-transform" />
             </button>
 
             {/* Section Header: Wybierz województwo / region */}
@@ -381,7 +453,7 @@ export default function LocationPicker({
                   key={region.id}
                   type="button"
                   onClick={() => setSelectedRegion(region)}
-                  className="w-full px-4 py-3 text-left text-sm font-semibold text-[#002f34] hover:bg-teal-50/90 hover:text-teal-900 hover:pl-5 transition-all duration-150 ease-out flex items-center justify-between cursor-pointer group"
+                  className="w-full px-4 py-3 text-left text-sm font-bold text-[#002f34] hover:bg-teal-50/90 hover:text-teal-900 hover:pl-5 transition-all duration-150 ease-out flex items-center justify-between cursor-pointer group"
                 >
                   <span className="truncate">
                     {region.name}
