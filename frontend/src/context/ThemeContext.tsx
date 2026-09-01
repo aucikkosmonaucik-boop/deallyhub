@@ -17,12 +17,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const STORAGE_KEY = "deallyhub_theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
+  const [theme, setThemeState] = useState<Theme>("dark");
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("dark");
   const [mounted, setMounted] = useState(false);
 
   const applyTheme = useCallback((targetTheme: Theme) => {
-    let resolved: ResolvedTheme = "light";
+    let resolved: ResolvedTheme = "dark";
 
     if (targetTheme === "system") {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -52,12 +52,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(savedTheme);
         applyTheme(savedTheme);
       } else {
-        // Default to system or light
-        setThemeState("light");
-        applyTheme("light");
+        // Default to dark
+        setThemeState("dark");
+        applyTheme("dark");
       }
     } catch {
-      applyTheme("light");
+      applyTheme("dark");
     } finally {
       setMounted(true);
     }

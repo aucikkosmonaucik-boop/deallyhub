@@ -21,10 +21,11 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#002f34" },
-    { media: "(prefers-color-scheme: dark)", color: "#002f34" },
+    { media: "(prefers-color-scheme: light)", color: "#0b1120" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1120" },
   ],
   viewportFit: "cover",
+  colorScheme: "dark",
 };
 
 export const metadata: Metadata = {
@@ -197,7 +198,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${geistSans.className} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${geistSans.className} dark h-full antialiased`}
+      data-theme="dark"
+      style={{ colorScheme: "dark" }}
     >
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
@@ -211,14 +214,15 @@ export default function RootLayout({
                 try {
                   var saved = localStorage.getItem('deallyhub_theme');
                   var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  if (saved === 'dark' || (!saved && prefersDark)) {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                    document.documentElement.style.colorScheme = 'dark';
-                  } else {
+                  var isLight = saved === 'light' || (saved === 'system' && !prefersDark);
+                  if (isLight) {
                     document.documentElement.classList.remove('dark');
                     document.documentElement.setAttribute('data-theme', 'light');
                     document.documentElement.style.colorScheme = 'light';
+                  } else {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.documentElement.style.colorScheme = 'dark';
                   }
                 } catch (e) {}
               })();

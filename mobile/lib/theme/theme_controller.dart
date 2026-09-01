@@ -7,7 +7,7 @@ class ThemeController extends ChangeNotifier {
 
   static const String _prefKey = 'deallyhub_theme_mode';
 
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.dark;
   bool _initialized = false;
 
   ThemeMode get themeMode => _themeMode;
@@ -30,14 +30,16 @@ class ThemeController extends ChangeNotifier {
 
       if (savedMode == 'light') {
         _themeMode = ThemeMode.light;
+      } else if (savedMode == 'system') {
+        _themeMode = ThemeMode.system;
       } else if (savedMode == 'dark') {
         _themeMode = ThemeMode.dark;
       } else {
-        _themeMode = ThemeMode.system;
+        _themeMode = ThemeMode.dark;
       }
     } catch (e) {
       debugPrint('Error loading theme mode: $e');
-      _themeMode = ThemeMode.system;
+      _themeMode = ThemeMode.dark;
     } finally {
       _initialized = true;
       notifyListeners();
