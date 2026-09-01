@@ -91,6 +91,16 @@ function CountryFlag({ code, className = "w-4 h-3" }: { code: string; className?
   }
 }
 
+const LANG_TO_COUNTRY_CODE: Record<string, string> = {
+  pl: "PL",
+  de: "DE",
+  fr: "FR",
+  es: "ES",
+  it: "IT",
+  en: "GB",
+  el: "GR",
+};
+
 interface LocationPickerProps {
   value: string;
   onChange: (value: string) => void;
@@ -108,22 +118,38 @@ export default function LocationPicker({
   className = "",
   mode = "dropdown",
 }: LocationPickerProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const pickerRef = useRef<HTMLDivElement>(null);
 
-  const [selectedCountryCode, setSelectedCountryCode] = useState<string>("PL");
+  const defaultCountryCode = useMemo(() => {
+    return LANG_TO_COUNTRY_CODE[language] || "PL";
+  }, [language]);
+
+  const [selectedCountryCode, setSelectedCountryCode] = useState<string>(defaultCountryCode);
   const [selectedRegion, setSelectedRegion] = useState<RegionInfo | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [citySearchQuery, setCitySearchQuery] = useState("");
   const [customCityInput, setCustomCityInput] = useState("");
 
-  // Selected Country
+  // Keep country in sync with active language if not overridden by explicit value
+  useEffect(() => {
+    if (!value) {
+      setSelectedCountryCode(LANG_TO_COUNTRY_CODE[language] || "PL");
+    }
+  }, [language, value]);
+
+  // Selected Country object
   const currentCountry = useMemo<CountryInfo>(() => {
     return (
       COUNTRIES_DATA.find((c) => c.code === selectedCountryCode) ||
       COUNTRIES_DATA[0]
     );
   }, [selectedCountryCode]);
+
+  // Translated country name according to active language
+  const countryDisplayName = useMemo(() => {
+    return t(`country.${currentCountry.code}`, currentCountry.nativeName);
+  }, [t, currentCountry]);
 
   // If value is passed, sync initial country / region
   useEffect(() => {
@@ -169,19 +195,21 @@ export default function LocationPicker({
   // Handlers
   const handleSelectEntireCountry = (country?: CountryInfo) => {
     const c = country || currentCountry;
-    const formatted = c.code === "PL" ? "Cała Polska" : `${t("hero.entireCountry")} (${c.nativeName})`;
+    const name = t(`country.${c.code}`, c.nativeName);
+    const formatted = c.code === "PL" && language === "pl" ? "Cała Polska" : `${t("location.allCountry")} (${name})`;
     onChange(formatted);
     if (onClose) onClose();
   };
 
   const handleSelectEntireRegion = (region: RegionInfo) => {
-    const formatted = `${region.name}, ${currentCountry.nativeName}`;
+    const name = countryDisplayName;
+    const formatted = `${region.name}, ${name}`;
     onChange(formatted);
     if (onClose) onClose();
   };
 
   const handleSelectCity = (cityName: string) => {
-    const reg = selectedRegion ? selectedRegion.name : currentCountry.nativeName;
+    const reg = selectedRegion ? selectedRegion.name : countryDisplayName;
     const formatted = `${cityName}, ${reg}`;
     onChange(formatted);
     if (onClose) onClose();
@@ -190,7 +218,7 @@ export default function LocationPicker({
   const handleCustomCitySubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!customCityInput.trim()) return;
-    const reg = selectedRegion ? selectedRegion.name : currentCountry.nativeName;
+    const reg = selectedRegion ? selectedRegion.name : countryDisplayName;
     const formatted = `${customCityInput.trim()}, ${reg}`;
     onChange(formatted);
     setCustomCityInput("");
@@ -224,7 +252,7 @@ export default function LocationPicker({
           <div className="flex items-center gap-1.5 min-w-0">
             <CountryFlag code={currentCountry.code} className="w-4 h-3 shrink-0" />
             <span className="text-xs font-black text-[#002f34] tracking-tight truncate">
-              {currentCountry.nativeName}
+              {countryDisplayName}
             </span>
           </div>
         </div>
@@ -233,6 +261,7 @@ export default function LocationPicker({
         <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-[#C5E5E9] shadow-2xs overflow-x-auto no-scrollbar">
           {COUNTRIES_DATA.map((c) => {
             const isSelected = c.code === selectedCountryCode;
+            const cName = t(`country.${c.code}`, c.nativeName);
             return (
               <button
                 key={c.code}
@@ -243,7 +272,7 @@ export default function LocationPicker({
                   setSearchQuery("");
                   setCitySearchQuery("");
                 }}
-                title={c.nativeName}
+                title={cName}
                 className={`px-2 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 transition-all duration-150 cursor-pointer ${
                   isSelected
                     ? "bg-[#002f34] text-white shadow-xs scale-105"
@@ -279,8 +308,8 @@ export default function LocationPicker({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={
               selectedRegion
-                ? `Szukaj w ${selectedRegion.name}...`
-                : `Wpisz miejscowość lub region (${currentCountry.nativeName})...`
+                ? `${t("location.searchIn")} ${selectedRegion.name}...`
+                : `${t("location.searchPlaceholder")} (${countryDisplayName})...`
             }
             className="w-full pl-8 pr-7 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 font-semibold transition-all"
           />
@@ -328,7 +357,8 @@ export default function LocationPicker({
             ) : (
               <div className="py-6 text-center px-4">
                 <p className="text-xs font-medium text-gray-600">
-                  Brak wyników dla: <strong className="text-[#002f34]">"{searchQuery}"</strong>
+                  {t("location.noResults")}{" "}
+                  <strong className="text-[#002f34]">"{searchQuery}"</strong>
                 </p>
                 <button
                   type="button"
@@ -339,7 +369,7 @@ export default function LocationPicker({
                   className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#002f34] hover:bg-[#003e45] text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="text-white">Użyj "{searchQuery.trim()}"</span>
+                  <span className="text-white">{t("location.use")} "{searchQuery.trim()}"</span>
                 </button>
               </div>
             )}
@@ -357,7 +387,7 @@ export default function LocationPicker({
               className="w-full px-4 py-2.5 bg-gray-50 hover:bg-teal-100/70 hover:pl-5 text-left text-xs font-black text-[#002f34] hover:text-teal-950 flex items-center gap-2 transition-all duration-150 cursor-pointer border-b border-gray-200 group"
             >
               <ChevronLeft className="w-4 h-4 text-teal-600 group-hover:-translate-x-0.5 transition-transform shrink-0" />
-              <span>← Wybierz inne województwo / region</span>
+              <span>{t("location.backToRegions")}</span>
             </button>
 
             {/* Option 1: Entire Region with rich hover */}
@@ -368,10 +398,10 @@ export default function LocationPicker({
             >
               <div>
                 <div className="text-sm font-bold text-[#002f34] group-hover:text-teal-900">
-                  Całe województwo {selectedRegion.name}
+                  {t("location.entireRegionPrefix")} {selectedRegion.name}
                 </div>
                 <div className="text-xs text-gray-500 group-hover:text-teal-700">
-                  Wszystkie ogłoszenia w tym regionie
+                  {t("location.entireRegionSub")}
                 </div>
               </div>
               <Check className="w-4 h-4 text-teal-600 group-hover:scale-125 transition-transform" />
@@ -379,7 +409,7 @@ export default function LocationPicker({
 
             {/* Section Header */}
             <div className="px-4 py-2 bg-gray-50/90 text-[11px] font-bold text-[#002f34] tracking-wide border-b border-gray-100 flex items-center justify-between">
-              <span>Miejscowości w {selectedRegion.name}</span>
+              <span>{t("location.citiesInPrefix")} {selectedRegion.name}</span>
               <span className="text-gray-500 font-bold">
                 ({filteredCities.length})
               </span>
@@ -409,7 +439,7 @@ export default function LocationPicker({
                 type="text"
                 value={customCityInput}
                 onChange={(e) => setCustomCityInput(e.target.value)}
-                placeholder="Wpisz inną miejscowość..."
+                placeholder={t("location.customCityPlaceholder")}
                 className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs text-[#002f34] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
               />
               <button
@@ -417,14 +447,14 @@ export default function LocationPicker({
                 disabled={!customCityInput.trim()}
                 className="px-3 py-1.5 bg-[#002f34] hover:bg-[#003e45] disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95"
               >
-                <span className="text-white">Wybierz</span>
+                <span className="text-white">{t("location.customCityAdd")}</span>
               </button>
             </form>
           </div>
         ) : (
-          /* C) Level 1: Main View (Exact layout from user screenshot with rich hover) */
+          /* C) Level 1: Main View (Exact layout from user screenshot with rich hover and full translation) */
           <div>
-            {/* Primary Action: Cała Polska / Cały Kraj with rich hover */}
+            {/* Primary Action: Cała Polska / Cały Kraj / Entire Country */}
             <button
               type="button"
               onClick={() => handleSelectEntireCountry()}
@@ -432,10 +462,12 @@ export default function LocationPicker({
             >
               <div>
                 <div className="text-sm font-bold text-[#002f34] group-hover:text-teal-900">
-                  {currentCountry.code === "PL" ? "Cała Polska" : `${t("hero.entireCountry")} (${currentCountry.nativeName})`}
+                  {currentCountry.code === "PL" && language === "pl"
+                    ? "Cała Polska"
+                    : `${t("location.allCountry")} (${countryDisplayName})`}
                 </div>
                 <div className="text-xs text-gray-500 mt-0.5 group-hover:text-teal-700">
-                  Wszystkie w całym kraju
+                  {t("location.allCountrySub")}
                 </div>
               </div>
               <Check className="w-4 h-4 text-teal-600 group-hover:scale-125 transition-transform" />
@@ -443,7 +475,7 @@ export default function LocationPicker({
 
             {/* Section Header: Wybierz województwo / region */}
             <div className="px-4 py-2 bg-gray-50/90 text-[11px] font-bold text-[#002f34] tracking-wide border-b border-gray-100">
-              {currentCountry.code === "PL" ? "Wybierz województwo" : `Wybierz region (${currentCountry.nativeName})`}
+              {t("location.chooseRegion")} ({countryDisplayName})
             </div>
 
             {/* List of Regions with '>' Chevron and smooth slide-in hover */}
@@ -469,9 +501,12 @@ export default function LocationPicker({
       {/* 4. Footer */}
       <div className="px-4 py-2 bg-gray-50/95 border-t border-gray-200 flex items-center justify-between text-xs">
         <div className="flex items-center gap-1 text-gray-500 truncate max-w-[70%]">
-          <span className="font-bold text-gray-400">Wybrano:</span>
+          <span className="font-bold text-gray-400">{t("location.selected")}</span>
           <span className="font-extrabold text-[#002f34] truncate">
-            {value || (currentCountry.code === "PL" ? "Cała Polska" : currentCountry.nativeName)}
+            {value ||
+              (currentCountry.code === "PL" && language === "pl"
+                ? "Cała Polska"
+                : `${t("location.allCountry")} (${countryDisplayName})`)}
           </span>
         </div>
 
@@ -484,7 +519,7 @@ export default function LocationPicker({
             }}
             className="text-[11px] font-bold text-gray-500 hover:text-red-600 transition-colors cursor-pointer hover:underline"
           >
-            Wyczyść
+            {t("location.clear")}
           </button>
         )}
       </div>
