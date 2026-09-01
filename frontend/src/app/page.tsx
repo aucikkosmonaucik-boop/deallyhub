@@ -886,17 +886,17 @@ export default function HomePage() {
                   setIsLiveDropdownOpen(false);
                   setIsLocationPickerOpen((prev) => !prev);
                 }}
-                className="flex-1 flex items-center px-3.5 sm:px-4 py-3 sm:py-3.5 border-b md:border-b-0 md:border-r border-gray-200 cursor-pointer group hover:bg-gray-50/70 transition-colors select-none"
+                className="flex-1 flex items-center px-3.5 sm:px-4 py-3 sm:py-3.5 border-b md:border-b-0 md:border-r border-gray-200 cursor-pointer group hover:bg-teal-50/50 transition-all duration-150 select-none"
               >
                 <MapPin
-                  className={`w-5 h-5 mr-2.5 sm:mr-3 shrink-0 transition-colors ${
-                    location ? "text-teal-600" : "text-gray-400 group-hover:text-teal-600"
+                  className={`w-5 h-5 mr-2.5 sm:mr-3 shrink-0 transition-all duration-150 ${
+                    location ? "text-teal-600 scale-105" : "text-gray-400 group-hover:text-teal-600 group-hover:scale-110"
                   }`}
                 />
                 <div className="w-full flex items-center justify-between min-w-0 pr-1">
                   <span
-                    className={`text-sm sm:text-base font-medium truncate ${
-                      location ? "text-[#002f34] font-bold" : "text-gray-400"
+                    className={`text-sm sm:text-base font-bold truncate transition-colors ${
+                      location ? "text-[#002f34]" : "text-gray-500 group-hover:text-teal-950"
                     }`}
                   >
                     {location || t("hero.locationPlaceholder")}
@@ -909,15 +909,15 @@ export default function HomePage() {
                           e.stopPropagation();
                           setLocation("");
                         }}
-                        className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-200/70 transition-colors text-xs cursor-pointer"
+                        className="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-200/80 transition-colors text-xs cursor-pointer"
                         aria-label="Clear location"
                       >
                         ✕
                       </button>
                     )}
                     <ChevronDown
-                      className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 shrink-0 ${
-                        isLocationPickerOpen ? "rotate-180 text-teal-600" : ""
+                      className={`w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-transform duration-200 shrink-0 ${
+                        isLocationPickerOpen ? "rotate-180 text-teal-600 scale-110" : ""
                       }`}
                     />
                   </div>
