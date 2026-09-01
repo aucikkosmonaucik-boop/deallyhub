@@ -735,4 +735,38 @@ class ApiService {
       return {'success': false, 'error': 'Connection error: $e'};
     }
   }
+
+  static Future<List<dynamic>> adminGetAllUsers() async {
+    final token = await getToken();
+    if (token == null) return [];
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/api/admin/users'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data['success'] == true && data['users'] is List) {
+          return data['users'] as List<dynamic>;
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  static Future<bool> adminDeleteUser(int userId) async {
+    final token = await getToken();
+    if (token == null) return false;
+    try {
+      final res = await http.delete(
+        Uri.parse('$baseUrl/api/admin/users/$userId'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 12));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        return data['success'] == true;
+      }
+    } catch (_) {}
+    return false;
+  }
 }

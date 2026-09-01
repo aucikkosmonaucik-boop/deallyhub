@@ -1864,7 +1864,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => DefaultTabController(
-        length: 3,
+        length: 4,
         child: DraggableScrollableSheet(
           initialChildSize: 0.85,
           minChildSize: 0.6,
@@ -1901,6 +1901,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                     TabBar(
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
                       labelColor: isDark ? const Color(0xFF5EEAD4) : const Color(0xFF002F34),
                       unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : Colors.grey,
                       indicatorColor: const Color(0xFF0D9488),
@@ -1908,6 +1910,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Tab(text: 'Overview'),
                         Tab(text: 'Broadcast'),
                         Tab(text: 'Manage Ads'),
+                        Tab(text: 'Users'),
                       ],
                     ),
                   ],
@@ -1942,6 +1945,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     // Tab 3: Moderation / Manage Ads
                     _buildAdminAdsTab(),
+
+                    // Tab 4: User Management / Delete Accounts
+                    _buildAdminUsersTab(),
                   ],
                 ),
               ),
@@ -2111,6 +2117,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     }
                   },
                 ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAdminUsersTab() {
+    return FutureBuilder<List<dynamic>>(
+      future: ApiService.adminGetAllUsers(),
+      builder: (ctx, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)));
+        }
+        final allUsers = snap.data ?? [];
+        if (allUsers.isEmpty) {
+          return const Center(child: Text('No users found in database.', style: TextStyle(color: Colors.grey)));
+        }
+        return StatefulBuilder(
+          builder: (ctx, setUsersState) => ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: allUsers.length,
+            separatorBuilder: (context, index) => const Divider(height: 16),
+            itemBuilder: (ctx, idx) {
+              final u = allUsers[idx];
+              final name = u['name']?.toString() ?? 'User';
+              final email = u['email']?.toString() ?? '';
+              final role = u['role']?.toString() ?? 'user';
+              final userId = u['id'] as int? ?? 0;
+              final isSuperAdmin = email == 'admin@deallyhub.com' || email == 'jannowak@example.com';
+
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFF0D9488).withValues(alpha: 0.15),
+                  child: Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0D9488)),
+                  ),
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (role == 'admin')
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'ADMIN',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber),
+                        ),
+                      ),
+                  ],
+                ),
+                subtitle: Text('$email • ID: #$userId', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                trailing: isSuperAdmin
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.person_remove_outlined, color: Colors.redAccent),
+                        tooltip: 'Delete user account',
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (dCtx) => AlertDialog(
+                              title: const Text('Delete User Account?'),
+                              content: Text(
+                                'Are you sure you want to permanently delete user "$name" ($email)? All advertisements and messages will also be removed.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dCtx, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                  onPressed: () => Navigator.pop(dCtx, true),
+                                  child: const Text('Delete', style: TextStyle(color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirm == true) {
+                            final ok = await ApiService.adminDeleteUser(userId);
+                            if (!mounted) return;
+                            if (ok) {
+                              setUsersState(() {
+                                allUsers.removeAt(idx);
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('User account #$userId deleted.')),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Failed to delete user account.')),
+                              );
+                            }
+                          }
+                        },
+                      ),
               );
             },
           ),

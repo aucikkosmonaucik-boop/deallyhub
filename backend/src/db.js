@@ -1281,6 +1281,78 @@ export async function adminGetAllUsers() {
   }
 }
 
+export async function adminDeleteUser(userId) {
+  const parsedId = parseInt(userId, 10);
+  if (isNaN(parsedId)) {
+    throw new Error("Invalid user ID.");
+  }
+
+  if (!pool) {
+    const idx = inMemoryUsers.findIndex(u => u.id === parsedId);
+    if (idx === -1) {
+      throw new Error("User not found.");
+    }
+    const deleted = inMemoryUsers.splice(idx, 1)[0];
+
+    // Cascade delete in-memory ads
+    const userAdIds = inMemoryAds.filter(a => a.user_id === parsedId).map(a => a.id);
+    for (let i = inMemoryAds.length - 1; i >= 0; i--) {
+      if (inMemoryAds[i].user_id === parsedId) {
+        inMemoryAds.splice(i, 1);
+      }
+    }
+
+    // Cascade delete in-memory saved ads
+    for (let i = inMemorySaved.length - 1; i >= 0; i--) {
+      if (inMemorySaved[i].user_id === parsedId || userAdIds.includes(inMemorySaved[i].ad_id)) {
+        inMemorySaved.splice(i, 1);
+      }
+    }
+
+    // Cascade delete in-memory conversations and messages
+    for (let i = inMemoryConversations.length - 1; i >= 0; i--) {
+      const conv = inMemoryConversations[i];
+      if (conv.buyer_id === parsedId || conv.seller_id === parsedId || userAdIds.includes(conv.ad_id)) {
+        const convId = conv.id;
+        inMemoryConversations.splice(i, 1);
+        for (let j = inMemoryMessages.length - 1; j >= 0; j--) {
+          if (inMemoryMessages[j].conversation_id === convId) {
+            inMemoryMessages.splice(j, 1);
+          }
+        }
+      }
+    }
+
+    // Cascade delete in-memory notifications
+    for (let i = inMemoryNotifications.length - 1; i >= 0; i--) {
+      if (inMemoryNotifications[i].user_id === parsedId) {
+        inMemoryNotifications.splice(i, 1);
+      }
+    }
+    for (let i = inMemoryNotificationReads.length - 1; i >= 0; i--) {
+      if (inMemoryNotificationReads[i].user_id === parsedId) {
+        inMemoryNotificationReads.splice(i, 1);
+      }
+    }
+
+    return { id: deleted.id, name: deleted.name, email: deleted.email, role: deleted.role };
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "DELETE FROM users WHERE id = $1 RETURNING id, name, email, COALESCE(role, 'user') as role",
+      [parsedId]
+    );
+    if (rows.length === 0) {
+      throw new Error("User not found.");
+    }
+    return rows[0];
+  } catch (err) {
+    console.error("Error in adminDeleteUser:", err.message);
+    throw err;
+  }
+}
+
 export async function setUserVerificationToken(userId, token, expiresAt) {
   if (!pool) {
     const u = inMemoryUsers.find(user => user.id === userId);

@@ -66,6 +66,10 @@ export default function AdminPanelModal({
   // Users state
   const [usersList, setUsersList] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [userActionMsg, setUserActionMsg] = useState<string | null>(null);
+  const [userActionError, setUserActionError] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
     if (!token) return;
@@ -233,6 +237,53 @@ export default function AdminPanelModal({
       setDeletingAdId(null);
     }
   };
+
+  const handleDeleteUser = async (userId: number, name: string, email: string) => {
+    const template = t(
+      "admin.deleteUserConfirm",
+      "Are you sure you want to permanently delete user account {name} ({email})? All advertisements, messages, and saved items will be deleted."
+    );
+    const confirmMsg = template.replace("{name}", name || "User").replace("{email}", email);
+
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+
+    setDeletingUserId(userId);
+    setUserActionMsg(null);
+    setUserActionError(null);
+
+    try {
+      const res = await fetch(`${getApiUrl()}/api/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setUserActionMsg(data.message || t("admin.deleteUserSuccess", "User account was permanently deleted."));
+        setUsersList((prev) => prev.filter((u) => u.id !== userId));
+        fetchStats();
+        fetchAds();
+        onAdDeleted?.call(null);
+      } else {
+        setUserActionError(data.error || "Failed to delete user account.");
+      }
+    } catch (e: any) {
+      setUserActionError(e.message || "Network error deleting user account.");
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
+  const filteredUsers = usersList.filter((u) => {
+    if (!userSearchQuery.trim()) return true;
+    const q = userSearchQuery.toLowerCase();
+    const nameMatch = u.name?.toLowerCase().includes(q);
+    const emailMatch = u.email?.toLowerCase().includes(q);
+    const roleMatch = u.role?.toLowerCase().includes(q);
+    return nameMatch || emailMatch || roleMatch;
+  });
 
   if (!isOpen) return null;
 
@@ -690,48 +741,116 @@ export default function AdminPanelModal({
           {/* TAB 4: REGISTERED USERS */}
           {activeTab === "users" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-base font-bold text-[#002f34] dark:text-white">{t("admin.regAccountsHeader")}</h4>
+                  <h4 className="text-base font-bold text-[#002f34] dark:text-white flex items-center gap-2">
+                    <span>{t("admin.regAccountsHeader")}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 font-bold border border-teal-200 dark:border-teal-800">
+                      {usersList.length}
+                    </span>
+                  </h4>
                   <p className="text-xs text-gray-500 dark:text-slate-400">{t("admin.regAccountsDesc")}</p>
                 </div>
-                <button
-                  onClick={fetchUsers}
-                  className="p-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-xl text-gray-600 dark:text-slate-300 cursor-pointer text-xs font-bold flex items-center gap-1.5"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${usersLoading ? "animate-spin" : ""}`} />
-                  <span>{t("common.refresh")}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1 sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={userSearchQuery}
+                      onChange={(e) => setUserSearchQuery(e.target.value)}
+                      placeholder={t("admin.searchUsersPlaceholder", "Search users by name or email...")}
+                      className="w-full pl-8.5 pr-3 py-1.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-xs text-[#002f34] dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
+                    />
+                    {userSearchQuery && (
+                      <button
+                        onClick={() => setUserSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white text-xs"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    onClick={fetchUsers}
+                    className="p-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-xl text-gray-600 dark:text-slate-300 cursor-pointer text-xs font-bold flex items-center gap-1.5 shrink-0"
+                    title={t("common.refresh")}
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${usersLoading ? "animate-spin" : ""}`} />
+                  </button>
+                </div>
               </div>
+
+              {userActionMsg && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>{userActionMsg}</span>
+                </div>
+              )}
+
+              {userActionError && (
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs font-semibold text-rose-800 dark:text-rose-300 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{userActionError}</span>
+                </div>
+              )}
 
               {usersLoading ? (
                 <div className="py-12 text-center text-gray-400 dark:text-slate-500 text-xs">{t("admin.loadingUsers")}</div>
+              ) : filteredUsers.length === 0 ? (
+                <div className="py-12 text-center text-gray-400 dark:text-slate-500 text-xs">
+                  {t("admin.noUsersFound", "No users found matching your search.")}
+                </div>
               ) : (
                 <div className="border border-gray-200 dark:border-slate-800 rounded-2xl overflow-hidden divide-y divide-gray-100 dark:divide-slate-800">
-                  {usersList.map((u) => (
-                    <div key={u.id} className="p-4 flex items-center justify-between hover:bg-gray-50/70 dark:hover:bg-slate-800/60">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 font-bold flex items-center justify-center text-sm">
-                          {u.name ? u.name[0].toUpperCase() : "U"}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-[#002f34] dark:text-white">{u.name}</span>
-                            {u.role === "admin" && (
-                              <span className="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded">
-                                Admin / Owner
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-slate-400">{u.email}</div>
-                        </div>
-                      </div>
+                  {filteredUsers.map((u) => {
+                    const isSuperAdmin = u.email === "admin@deallyhub.com" || u.email === "jannowak@example.com" || u.email === "jannowaktester1@gmail.com";
+                    const isDeleting = deletingUserId === u.id;
 
-                      <div className="text-right text-xs text-gray-400 dark:text-slate-500">
-                        {t("admin.joinedLabel")} {new Date(u.created_at).toLocaleDateString()}
+                    return (
+                      <div key={u.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50/70 dark:hover:bg-slate-800/60 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 font-bold flex items-center justify-center text-sm shrink-0">
+                            {u.name ? u.name[0].toUpperCase() : "U"}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-sm text-[#002f34] dark:text-white">{u.name}</span>
+                              <span className="text-[10px] text-gray-400 dark:text-slate-500 font-mono">#{u.id}</span>
+                              {u.role === "admin" && (
+                                <span className="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded">
+                                  Admin / Owner
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-slate-400">{u.email}</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between sm:justify-end gap-3">
+                          <div className="text-right text-xs text-gray-400 dark:text-slate-500">
+                            {t("admin.joinedLabel")} {new Date(u.created_at).toLocaleDateString()}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteUser(u.id, u.name, u.email)}
+                            disabled={isDeleting || isSuperAdmin}
+                            title={isSuperAdmin ? t("admin.cannotDeleteSelf", "You cannot delete your own admin account.") : t("admin.deleteUserBtn", "Delete Account")}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                              isSuperAdmin
+                                ? "bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed opacity-60"
+                                : "bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 active:scale-95"
+                            }`}
+                          >
+                            <Trash2 className={`w-3.5 h-3.5 ${isDeleting ? "animate-spin" : ""}`} />
+                            <span className="hidden xs:inline">
+                              {isDeleting ? t("admin.deletingBtn", "Deleting...") : t("admin.deleteUserBtn", "Delete Account")}
+                            </span>
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

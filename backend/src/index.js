@@ -40,6 +40,7 @@ import {
   adminGetAllAds,
   adminDeleteAd,
   adminGetAllUsers,
+  adminDeleteUser,
   setUserVerificationToken,
   verifyUserByToken,
   setUserResetToken,
@@ -1270,6 +1271,32 @@ app.get("/api/admin/users", requireAdmin, async (req, res) => {
     res.json({ success: true, count: users.length, users });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to retrieve users." });
+  }
+});
+
+// 6. Delete User Account from Admin Portal
+app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
+  try {
+    const targetUserId = parseInt(req.params.id, 10);
+    if (isNaN(targetUserId)) {
+      return res.status(400).json({ success: false, error: "Invalid user ID." });
+    }
+
+    if (req.adminUser && (req.adminUser.id === targetUserId || req.user.userId === targetUserId)) {
+      return res.status(400).json({
+        success: false,
+        error: "You cannot delete your own admin account from the admin portal."
+      });
+    }
+
+    const deleted = await adminDeleteUser(targetUserId);
+    res.json({
+      success: true,
+      message: `User account #${targetUserId} (${deleted.name || deleted.email}) has been permanently deleted.`,
+      user: deleted
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message || "Failed to delete user account." });
   }
 });
 
