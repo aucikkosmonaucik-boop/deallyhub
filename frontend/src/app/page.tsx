@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   Search,
   MapPin,
@@ -43,7 +43,12 @@ import {
   ShieldCheck,
   Shield,
   Bell,
-  Loader2
+  Loader2,
+  Menu,
+  ArrowUpDown,
+  SlidersHorizontal,
+  Layers,
+  Tag
 } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import AdsManagerModal from "@/components/AdsManagerModal";
@@ -53,6 +58,7 @@ import AdDetailsModal from "@/components/AdDetailsModal";
 import MessagesModal from "@/components/MessagesModal";
 import NotificationsModal, { NotificationItem } from "@/components/NotificationsModal";
 import AdminPanelModal from "@/components/AdminPanelModal";
+import CategoryMegaMenu from "@/components/CategoryMegaMenu";
 import LanguageSelector from "@/components/LanguageSelector";
 import LocationPicker from "@/components/LocationPicker";
 import { useLanguage } from "@/context/LanguageContext";
@@ -187,6 +193,10 @@ export default function HomePage() {
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [isAdsModalOpen, setIsAdsModalOpen] = useState(false);
   const [adsModalTab, setAdsModalTab] = useState<"my-ads" | "create">("my-ads");
+  const [sortBy, setSortBy] = useState<"latest" | "price-asc" | "price-desc">("latest");
+
+  // Category Mega Menu State (Allegro style)
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
 
   // Wishlist & Settings Modal States
   const [savedAdIds, setSavedAdIds] = useState<number[]>([]);
@@ -204,6 +214,19 @@ export default function HomePage() {
   // Admin Portal State (Portal Owner)
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
 
+  // Sorted advertisements
+  const sortedAds = useMemo(() => {
+    const list = [...ads];
+    if (sortBy === "price-asc") {
+      return list.sort((a, b) => (parseFloat(a.price as string) || 0) - (parseFloat(b.price as string) || 0));
+    }
+    if (sortBy === "price-desc") {
+      return list.sort((a, b) => (parseFloat(b.price as string) || 0) - (parseFloat(a.price as string) || 0));
+    }
+    // Default: latest
+    return list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [ads, sortBy]);
+
   // Check if any modal is currently open to handle body lock and hide mobile bottom bar
   const isAnyModalOpen =
     isAuthOpen ||
@@ -213,7 +236,8 @@ export default function HomePage() {
     !!selectedAd ||
     isMessagesOpen ||
     isNotificationsOpen ||
-    isAdminPanelOpen;
+    isAdminPanelOpen ||
+    isMegaMenuOpen;
 
   // Live Search & Location Picker State
   const [liveSearchResults, setLiveSearchResults] = useState<Advertisement[]>([]);
@@ -1054,127 +1078,208 @@ export default function HomePage() {
                 </div>
               </div>
             )}
+
+            {/* Category Bar with Hamburger under Search Bar (Allegro style) */}
+            <div className="mt-3.5 sm:mt-5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none select-none">
+              {/* Category Hamburger Button */}
+              <button
+                type="button"
+                onClick={() => setIsMegaMenuOpen((prev) => !prev)}
+                className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-black text-xs sm:text-sm transition-all duration-200 shrink-0 cursor-pointer shadow-xs active:scale-95 ${
+                  isMegaMenuOpen || activeCategory
+                    ? "bg-teal-600 text-white shadow-teal-700/20 ring-2 ring-teal-500 ring-offset-1"
+                    : "bg-white text-[#002f34] border border-gray-200/90 hover:bg-teal-50 hover:text-teal-900 hover:border-teal-300"
+                }`}
+              >
+                <Menu className="w-4 h-4 stroke-[2.5]" />
+                <span>{t("nav.categories", "Kategorie")}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isMegaMenuOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {/* Vertical divider */}
+              <div className="h-6 w-px bg-gray-300 mx-1 shrink-0 hidden sm:block" />
+
+              {/* "All" button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveCategory(null);
+                  setSearchQuery("");
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                  !activeCategory
+                    ? "bg-[#002f34] text-white shadow-xs"
+                    : "bg-white text-[#002f34] border border-gray-200/80 hover:border-teal-300 hover:text-teal-800"
+                }`}
+              >
+                {t("feed.filterAll", "Wszystkie")}
+              </button>
+
+              {/* Quick DB Category Pills */}
+              {categories.map((cat) => {
+                const isSelected = activeCategory === cat.slug;
+                const IconComp = ICON_MAP[cat.icon] || Sparkles;
+                return (
+                  <button
+                    key={cat.id || cat.slug}
+                    type="button"
+                    onClick={() => {
+                      setActiveCategory(isSelected ? null : cat.slug);
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+                      isSelected
+                        ? "bg-teal-600 text-white font-bold shadow-xs"
+                        : "bg-white text-[#002f34] border border-gray-200/80 hover:border-teal-300 hover:text-teal-900 hover:bg-teal-50/50"
+                    }`}
+                  >
+                    <IconComp className={`w-3.5 h-3.5 ${isSelected ? "text-white" : "text-teal-600"}`} />
+                    <span>{getCategoryName(cat.slug, cat.name)}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Categories & Content Section */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 pb-28 md:pb-16 flex-1 w-full">
-        <div className="text-center mb-10 sm:mb-14">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002f34] tracking-tight">
-            {t("hero.categoriesTitle")}
-          </h1>
-          <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-            {t("feed.subtitle")}
-          </p>
-        </div>
+      {/* Category Mega Menu Overlay Modal */}
+      <CategoryMegaMenu
+        isOpen={isMegaMenuOpen}
+        onClose={() => setIsMegaMenuOpen(false)}
+        categories={categories}
+        activeCategory={activeCategory}
+        onSelectCategory={(slug, query) => {
+          setActiveCategory(slug);
+          if (query) {
+            setSearchQuery(query);
+          }
+          setIsMegaMenuOpen(false);
+          const el = document.getElementById("listings-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }}
+        getCategoryName={getCategoryName}
+        language={language}
+        t={t}
+      />
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-3 min-[420px]:grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-x-2.5 sm:gap-x-5 gap-y-6 sm:gap-y-11 justify-items-center">
-          {categories.map((cat) => {
-            const IconComponent = ICON_MAP[cat.icon] || Sparkles;
-            const colorClass = COLOR_STYLES[cat.color] || "bg-teal-100 text-teal-800";
-            const isSelected = activeCategory === cat.slug;
-
-            return (
-              <button
-                key={cat.id || cat.slug}
-                onClick={() => setActiveCategory(isSelected ? null : cat.slug)}
-                className="group flex flex-col items-center text-center cursor-pointer w-full max-w-[105px] sm:max-w-[130px] focus:outline-none transition-transform duration-300 ease-out active:scale-95 md:hover:-translate-y-2"
-              >
-                {/* Circle Icon Badge */}
-                <div
-                  className={`w-16 h-16 sm:w-22 sm:h-22 rounded-full flex items-center justify-center transition-all duration-300 ease-out transform md:group-hover:scale-115 md:group-hover:shadow-2xl md:group-hover:shadow-black/20 md:group-hover:ring-4 md:group-hover:ring-teal-400/50 md:group-hover:ring-offset-2 mb-2 sm:mb-3 shadow-xs ${colorClass} ${
-                    isSelected ? "ring-4 ring-teal-600 ring-offset-2 scale-105 sm:scale-110 shadow-lg -translate-y-0.5 sm:-translate-y-1" : ""
-                  }`}
-                >
-                  <IconComponent className="w-7 h-7 sm:w-10 sm:h-10 stroke-[2.2] transition-transform duration-300 ease-out md:group-hover:scale-115 md:group-hover:-rotate-6" />
-                </div>
-
-                {/* Category Label */}
-                <span className="text-xs sm:text-[15px] font-bold text-[#002f34] leading-tight line-clamp-2 tracking-tight transition-all duration-300 md:group-hover:text-teal-700 md:group-hover:scale-105">
-                  {getCategoryName(cat.slug, cat.name)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Filter Indicator */}
-        {activeCategory && (
-          <div className="mt-6 sm:mt-8 flex items-center justify-center gap-3">
-            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-teal-50 border-2 border-teal-300 rounded-full text-xs sm:text-[15px] font-bold text-teal-900 shadow-sm hover:shadow-md transition-shadow">
-              <span>{t("feed.activeFilter")} {categories.find((c) => c.slug === activeCategory) ? getCategoryName(activeCategory) : activeCategory}</span>
-              <button
-                onClick={() => setActiveCategory(null)}
-                className="text-teal-700 hover:text-teal-950 ml-1 p-1 rounded-full hover:bg-teal-200 transition-colors cursor-pointer"
-                title={t("feed.clearCategory")}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Recent & Featured Advertisements Section */}
-        <section id="listings-section" className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-gray-100 scroll-mt-20">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+      {/* Main Content Section - Classified Ads Prominently Visible on Homepage */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 pb-28 md:pb-16 flex-1 w-full">
+        {/* Advertisements Feed */}
+        <section id="listings-section" className="scroll-mt-20">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 sm:mb-8 pb-4 border-b border-gray-100">
             <div>
-              <h2 className="text-xl sm:text-3xl font-extrabold text-[#002f34] tracking-tight">
-                {activeCategory
-                  ? `${getCategoryName(activeCategory)}`
-                  : searchQuery.trim()
-                  ? `${t("common.search")}: "${searchQuery}"`
-                  : t("feed.title")}
-              </h2>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#002f34] tracking-tight">
+                  {activeCategory
+                    ? getCategoryName(activeCategory)
+                    : searchQuery.trim()
+                    ? `${t("common.search")}: "${searchQuery}"`
+                    : t("feed.title", "Najnowsze Ogłoszenia")}
+                </h1>
+                <span className="text-xs bg-teal-50 text-teal-800 border border-teal-200/80 font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
+                  {sortedAds.length} {t("feed.resultsFound", "ogłoszeń")}
+                </span>
+              </div>
               <p className="text-xs text-gray-500 mt-1">
-                {searchQuery.trim()
-                  ? `${t("common.search")}: ${ads.length} ${location.trim() && !/entire country/i.test(location) ? ` (${location})` : ""}`
-                  : t("feed.subtitle")}
+                {activeCategory || searchQuery.trim() || (location.trim() && !/entire country|cała polska|cały kraj/i.test(location))
+                  ? `${t("feed.activeFilters", "Aktywne filtry:")} ${[
+                      activeCategory ? `${t("feed.activeFilter", "Kategoria:")} ${getCategoryName(activeCategory)}` : null,
+                      location && !/entire country|cała polska|cały kraj/i.test(location) ? `${t("common.location", "Lokalizacja:")} ${location}` : null,
+                      searchQuery.trim() ? `"${searchQuery}"` : null
+                    ].filter(Boolean).join(" • ")}`
+                  : t("feed.subtitle", "Odkryj oferty z Twojej okolicy i z całej Polski")}
               </p>
             </div>
 
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              {(searchQuery.trim() || (location.trim() && !/entire country/i.test(location))) && (
+            {/* Sorting & Filter Actions */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              {/* Sort Selector */}
+              <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl text-xs font-semibold">
+                <span className="text-gray-400 pl-2 pr-1 hidden sm:inline-flex items-center gap-1">
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                  <span>{t("feed.sortBy", "Sortuj")}:</span>
+                </span>
                 <button
+                  type="button"
+                  onClick={() => setSortBy("latest")}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    sortBy === "latest"
+                      ? "bg-white text-[#002f34] font-bold shadow-xs"
+                      : "text-gray-600 hover:text-[#002f34]"
+                  }`}
+                >
+                  {t("feed.sortLatest", "Najnowsze")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSortBy("price-asc")}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    sortBy === "price-asc"
+                      ? "bg-white text-[#002f34] font-bold shadow-xs"
+                      : "text-gray-600 hover:text-[#002f34]"
+                  }`}
+                >
+                  {t("feed.sortPriceAsc", "Cena: rosnąco")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSortBy("price-desc")}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    sortBy === "price-desc"
+                      ? "bg-white text-[#002f34] font-bold shadow-xs"
+                      : "text-gray-600 hover:text-[#002f34]"
+                  }`}
+                >
+                  {t("feed.sortPriceDesc", "Cena: malejąco")}
+                </button>
+              </div>
+
+              {/* Clear Filters button */}
+              {(activeCategory || searchQuery.trim() || (location.trim() && !/entire country|cała polska|cały kraj/i.test(location))) && (
+                <button
+                  type="button"
                   onClick={() => {
+                    setActiveCategory(null);
                     setSearchQuery("");
                     setLocation("");
                   }}
-                  className="text-xs font-semibold text-gray-500 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors cursor-pointer active:scale-95"
+                  className="text-xs font-bold text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 px-3 py-1.5 rounded-xl transition-colors cursor-pointer active:scale-95"
                 >
-                  {t("feed.clearCategory")} ✕
+                  {t("feed.clearCategory", "Wyczyść filtry")} ✕
                 </button>
               )}
 
+              {/* Post Ad Button */}
               <button
+                type="button"
                 onClick={handlePostAdClick}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-3.5 py-2 rounded-lg transition-colors cursor-pointer active:scale-95"
+                className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 px-3 py-1.5 rounded-xl transition-colors cursor-pointer active:scale-95"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span>{t("nav.postAd")}</span>
+                <span>{t("nav.postAd", "Dodaj ogłoszenie")}</span>
               </button>
             </div>
           </div>
 
           {/* Advertisements Grid */}
-          {ads.length === 0 ? (
-            <div className="p-8 sm:p-12 text-center bg-gray-50/70 rounded-2xl border border-gray-200/60 max-w-lg mx-auto">
-              <ImageIcon className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+          {sortedAds.length === 0 ? (
+            <div className="p-8 sm:p-14 text-center bg-gray-50/70 rounded-2xl border border-gray-200/60 max-w-lg mx-auto my-6">
+              <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
               <h3 className="text-base font-bold text-[#002f34]">{t("feed.noAdsTitle")}</h3>
-              <p className="text-xs text-gray-500 mt-1 mb-4">
+              <p className="text-xs text-gray-500 mt-1 mb-5 leading-relaxed">
                 {t("feed.noAdsDesc")}
               </p>
               <button
+                type="button"
                 onClick={handlePostAdClick}
-                className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                className="bg-[#002f34] hover:bg-[#003e45] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
               >
                 {t("nav.postAd")}
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6">
-              {ads.map((ad) => {
+              {sortedAds.map((ad) => {
                 const cat = categories.find((c) => c.slug === ad.category_slug);
                 const coverImg = ad.images && ad.images.length > 0 ? ad.images[0] : null;
                 const isSaved = savedAdIds.includes(ad.id);
