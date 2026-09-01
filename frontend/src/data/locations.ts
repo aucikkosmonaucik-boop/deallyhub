@@ -282,19 +282,6 @@ export const COUNTRIES_DATA: CountryInfo[] = [
       { id: "crete", name: "Crete", cities: ["Heraklion", "Chania", "Rethymno", "Agios Nikolaos"] },
       { id: "western-greece", name: "Western Greece", cities: ["Patras", "Agrinio", "Aigio"] }
     ]
-  },
-  {
-    code: "US",
-    name: "United States",
-    nativeName: "United States",
-    flag: "🇺🇸",
-    regions: [
-      { id: "california", name: "California", cities: ["Los Angeles", "San Francisco", "San Diego", "San Jose", "Sacramento", "Oakland", "Fresno"] },
-      { id: "new-york", name: "New York", cities: ["New York City", "Buffalo", "Rochester", "Yonkers", "Syracuse", "Albany"] },
-      { id: "texas", name: "Texas", cities: ["Houston", "San Antonio", "Dallas", "Austin", "Fort Worth", "El Paso", "Arlington"] },
-      { id: "florida", name: "Florida", cities: ["Miami", "Orlando", "Tampa", "Jacksonville", "St. Petersburg", "Fort Lauderdale"] },
-      { id: "illinois", name: "Illinois", cities: ["Chicago", "Aurora", "Naperville", "Joliet", "Rockford", "Springfield"] }
-    ]
   }
 ];
 

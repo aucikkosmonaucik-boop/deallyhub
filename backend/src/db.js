@@ -568,9 +568,13 @@ export async function getAllAds({ category, search, location, limit = 50 }) {
       const q = search.toLowerCase();
       list = list.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
     }
-    if (location && location.trim() && !/entire country/i.test(location)) {
-      const loc = location.toLowerCase();
-      list = list.filter(a => a.location.toLowerCase().includes(loc));
+    const isEntireCountry = !location || /entire country|cała polska|cały kraj|wszystkie w całym kraju|tout le pays|todo el país|ganzes land|tutto il paese|ολόκληρη η χώρα/i.test(location.trim());
+    if (!isEntireCountry && location.trim()) {
+      const tokens = location.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      list = list.filter(a => {
+        const adLoc = (a.location || "").toLowerCase();
+        return tokens.some(t => adLoc.includes(t));
+      });
     }
     return list.slice(0, limit);
   }
@@ -594,9 +598,16 @@ export async function getAllAds({ category, search, location, limit = 50 }) {
       query += ` AND (a.title ILIKE $${params.length} OR a.description ILIKE $${params.length})`;
     }
 
-    if (location && location.trim() && !/entire country/i.test(location)) {
-      params.push(`%${location.trim()}%`);
-      query += ` AND a.location ILIKE $${params.length}`;
+    const isEntireCountry = !location || /entire country|cała polska|cały kraj|wszystkie w całym kraju|tout le pays|todo el país|ganzes land|tutto il paese|ολόκληρη η χώρα/i.test(location.trim());
+    if (!isEntireCountry && location.trim()) {
+      const tokens = location.split(',').map(s => s.trim()).filter(Boolean);
+      if (tokens.length > 0) {
+        const locConds = tokens.map(t => {
+          params.push(`%${t}%`);
+          return `a.location ILIKE $${params.length}`;
+        });
+        query += ` AND (${locConds.join(" OR ")})`;
+      }
     }
 
     params.push(limit);

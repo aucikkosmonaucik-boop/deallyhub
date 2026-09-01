@@ -236,7 +236,8 @@ export default function HomePage() {
       const apiUrl = getApiUrl();
       const params = new URLSearchParams();
       params.append("search", trimmed);
-      if (location.trim() && !/entire country/i.test(location.trim())) {
+      const isEntire = !location.trim() || /entire country|cała polska|cały kraj|wszystkie w całym kraju|tout le pays|todo el país|ganzes land|tutto il paese|ολόκληρη η χώρα/i.test(location.trim());
+      if (!isEntire) {
         params.append("location", location.trim());
       }
       params.append("limit", "8");
@@ -382,7 +383,8 @@ export default function HomePage() {
     const params = new URLSearchParams();
     if (activeCategory) params.append("category", activeCategory);
     if (searchQuery.trim()) params.append("search", searchQuery.trim());
-    if (location.trim() && !/entire country/i.test(location.trim())) {
+    const isEntire = !location.trim() || /entire country|cała polska|cały kraj|wszystkie w całym kraju|tout le pays|todo el país|ganzes land|tutto il paese|ολόκληρη η χώρα/i.test(location.trim());
+    if (!isEntire) {
       params.append("location", location.trim());
     }
     if (params.toString()) url += `?${params.toString()}`;
