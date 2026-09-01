@@ -60,6 +60,7 @@ class _SavedScreenState extends State<SavedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListenableBuilder(
       listenable: LanguageController.instance,
       builder: (context, _) {
@@ -147,9 +148,9 @@ class _SavedScreenState extends State<SavedScreen> {
                                   margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF0FDF4),
+                                    color: isDark ? const Color(0xFF134E4A) : const Color(0xFFF0FDF4),
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                                    border: Border.all(color: isDark ? const Color(0xFF0D9488) : const Color(0xFFBBF7D0)),
                                   ),
                                   child: Row(
                                     children: [
@@ -158,12 +159,22 @@ class _SavedScreenState extends State<SavedScreen> {
                                       Expanded(
                                         child: Text(
                                           tr('saved_sync_prompt'),
-                                          style: const TextStyle(fontSize: 12, color: Color(0xFF065F46)),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isDark ? const Color(0xFF5EEAD4) : const Color(0xFF065F46),
+                                          ),
                                         ),
                                       ),
                                       TextButton(
                                         onPressed: widget.onGoToAccount,
-                                        child: Text(tr('profile_sign_in'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0D9488))),
+                                        child: Text(
+                                          tr('profile_sign_in'),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                            color: isDark ? const Color(0xFF2DD4BF) : const Color(0xFF0D9488),
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -252,7 +263,11 @@ class _SavedScreenState extends State<SavedScreen> {
                                                     if (catSlug.isNotEmpty) ...[
                                                       Text(
                                                         trCat(catSlug, catName),
-                                                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF0D9488)),
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: isDark ? const Color(0xFF5EEAD4) : const Color(0xFF0D9488),
+                                                        ),
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
                                                       ),
@@ -277,8 +292,8 @@ class _SavedScreenState extends State<SavedScreen> {
                                                             fontWeight: FontWeight.w900,
                                                             fontSize: 13,
                                                             color: hasPromo
-                                                                ? const Color(0xFF16A34A)
-                                                                : (Theme.of(context).brightness == Brightness.dark
+                                                                ? (isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A))
+                                                                : (isDark
                                                                     ? const Color(0xFF2DD4BF)
                                                                     : const Color(0xFF0D9488)),
                                                           ),
@@ -288,9 +303,9 @@ class _SavedScreenState extends State<SavedScreen> {
                                                           Expanded(
                                                             child: Text(
                                                               '$origPrice',
-                                                              style: const TextStyle(
+                                                              style: TextStyle(
                                                                 fontSize: 10,
-                                                                color: Colors.grey,
+                                                                color: isDark ? const Color(0xFF94A3B8) : Colors.grey,
                                                                 decoration: TextDecoration.lineThrough,
                                                               ),
                                                               maxLines: 1,
@@ -303,12 +318,19 @@ class _SavedScreenState extends State<SavedScreen> {
                                                     const SizedBox(height: 6),
                                                     Row(
                                                       children: [
-                                                        const Icon(Icons.location_on_outlined, size: 12, color: Colors.grey),
+                                                        Icon(
+                                                          Icons.location_on_outlined,
+                                                          size: 12,
+                                                          color: isDark ? const Color(0xFF94A3B8) : Colors.grey,
+                                                        ),
                                                         const SizedBox(width: 2),
                                                         Expanded(
                                                           child: Text(
                                                             location,
-                                                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                                            style: TextStyle(
+                                                              fontSize: 11,
+                                                              color: isDark ? const Color(0xFFCBD5E1) : Colors.grey,
+                                                            ),
                                                             overflow: TextOverflow.ellipsis,
                                                           ),
                                                         ),

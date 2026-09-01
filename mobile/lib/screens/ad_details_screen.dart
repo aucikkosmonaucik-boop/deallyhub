@@ -386,43 +386,43 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                   // Location & Category info
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
+                      Icon(Icons.location_on_outlined, size: 16, color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                       const SizedBox(width: 4),
                       Text(
                         location,
-                        style: const TextStyle(color: Colors.grey, fontSize: 13),
+                        style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 13),
                       ),
                     ],
                   ),
-                  const Divider(height: 32),
+                  Divider(height: 32, color: Theme.of(context).dividerColor),
 
                   // Description
                   Text(
                     tr('details_desc'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF002F34),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF374151),
+                      color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF374151),
                       height: 1.5,
                     ),
                   ),
-                  const Divider(height: 36),
+                  Divider(height: 36, color: Theme.of(context).dividerColor),
 
                   // Seller Info Card
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,10 +448,10 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                                 children: [
                                   Text(
                                     authorName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
-                                      color: Color(0xFF002F34),
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -461,7 +461,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                                       const SizedBox(width: 4),
                                       Text(
                                         tr('details_verified_member'),
-                                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                        style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                                       ),
                                     ],
                                   ),
@@ -512,8 +512,8 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                               icon: const Icon(Icons.phone_outlined, size: 18),
                               label: Text('${tr("details_call")}: $phone'),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color(0xFF002F34),
-                                side: const BorderSide(color: Color(0xFF002F34)),
+                                foregroundColor: isDark ? Colors.white : const Color(0xFF002F34),
+                                side: BorderSide(color: isDark ? const Color(0xFF475569) : const Color(0xFF002F34)),
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -533,8 +533,8 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                               icon: const Icon(Icons.mail_outline, size: 18),
                               label: Text(tr('details_email')),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.grey[800],
-                                side: const BorderSide(color: Color(0xFFE5E7EB)),
+                                foregroundColor: isDark ? const Color(0xFF94A3B8) : Colors.grey[800],
+                                side: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE5E7EB)),
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -552,9 +552,9 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0FDFA),
+                      color: isDark ? const Color(0xFF134E4A) : const Color(0xFFF0FDFA),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFCCFBF1)),
+                      border: Border.all(color: isDark ? const Color(0xFF0D9488) : const Color(0xFFCCFBF1)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -564,9 +564,9 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                         Expanded(
                           child: Text(
                             tr('details_safety_tips'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF134E4A),
+                              color: isDark ? const Color(0xFF5EEAD4) : const Color(0xFF134E4A),
                               height: 1.4,
                             ),
                           ),

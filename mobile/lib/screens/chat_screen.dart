@@ -123,14 +123,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        shadowColor: Colors.black12,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF002F34), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onSurface, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -138,8 +139,8 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(
               widget.otherUserName,
-              style: const TextStyle(
-                color: Color(0xFF002F34),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -161,7 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? Center(
                         child: Text(
                           tr('messages_empty'),
-                          style: const TextStyle(color: Colors.grey),
+                          style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                         ),
                       )
                     : ListView.builder(
@@ -182,14 +183,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                 maxWidth: MediaQuery.of(context).size.width * 0.75,
                               ),
                               decoration: BoxDecoration(
-                                color: isMine ? const Color(0xFF002F34) : Colors.white,
+                                color: isMine
+                                    ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
+                                    : (isDark ? const Color(0xFF1E293B) : Colors.white),
                                 borderRadius: BorderRadius.only(
                                   topLeft: const Radius.circular(16),
                                   topRight: const Radius.circular(16),
                                   bottomLeft: Radius.circular(isMine ? 16 : 4),
                                   bottomRight: Radius.circular(isMine ? 4 : 16),
                                 ),
-                                border: isMine ? null : Border.all(color: Colors.grey.shade200),
+                                border: isMine
+                                    ? null
+                                    : Border.all(
+                                        color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+                                      ),
                                 boxShadow: const [
                                   BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
                                 ],
@@ -197,7 +204,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               child: Text(
                                 content,
                                 style: TextStyle(
-                                  color: isMine ? Colors.white : const Color(0xFF002F34),
+                                  color: isMine
+                                      ? Colors.white
+                                      : (isDark ? Colors.white : const Color(0xFF002F34)),
                                   fontSize: 14,
                                 ),
                               ),
@@ -210,9 +219,9 @@ class _ChatScreenState extends State<ChatScreen> {
           // Message Input Field
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
             ),
             child: SafeArea(
               child: Row(
@@ -221,12 +230,19 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: TextField(
                       controller: _controller,
                       textCapitalization: TextCapitalization.sentences,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       decoration: InputDecoration(
                         hintText: tr('messages_placeholder'),
-                        hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? const Color(0xFF94A3B8) : Colors.grey,
+                        ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         filled: true,
-                        fillColor: const Color(0xFFF3F4F6),
+                        fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF3F4F6),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -243,7 +259,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D9488)),
                           )
-                        : const Icon(Icons.send_rounded, color: Color(0xFF002F34)),
+                        : Icon(
+                            Icons.send_rounded,
+                            color: isDark ? const Color(0xFF2DD4BF) : const Color(0xFF002F34),
+                          ),
                     onPressed: _sendMessage,
                   ),
                 ],

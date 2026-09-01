@@ -372,18 +372,21 @@ class _PostAdScreenState extends State<PostAdScreen> {
                     initialValue: _categories.any((c) => c['slug'] == _categorySlug)
                         ? _categorySlug
                         : (_categories.isNotEmpty ? _categories[0]['slug'] : _categorySlug),
+                    dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       filled: true,
-                      fillColor: const Color(0xFFF9FAFB),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                     ),
                     items: _categories.map((c) {
                       final slug = c['slug'] as String;
                       final rawName = c['name'] as String;
                       return DropdownMenuItem<String>(
                         value: slug,
-                        child: Text(trCat(slug, rawName), style: const TextStyle(fontSize: 14)),
+                        child: Text(trCat(slug, rawName), style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -393,15 +396,25 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   const SizedBox(height: 16),
 
                   // Title
-                  Text('${tr("post_ad_title")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                  Text(
+                    '${tr("post_ad_title")} *',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _titleController,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       hintText: 'e.g. iPhone 15 Pro, Vintage Jacket, Kitten...',
+                      hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                       filled: true,
-                      fillColor: const Color(0xFFF9FAFB),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                     ),
                     validator: (val) => val == null || val.trim().isEmpty ? 'Title is required' : null,
                   ),
@@ -415,17 +428,29 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${tr("post_price")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text(
+                              '${tr("post_price")} *',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _priceController,
                               enabled: !_isFree,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               decoration: InputDecoration(
                                 hintText: _isFree ? tr('common_free') : '0.00',
+                                hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                                 filled: true,
-                                fillColor: _isFree ? const Color(0xFFE5E7EB) : const Color(0xFFF9FAFB),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                                fillColor: _isFree
+                                    ? (isDark ? const Color(0xFF334155) : const Color(0xFFE5E7EB))
+                                    : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB)),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                               ),
                               validator: (val) {
                                 if (!_isFree && (val == null || val.trim().isEmpty)) return 'Required';
@@ -440,21 +465,31 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(tr('post_currency'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text(
+                              tr('post_currency'),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
                             const SizedBox(height: 6),
                             DropdownButtonFormField<String>(
                               initialValue: _currency,
+                              dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                 filled: true,
-                                fillColor: const Color(0xFFF9FAFB),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                                fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                               ),
-                              items: const [
-                                DropdownMenuItem(value: 'USD', child: Text('USD')),
-                                DropdownMenuItem(value: 'EUR', child: Text('EUR')),
-                                DropdownMenuItem(value: 'PLN', child: Text('PLN')),
-                                DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                              items: [
+                                DropdownMenuItem(value: 'USD', child: Text('USD', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))),
+                                DropdownMenuItem(value: 'EUR', child: Text('EUR', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))),
+                                DropdownMenuItem(value: 'PLN', child: Text('PLN', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))),
+                                DropdownMenuItem(value: 'GBP', child: Text('GBP', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))),
                               ],
                               onChanged: (val) => setState(() => _currency = val ?? 'USD'),
                             ),
@@ -465,7 +500,14 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   ),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: Text(tr('post_free'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    title: Text(
+                      tr('post_free'),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                     value: _isFree,
                     activeColor: const Color(0xFF0D9488),
                     onChanged: (val) {
@@ -478,9 +520,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   if (!_isFree) ...[
                     CheckboxListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        tr('post_is_promo'),
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                      title: const Text(
+                        'Promo / Discount Tag',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.deepOrange),
                       ),
                       secondary: const Icon(Icons.local_offer_outlined, color: Colors.deepOrange, size: 20),
                       value: _isPromo,
@@ -491,27 +533,33 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
+                          color: isDark ? const Color(0xFF3B1A1A) : Colors.red.shade50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.red.shade200),
+                          border: Border.all(color: isDark ? const Color(0xFF7F1D1D) : Colors.red.shade200),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               '${tr("post_regular_price")} *',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade900),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: isDark ? const Color(0xFFFCA5A5) : Colors.red.shade900,
+                              ),
                             ),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _origPriceController,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                               decoration: InputDecoration(
                                 hintText: 'e.g. 120.00',
+                                hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                                 filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.red.shade300)),
+                                fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF7F1D1D) : Colors.red.shade300)),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               ),
                             ),
@@ -528,7 +576,11 @@ class _PostAdScreenState extends State<PostAdScreen> {
                                       children: [
                                         Text(
                                           '${tr("post_you_save")}: ${(origP - curP).toStringAsFixed(2)} $_currency',
-                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade800),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                            color: isDark ? const Color(0xFFFCA5A5) : Colors.red.shade800,
+                                          ),
                                         ),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -562,15 +614,25 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(tr('post_location'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text(
+                              tr('post_location'),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _locationController,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               decoration: InputDecoration(
                                 hintText: 'e.g. Warsaw',
+                                hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                                 filled: true,
-                                fillColor: const Color(0xFFF9FAFB),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                                fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                               ),
                             ),
                           ],
@@ -581,16 +643,26 @@ class _PostAdScreenState extends State<PostAdScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(tr('post_phone'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                            Text(
+                              tr('post_phone'),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
                             const SizedBox(height: 6),
                             TextFormField(
                               controller: _phoneController,
                               keyboardType: TextInputType.phone,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               decoration: InputDecoration(
                                 hintText: '+48 ...',
+                                hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                                 filled: true,
-                                fillColor: const Color(0xFFF9FAFB),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                                fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                               ),
                             ),
                           ],
@@ -606,18 +678,22 @@ class _PostAdScreenState extends State<PostAdScreen> {
                     children: [
                       Text(
                         tr('post_photos'),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002F34)),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                       Text(
                         '${_images.length}/10',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Add photos from your phone memory or camera',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                   ),
                   const SizedBox(height: 10),
 
@@ -629,16 +705,23 @@ class _PostAdScreenState extends State<PostAdScreen> {
                           onPressed: (_pickingImage || _images.length >= 10)
                               ? null
                               : () => _pickImage(ImageSource.gallery),
-                          icon: const Icon(Icons.photo_library_rounded, size: 20, color: Color(0xFF002F34)),
-                          label: const Text(
+                          icon: Icon(
+                            Icons.photo_library_rounded,
+                            size: 20,
+                            color: isDark ? Colors.white : const Color(0xFF002F34),
+                          ),
+                          label: Text(
                             'Gallery',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : const Color(0xFF002F34),
+                            ),
                           ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 13),
-                            side: const BorderSide(color: Color(0xFF002F34)),
+                            side: BorderSide(color: isDark ? const Color(0xFF475569) : const Color(0xFF002F34)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            backgroundColor: Colors.white,
+                            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                           ),
                         ),
                       ),
@@ -657,7 +740,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 13),
                             side: const BorderSide(color: Color(0xFF0D9488)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            backgroundColor: const Color(0xFFF0FDFA),
+                            backgroundColor: isDark ? const Color(0xFF134E4A) : const Color(0xFFF0FDFA),
                           ),
                         ),
                       ),
@@ -699,7 +782,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                               height: 80,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFFE5E7EB)),
+                                border: Border.all(color: Theme.of(context).dividerColor),
                               ),
                               clipBehavior: Clip.antiAlias,
                               child: AppImage(
@@ -753,9 +836,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   ExpansionTile(
                     tilePadding: EdgeInsets.zero,
                     dense: true,
-                    title: const Text(
+                    title: Text(
                       'Or add image by URL (optional)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontWeight: FontWeight.w600),
                     ),
                     children: [
                       Row(
@@ -763,12 +846,14 @@ class _PostAdScreenState extends State<PostAdScreen> {
                           Expanded(
                             child: TextField(
                               controller: _imgUrlController,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               decoration: InputDecoration(
                                 hintText: 'https://images.unsplash.com/...',
+                                hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 filled: true,
-                                fillColor: const Color(0xFFF9FAFB),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                                fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                               ),
                             ),
                           ),
@@ -776,7 +861,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                           ElevatedButton(
                             onPressed: _addImageUrl,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF002F34),
+                              backgroundColor: isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34),
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -791,16 +876,26 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   const SizedBox(height: 16),
 
                   // Description
-                  Text('${tr("post_desc")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                  Text(
+                    '${tr("post_desc")} *',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _descController,
                     maxLines: 4,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       hintText: 'Describe details, condition, terms of sale and meetup...',
+                      hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade500),
                       filled: true,
-                      fillColor: const Color(0xFFF9FAFB),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                     ),
                     validator: (val) => val == null || val.trim().isEmpty ? 'Description is required' : null,
                   ),
@@ -812,7 +907,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                     child: ElevatedButton(
                       onPressed: _submitting ? null : _submitAd,
                       style: ElevatedButton.styleFrom(
-                         backgroundColor: const Color(0xFF002F34),
+                        backgroundColor: isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),

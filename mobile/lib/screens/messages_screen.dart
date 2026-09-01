@@ -184,7 +184,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     const SizedBox(height: 2),
                                     Text(
                                       lastMsg,
-                                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                                      style: TextStyle(
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? const Color(0xFF94A3B8)
+                                            : Colors.grey[600],
+                                        fontSize: 13,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),

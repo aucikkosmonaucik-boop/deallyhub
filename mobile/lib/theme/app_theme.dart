@@ -43,17 +43,28 @@ class AppTheme {
       cardColor: lightCard,
       dividerColor: lightBorder,
       appBarTheme: const AppBarTheme(
-        backgroundColor: brandPrimary,
-        foregroundColor: Colors.white,
+        backgroundColor: lightSurface,
+        foregroundColor: lightTextPrimary,
         elevation: 0,
         centerTitle: false,
+        iconTheme: IconThemeData(color: lightTextPrimary),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
+        backgroundColor: lightSurface,
         selectedItemColor: brandPrimary,
         unselectedItemColor: Color(0xFF64748B),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF002F34),
+        contentTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: lightSurface,
@@ -84,7 +95,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: brandTeal, width: 2),
         ),
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+        hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
       ),
     );
   }
@@ -108,18 +119,40 @@ class AppTheme {
       scaffoldBackgroundColor: darkBg,
       cardColor: darkCard,
       dividerColor: darkBorder,
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: darkTextPrimary),
+        bodyMedium: TextStyle(color: darkTextPrimary),
+        bodySmall: TextStyle(color: darkTextSecondary),
+        titleLarge: TextStyle(color: darkTextPrimary, fontWeight: FontWeight.bold),
+        titleMedium: TextStyle(color: darkTextPrimary, fontWeight: FontWeight.bold),
+        titleSmall: TextStyle(color: darkTextPrimary, fontWeight: FontWeight.bold),
+      ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF0B132B),
-        foregroundColor: Colors.white,
+        backgroundColor: darkSurface,
+        foregroundColor: darkTextPrimary,
         elevation: 0,
         centerTitle: false,
+        iconTheme: IconThemeData(color: darkTextPrimary),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Color(0xFF0B132B),
+        backgroundColor: darkSurface,
         selectedItemColor: brandTealAccent,
         unselectedItemColor: Color(0xFF94A3B8),
         type: BottomNavigationBarType.fixed,
         elevation: 8,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF1E293B),
+        contentTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xFF334155)),
+        ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: darkSurface,
@@ -150,7 +183,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: brandTealLight, width: 2),
         ),
-        hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
       ),
     );
   }

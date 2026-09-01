@@ -635,10 +635,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // 1. Notifications Modal
   void _showNotificationsDialog() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => DraggableScrollableSheet(
         initialChildSize: 0.75,
@@ -653,15 +654,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB)))),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.notifications_active_rounded, color: Color(0xFF0D9488)),
-                          SizedBox(width: 8),
-                          Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                          const Icon(Icons.notifications_active_rounded, color: Color(0xFF0D9488)),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Notifications',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
                         ],
                       ),
                       if (items.isNotEmpty)
@@ -680,13 +690,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: snapshot.connectionState == ConnectionState.waiting
                       ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
                       : items.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.notifications_none, size: 48, color: Colors.grey),
-                                  SizedBox(height: 12),
-                                  Text('No notifications yet', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                                  const Icon(Icons.notifications_none, size: 48, color: Colors.grey),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'No notifications yet',
+                                    style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontWeight: FontWeight.w600),
+                                  ),
                                 ],
                               ),
                             )
@@ -694,22 +707,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               controller: scrollController,
                               padding: const EdgeInsets.all(16),
                               itemCount: items.length,
-                              separatorBuilder: (context, index) => const Divider(height: 1),
+                              separatorBuilder: (context, index) => Divider(height: 1, color: Theme.of(context).dividerColor),
                               itemBuilder: (ctx, idx) {
                                 final n = items[idx];
                                 final isRead = n['is_read'] == true;
                                 return ListTile(
                                   contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                                   leading: CircleAvatar(
-                                    backgroundColor: isRead ? Colors.grey.shade100 : const Color(0xFFE6FFFA),
+                                    backgroundColor: isRead
+                                        ? (isDark ? const Color(0xFF334155) : Colors.grey.shade100)
+                                        : (isDark ? const Color(0xFF134E4A) : const Color(0xFFE6FFFA)),
                                     child: Icon(
                                       Icons.notifications,
                                       size: 20,
                                       color: isRead ? Colors.grey : const Color(0xFF0D9488),
                                     ),
                                   ),
-                                  title: Text(n['title'] ?? '', style: TextStyle(fontWeight: isRead ? FontWeight.normal : FontWeight.bold, fontSize: 14)),
-                                  subtitle: Text(n['message'] ?? '', style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                                  title: Text(
+                                    n['title'] ?? '',
+                                    style: TextStyle(
+                                      fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    n['message'] ?? '',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: isDark ? const Color(0xFF94A3B8) : Colors.black87,
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -724,10 +752,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // 3. My Advertisements Modal
   void _showMyAdsDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => DraggableScrollableSheet(
@@ -743,15 +772,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB)))),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.description_outlined, color: Color(0xFF002F34)),
+                            const Icon(Icons.description_outlined, color: Color(0xFF0D9488)),
                             const SizedBox(width: 8),
-                            Text(tr('my_ads_title'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                            Text(
+                              tr('my_ads_title'),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
                           ],
                         ),
                         IconButton(
@@ -781,7 +819,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           const SizedBox(height: 12),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(horizontal: 24),
-                                            child: Text(tr('my_ads_empty'), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                                            child: Text(
+                                              tr('my_ads_empty'),
+                                              style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontWeight: FontWeight.w600),
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -793,111 +835,120 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   physics: const AlwaysScrollableScrollPhysics(),
                                   padding: const EdgeInsets.all(16),
                                   itemCount: ads.length,
-                                  separatorBuilder: (context, index) => const Divider(height: 16),
-                                itemBuilder: (ctx, idx) {
-                                  final ad = ads[idx];
-                                  final images = (ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
-                                  final cover = images.isNotEmpty ? images[0] : null;
+                                  separatorBuilder: (context, index) => Divider(height: 16, color: Theme.of(context).dividerColor),
+                                  itemBuilder: (ctx, idx) {
+                                    final ad = ads[idx];
+                                    final images = (ad['images'] as List<dynamic>?)?.cast<String>() ?? [];
+                                    final cover = images.isNotEmpty ? images[0] : null;
 
-                                  final numPrice = double.tryParse('${ad['price']}') ?? 0.0;
-                                  final origPrice = ad['original_price'] != null ? double.tryParse('${ad['original_price']}') : null;
-                                  final hasPromo = origPrice != null && origPrice > numPrice && numPrice > 0;
+                                    final numPrice = double.tryParse('${ad['price']}') ?? 0.0;
+                                    final origPrice = ad['original_price'] != null ? double.tryParse('${ad['original_price']}') : null;
+                                    final hasPromo = origPrice != null && origPrice > numPrice && numPrice > 0;
 
-                                  return InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (_) => AdDetailsScreen(ad: ad)),
-                                      );
-                                    },
-                                    child: Row(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(10),
-                                          child: SizedBox(
-                                            width: 70,
-                                            height: 70,
-                                            child: AppImage(imageUrl: cover, fit: BoxFit.cover),
+                                    return InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (_) => AdDetailsScreen(ad: ad)),
+                                        );
+                                      },
+                                      child: Row(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(10),
+                                            child: SizedBox(
+                                              width: 70,
+                                              height: 70,
+                                              child: AppImage(imageUrl: cover, fit: BoxFit.cover),
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(ad['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                              const SizedBox(height: 4),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    '${ad['price']} ${ad['currency']}',
-                                                    style: TextStyle(
-                                                      color: hasPromo ? const Color(0xFF16A34A) : const Color(0xFF0D9488),
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 13,
-                                                    ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  ad['title'] ?? '',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                    color: Theme.of(context).colorScheme.onSurface,
                                                   ),
-                                                  if (hasPromo) ...[
-                                                    const SizedBox(width: 6),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Row(
+                                                  children: [
                                                     Text(
-                                                      '$origPrice',
-                                                      style: const TextStyle(
-                                                        fontSize: 11,
-                                                        color: Colors.grey,
-                                                        decoration: TextDecoration.lineThrough,
+                                                      '${ad['price']} ${ad['currency']}',
+                                                      style: TextStyle(
+                                                        color: hasPromo
+                                                            ? (isDark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A))
+                                                            : (isDark ? const Color(0xFF2DD4BF) : const Color(0xFF0D9488)),
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 13,
                                                       ),
                                                     ),
+                                                    if (hasPromo) ...[
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        '$origPrice',
+                                                        style: TextStyle(
+                                                          fontSize: 11,
+                                                          color: isDark ? const Color(0xFF94A3B8) : Colors.grey,
+                                                          decoration: TextDecoration.lineThrough,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ],
-                                                ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(Icons.edit_outlined, color: Color(0xFF0D9488)),
+                                                tooltip: tr('my_ads_edit'),
+                                                onPressed: () async {
+                                                  final updated = await _showEditAdModal(ad);
+                                                  if (updated == true) {
+                                                    setSheetState(() {});
+                                                  }
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                                                tooltip: tr('my_ads_delete'),
+                                                onPressed: () async {
+                                                  final confirm = await showDialog<bool>(
+                                                    context: context,
+                                                    builder: (c) => AlertDialog(
+                                                      title: Text(tr('my_ads_delete')),
+                                                      content: Text(tr('my_ads_delete_confirm')),
+                                                      actions: [
+                                                        TextButton(onPressed: () => Navigator.pop(c, false), child: Text(tr('common_cancel'))),
+                                                        ElevatedButton(
+                                                          onPressed: () => Navigator.pop(c, true),
+                                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                                          child: Text(tr('my_ads_delete')),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                  if (confirm == true) {
+                                                    await ApiService.deleteAd(ad['id'] as int);
+                                                    setSheetState(() {});
+                                                  }
+                                                },
                                               ),
                                             ],
                                           ),
-                                        ),
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(Icons.edit_outlined, color: Color(0xFF0D9488)),
-                                              tooltip: tr('my_ads_edit'),
-                                              onPressed: () async {
-                                                final updated = await _showEditAdModal(ad);
-                                                if (updated == true) {
-                                                  setSheetState(() {});
-                                                }
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                                              tooltip: tr('my_ads_delete'),
-                                              onPressed: () async {
-                                                final confirm = await showDialog<bool>(
-                                                  context: context,
-                                                  builder: (c) => AlertDialog(
-                                                    title: Text(tr('my_ads_delete')),
-                                                    content: Text(tr('my_ads_delete_confirm')),
-                                                    actions: [
-                                                      TextButton(onPressed: () => Navigator.pop(c, false), child: Text(tr('common_cancel'))),
-                                                      ElevatedButton(
-                                                        onPressed: () => Navigator.pop(c, true),
-                                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                                                        child: Text(tr('my_ads_delete')),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                                if (confirm == true) {
-                                                  await ApiService.deleteAd(ad['id'] as int);
-                                                  setSheetState(() {});
-                                                }
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                     ),
                   ),
                 ],
@@ -911,6 +962,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // 3b. Edit Advertisement Modal
   Future<bool?> _showEditAdModal(Map<String, dynamic> ad) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final titleController = TextEditingController(text: ad['title'] ?? '');
     final priceController = TextEditingController(text: '${ad['price'] ?? 0}');
     final origPriceController = TextEditingController(
@@ -936,7 +988,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setEditState) {
@@ -975,8 +1027,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Header
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    decoration: const BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -987,7 +1039,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(width: 8),
                             Text(
                               tr('edit_ad_title'),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34)),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                             ),
                           ],
                         ),
@@ -1001,425 +1057,497 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: ListView(
                       controller: scrollController,
                       padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 40),
-                    children: [
-                      // Title
-                      Text('${tr("post_ad_title")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: titleController,
-                        decoration: InputDecoration(
-                          hintText: 'e.g. Vintage Leather Jacket',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      children: [
+                        // Title
+                        Text(
+                          '${tr("post_ad_title")} *',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: titleController,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          decoration: InputDecoration(
+                            hintText: 'e.g. Vintage Leather Jacket',
+                            hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                      // Category
-                      Text('${tr("post_category")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                      const SizedBox(height: 6),
-                      FutureBuilder<List<dynamic>>(
-                        future: ApiService.getCategories(),
-                        builder: (c, snapshot) {
-                          final cats = snapshot.data ?? [];
-                          return DropdownButtonFormField<String>(
-                            initialValue: cats.any((c) => c['slug'] == selectedCategory)
-                                ? selectedCategory
-                                : (cats.isNotEmpty ? cats[0]['slug'] : selectedCategory),
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        // Category
+                        Text(
+                          '${tr("post_category")} *',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        FutureBuilder<List<dynamic>>(
+                          future: ApiService.getCategories(),
+                          builder: (c, snapshot) {
+                            final cats = snapshot.data ?? [];
+                            return DropdownButtonFormField<String>(
+                              initialValue: cats.any((c) => c['slug'] == selectedCategory)
+                                  ? selectedCategory
+                                  : (cats.isNotEmpty ? cats[0]['slug'] : selectedCategory),
+                              dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              ),
+                              items: cats.map<DropdownMenuItem<String>>((c) {
+                                final slug = c['slug'] as String;
+                                final name = c['name'] as String;
+                                return DropdownMenuItem<String>(
+                                  value: slug,
+                                  child: Text(trCat(slug, name), style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setEditState(() => selectedCategory = val);
+                                }
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Price & Currency
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${tr("post_price")} *',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  TextField(
+                                    controller: priceController,
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                    decoration: InputDecoration(
+                                      hintText: '0.00',
+                                      hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            items: cats.map<DropdownMenuItem<String>>((c) {
-                              final slug = c['slug'] as String;
-                              final name = c['name'] as String;
-                              return DropdownMenuItem<String>(
-                                value: slug,
-                                child: Text(trCat(slug, name), style: const TextStyle(fontSize: 14)),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              if (val != null) {
-                                setEditState(() => selectedCategory = val);
-                              }
-                            },
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tr('post_currency'),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  DropdownButtonFormField<String>(
+                                    initialValue: currency,
+                                    dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    ),
+                                    items: ['USD', 'EUR', 'PLN', 'GBP']
+                                        .map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface))))
+                                        .toList(),
+                                    onChanged: (val) {
+                                      if (val != null) setEditState(() => currency = val);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
 
-                      // Price & Currency
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
+                        // Promo Checkbox & Original Price Input
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text(
+                            'Promo / Discount Tag',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                          ),
+                          secondary: const Icon(Icons.local_offer_outlined, color: Colors.deepOrange, size: 20),
+                          value: isPromo,
+                          activeColor: Colors.deepOrange,
+                          onChanged: (val) => setEditState(() => isPromo = val ?? false),
+                        ),
+                        if (isPromo) ...[
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF3B1A1A) : Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: isDark ? const Color(0xFF7F1D1D) : Colors.red.shade200),
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('${tr("post_price")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                                const SizedBox(height: 6),
-                                TextField(
-                                  controller: priceController,
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  decoration: InputDecoration(
-                                    hintText: '0.00',
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                Text(
+                                  '${tr("post_regular_price")} *',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: isDark ? const Color(0xFFFCA5A5) : Colors.red.shade900,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(tr('post_currency'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
                                 const SizedBox(height: 6),
-                                DropdownButtonFormField<String>(
-                                  initialValue: currency,
+                                TextField(
+                                  controller: origPriceController,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                  onChanged: (_) => setEditState(() {}),
                                   decoration: InputDecoration(
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    hintText: 'e.g. 120.00',
+                                    hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+                                    filled: true,
+                                    fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF7F1D1D) : Colors.red.shade300)),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                   ),
-                                  items: ['USD', 'EUR', 'PLN', 'GBP']
-                                      .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13))))
-                                      .toList(),
-                                  onChanged: (val) {
-                                    if (val != null) setEditState(() => currency = val);
+                                ),
+                                Builder(
+                                  builder: (context) {
+                                    final curP = double.tryParse(priceController.text.trim()) ?? 0.0;
+                                    final origP = double.tryParse(origPriceController.text.trim()) ?? 0.0;
+                                    if (origP > curP && curP > 0) {
+                                      final discount = ((origP - curP) / origP * 100).round();
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '${tr("post_you_save")}: ${(origP - curP).toStringAsFixed(2)} $currency',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                                color: isDark ? const Color(0xFFFCA5A5) : Colors.red.shade800,
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red.shade600,
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                '-$discount% ${tr("post_discount_off")}',
+                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                    return const SizedBox.shrink();
                                   },
                                 ),
                               ],
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 8),
+                        const SizedBox(height: 16),
 
-                      // Promo Checkbox & Original Price Input
-                      CheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          tr('post_is_promo'),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                        // Location & Phone
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tr('post_location'),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  TextField(
+                                    controller: locationController,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                    decoration: InputDecoration(
+                                      hintText: 'e.g. Warsaw',
+                                      hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tr('post_phone'),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  TextField(
+                                    controller: phoneController,
+                                    keyboardType: TextInputType.phone,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                    decoration: InputDecoration(
+                                      hintText: '+48 ...',
+                                      hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        secondary: const Icon(Icons.local_offer_outlined, color: Colors.deepOrange, size: 20),
-                        value: isPromo,
-                        activeColor: Colors.deepOrange,
-                        onChanged: (val) => setEditState(() => isPromo = val ?? false),
-                      ),
-                      if (isPromo) ...[
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.red.shade200),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${tr("post_regular_price")} *',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade900),
+                        const SizedBox(height: 16),
+
+                        // Photos Section
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              tr('post_photos'),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
-                              const SizedBox(height: 6),
-                              TextField(
-                                controller: origPriceController,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                onChanged: (_) => setEditState(() {}),
-                                decoration: InputDecoration(
-                                  hintText: 'e.g. 120.00',
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.red.shade300)),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            ),
+                            Row(
+                              children: [
+                                TextButton.icon(
+                                  onPressed: picking ? null : () => pickImg(ImageSource.gallery),
+                                  icon: const Icon(Icons.photo_library, size: 16, color: Color(0xFF0D9488)),
+                                  label: Text(tr('edit_ad_gallery'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
                                 ),
-                              ),
-                              Builder(
-                                builder: (context) {
-                                  final curP = double.tryParse(priceController.text.trim()) ?? 0.0;
-                                  final origP = double.tryParse(origPriceController.text.trim()) ?? 0.0;
-                                  if (origP > curP && curP > 0) {
-                                    final discount = ((origP - curP) / origP * 100).round();
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            '${tr("post_you_save")}: ${(origP - curP).toStringAsFixed(2)} $currency',
-                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.red.shade800),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red.shade600,
-                                              borderRadius: BorderRadius.circular(6),
-                                            ),
-                                            child: Text(
-                                              '-$discount% ${tr("post_discount_off")}',
-                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
-                                            ),
-                                          ),
-                                        ],
+                                TextButton.icon(
+                                  onPressed: picking ? null : () => pickImg(ImageSource.camera),
+                                  icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFF0D9488)),
+                                  label: Text(tr('edit_ad_camera'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        if (images.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E293B) : Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Theme.of(context).dividerColor),
+                            ),
+                            child: Center(
+                              child: Text(tr('edit_ad_no_photos'), style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12), textAlign: TextAlign.center),
+                            ),
+                          )
+                        else
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: List.generate(images.length, (idx) {
+                              return Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: AppImage(imageUrl: images[idx], fit: BoxFit.cover),
+                                    ),
+                                  ),
+                                  if (idx == 0)
+                                    Positioned(
+                                      top: 4,
+                                      left: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                        decoration: BoxDecoration(color: const Color(0xFF002F34), borderRadius: BorderRadius.circular(4)),
+                                        child: Text(tr('edit_ad_cover'), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
                                       ),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 16),
-
-                      // Location & Phone
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(tr('post_location'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                                const SizedBox(height: 6),
-                                TextField(
-                                  controller: locationController,
-                                  decoration: InputDecoration(
-                                    hintText: 'e.g. Warsaw',
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(tr('post_phone'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                                const SizedBox(height: 6),
-                                TextField(
-                                  controller: phoneController,
-                                  keyboardType: TextInputType.phone,
-                                  decoration: InputDecoration(
-                                    hintText: '+48 ...',
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Photos Section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(tr('post_photos'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                          Row(
-                            children: [
-                              TextButton.icon(
-                                onPressed: picking ? null : () => pickImg(ImageSource.gallery),
-                                icon: const Icon(Icons.photo_library, size: 16, color: Color(0xFF0D9488)),
-                                label: Text(tr('edit_ad_gallery'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
-                              ),
-                              TextButton.icon(
-                                onPressed: picking ? null : () => pickImg(ImageSource.camera),
-                                icon: const Icon(Icons.camera_alt, size: 16, color: Color(0xFF0D9488)),
-                                label: Text(tr('edit_ad_camera'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      if (images.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: Center(
-                            child: Text(tr('edit_ad_no_photos'), style: const TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
-                          ),
-                        )
-                      else
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: List.generate(images.length, (idx) {
-                            return Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: SizedBox(
-                                    width: 80,
-                                    height: 80,
-                                    child: AppImage(imageUrl: images[idx], fit: BoxFit.cover),
-                                  ),
-                                ),
-                                if (idx == 0)
+                                    ),
                                   Positioned(
-                                    top: 4,
-                                    left: 4,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                      decoration: BoxDecoration(color: const Color(0xFF002F34), borderRadius: BorderRadius.circular(4)),
-                                      child: Text(tr('edit_ad_cover'), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                                    top: 2,
+                                    right: 2,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setEditState(() => images.removeAt(idx));
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                                        child: const Icon(Icons.close, size: 14, color: Colors.white),
+                                      ),
                                     ),
                                   ),
-                                Positioned(
-                                  top: 2,
-                                  right: 2,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setEditState(() => images.removeAt(idx));
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(2),
-                                      decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                                      child: const Icon(Icons.close, size: 14, color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
-                        ),
-                      const SizedBox(height: 16),
-
-                      // Description
-                      Text('${tr("post_desc")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: descController,
-                        maxLines: 4,
-                        decoration: InputDecoration(
-                          hintText: '...',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding: const EdgeInsets.all(14),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Save Changes Button
-                      SizedBox(
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: saving
-                              ? null
-                              : () async {
-                                  final title = titleController.text.trim();
-                                  final desc = descController.text.trim();
-                                  final priceVal = double.tryParse(priceController.text.trim()) ?? 0.0;
-                                  final origPVal = (isPromo && origPriceController.text.trim().isNotEmpty)
-                                      ? double.tryParse(origPriceController.text.trim())
-                                      : null;
-
-                                  if (title.isEmpty || desc.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(tr('edit_ad_req_error'))),
-                                    );
-                                    return;
-                                  }
-
-                                  if (isPromo && origPVal != null && origPVal <= priceVal) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Regular price must be higher than current price.')),
-                                    );
-                                    return;
-                                  }
-
-                                  final locationVal = locationController.text.trim().isEmpty ? 'Entire Country' : locationController.text.trim();
-                                  if (AppContentFilter.containsProfanity(title) ||
-                                      AppContentFilter.containsProfanity(desc) ||
-                                      AppContentFilter.containsProfanity(locationVal)) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        backgroundColor: const Color(0xFFDC2626),
-                                        content: Text(tr('error_profanity')),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  final messenger = ScaffoldMessenger.of(context);
-                                  final nav = Navigator.of(ctx);
-                                  setEditState(() => saving = true);
-
-                                  final res = await ApiService.updateAd(
-                                    adId: ad['id'] as int,
-                                    categorySlug: selectedCategory,
-                                    title: title,
-                                    description: desc,
-                                    price: priceVal,
-                                    originalPrice: origPVal,
-                                    currency: currency,
-                                    location: locationController.text.trim().isEmpty ? 'Entire Country' : locationController.text.trim(),
-                                    phone: phoneController.text.trim(),
-                                    images: images,
-                                  );
-
-                                  setEditState(() => saving = false);
-                                  if (res['success'] == true) {
-                                    nav.pop(true);
-                                    messenger.showSnackBar(
-                                      SnackBar(
-                                        backgroundColor: const Color(0xFF0D9488),
-                                        content: Text(tr('edit_ad_success')),
-                                      ),
-                                    );
-                                  } else {
-                                     final errStr = res['error']?.toString() ?? '';
-                                     final violation = res['violation']?.toString() ?? '';
-                                     String displayError = errStr;
-                                     if (violation == 'NSFW_IMAGE_DETECTED' ||
-                                         errStr.toLowerCase().contains('nudity') ||
-                                         errStr.toLowerCase().contains('adult') ||
-                                         errStr.toLowerCase().contains('erotic') ||
-                                         errStr.toLowerCase().contains('nagość')) {
-                                       displayError = tr('error_nsfw_image');
-                                     } else if (errStr.toLowerCase().contains('prohibited') ||
-                                         errStr.toLowerCase().contains('offensive') ||
-                                         errStr.toLowerCase().contains('niedozwolon') ||
-                                         errStr.toLowerCase().contains('obrażliw')) {
-                                       displayError = tr('error_profanity');
-                                     }
-                                     messenger.showSnackBar(
-                                       SnackBar(
-                                         backgroundColor: const Color(0xFFDC2626),
-                                         content: Text(displayError.isNotEmpty ? displayError : 'Failed to update advertisement.'),
-                                       ),
-                                     );
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF002F34),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ],
+                              );
+                            }),
                           ),
-                          child: saving
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : Text(tr('edit_ad_save'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 16),
+
+                        // Description
+                        Text(
+                          '${tr("post_desc")} *',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: descController,
+                          maxLines: 4,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          decoration: InputDecoration(
+                            hintText: '...',
+                            hintStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.all(14),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Save Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: saving
+                                ? null
+                                : () async {
+                                    final title = titleController.text.trim();
+                                    final desc = descController.text.trim();
+                                    final priceVal = double.tryParse(priceController.text.trim());
+                                    final origPVal = isPromo ? double.tryParse(origPriceController.text.trim()) : null;
+
+                                    if (title.isEmpty || priceVal == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(tr('edit_ad_validation'))),
+                                      );
+                                      return;
+                                    }
+
+                                    final locationVal = locationController.text.trim().isEmpty ? 'Entire Country' : locationController.text.trim();
+                                    if (AppContentFilter.containsProfanity(title) ||
+                                        AppContentFilter.containsProfanity(desc) ||
+                                        AppContentFilter.containsProfanity(locationVal)) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: const Color(0xFFDC2626),
+                                          content: Text(tr('error_profanity')),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    final messenger = ScaffoldMessenger.of(context);
+                                    final nav = Navigator.of(ctx);
+                                    setEditState(() => saving = true);
+
+                                    final res = await ApiService.updateAd(
+                                      adId: ad['id'] as int,
+                                      categorySlug: selectedCategory,
+                                      title: title,
+                                      description: desc,
+                                      price: priceVal,
+                                      originalPrice: origPVal,
+                                      currency: currency,
+                                      location: locationVal,
+                                      phone: phoneController.text.trim(),
+                                      images: images,
+                                    );
+
+                                    setEditState(() => saving = false);
+                                    if (res['success'] == true) {
+                                      nav.pop(true);
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: const Color(0xFF0D9488),
+                                          content: Text(tr('edit_ad_success')),
+                                        ),
+                                      );
+                                    } else {
+                                      final errStr = res['error']?.toString() ?? '';
+                                      final violation = res['violation']?.toString() ?? '';
+                                      String displayError = errStr;
+                                      if (violation == 'NSFW_IMAGE_DETECTED' ||
+                                          errStr.toLowerCase().contains('nudity') ||
+                                          errStr.toLowerCase().contains('adult') ||
+                                          errStr.toLowerCase().contains('erotic') ||
+                                          errStr.toLowerCase().contains('nagość')) {
+                                        displayError = tr('error_nsfw_image');
+                                      } else if (errStr.toLowerCase().contains('prohibited') ||
+                                          errStr.toLowerCase().contains('offensive') ||
+                                          errStr.toLowerCase().contains('niedozwolon') ||
+                                          errStr.toLowerCase().contains('obrażliw')) {
+                                        displayError = tr('error_profanity');
+                                      }
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: const Color(0xFFDC2626),
+                                          content: Text(displayError.isNotEmpty ? displayError : 'Failed to update advertisement.'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: saving
+                                ? const CircularProgressIndicator(color: Colors.white)
+                                : Text(tr('edit_ad_save'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           );
         },
       ),
@@ -1428,6 +1556,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // 5. Account Settings Modal
   void _showAccountSettingsDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final nameController = TextEditingController(text: _user?['name'] ?? '');
     final currentPassController = TextEditingController();
     final newPassController = TextEditingController();
@@ -1442,7 +1571,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => DraggableScrollableSheet(
@@ -1455,17 +1584,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Header
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.settings_outlined, color: Color(0xFF002F34), size: 22),
+                        const Icon(Icons.settings_outlined, color: Color(0xFF0D9488), size: 22),
                         const SizedBox(width: 8),
-                        Text(tr('settings_title'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                        Text(
+                          tr('settings_title'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
                       ],
                     ),
                     IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
@@ -1480,10 +1616,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 40),
                   children: [
                     // Name update
-                    Text(tr('settings_fullname'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                    Text(
+                      tr('settings_fullname'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: nameController,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -1527,7 +1671,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 }
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF002F34),
+                          backgroundColor: isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: savingName
@@ -1537,14 +1681,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
 
                     const SizedBox(height: 24),
-                    const Divider(),
+                    Divider(color: Theme.of(context).dividerColor),
                     const SizedBox(height: 16),
 
                     // Password change
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(tr('settings_change_password'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34))),
+                        Text(
+                          tr('settings_change_password'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
                         TextButton(
                           onPressed: sendingForgot
                               ? null
@@ -1576,8 +1727,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextField(
                       controller: currentPassController,
                       obscureText: obscureCurrent,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         labelText: tr('settings_current_password'),
+                        labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         suffixIcon: IconButton(
@@ -1592,8 +1745,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextField(
                       controller: newPassController,
                       obscureText: obscureNew,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         labelText: tr('settings_new_password'),
+                        labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         suffixIcon: IconButton(
@@ -1608,8 +1763,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextField(
                       controller: confirmPassController,
                       obscureText: obscureConfirm,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         labelText: tr('settings_confirm_password'),
+                        labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         suffixIcon: IconButton(
@@ -1674,12 +1831,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 }
                               },
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF002F34)),
+                          side: BorderSide(color: isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: savingPass
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF002F34)))
-                            : Text(tr('settings_update_password'), style: const TextStyle(color: Color(0xFF002F34), fontWeight: FontWeight.bold)),
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D9488)))
+                            : Text(
+                                tr('settings_update_password'),
+                                style: TextStyle(
+                                  color: isDark ? const Color(0xFF2DD4BF) : const Color(0xFF002F34),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
                   ],
@@ -1694,10 +1857,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // 6. Admin Portal (Owner) Modal
   void _showAdminPortalDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => DefaultTabController(
         length: 3,
@@ -1710,30 +1874,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF0FDF4),
-                  border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF134E4A) : const Color(0xFFF0FDF4),
+                  border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
                 ),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.shield_outlined, color: Color(0xFF0D9488)),
-                            SizedBox(width: 8),
-                            Text('Admin Portal (Owner)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF002F34))),
+                            const Icon(Icons.shield_outlined, color: Color(0xFF0D9488)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Admin Portal (Owner)',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
                           ],
                         ),
                         IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                       ],
                     ),
-                    const TabBar(
-                      labelColor: Color(0xFF002F34),
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Color(0xFF0D9488),
-                      tabs: [
+                    TabBar(
+                      labelColor: isDark ? const Color(0xFF5EEAD4) : const Color(0xFF002F34),
+                      unselectedLabelColor: isDark ? const Color(0xFF94A3B8) : Colors.grey,
+                      indicatorColor: const Color(0xFF0D9488),
+                      tabs: const [
                         Tab(text: 'Overview'),
                         Tab(text: 'Broadcast'),
                         Tab(text: 'Manage Ads'),
@@ -1782,12 +1953,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAdminStatCard(String title, String value, IconData icon, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
@@ -1800,8 +1972,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600)),
-              Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Color(0xFF002F34))),
+              Text(title, style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text(
+                value,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
             ],
           ),
         ],
@@ -1810,6 +1989,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAdminBroadcastTab(BuildContext ctx) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final titleCtrl = TextEditingController();
     final msgCtrl = TextEditingController();
     bool sending = false;
@@ -1820,14 +2000,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Send Notification to All Users', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF002F34))),
+            Text(
+              'Send Notification to All Users',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: 6),
-            const Text('Sends an instant bell notification across Deallyhub.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            Text('Sends an instant bell notification across Deallyhub.', style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12)),
             const SizedBox(height: 16),
             TextField(
               controller: titleCtrl,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 labelText: 'Title',
+                labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
@@ -1835,8 +2024,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             TextField(
               controller: msgCtrl,
               maxLines: 3,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 labelText: 'Message Content',
+                labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),

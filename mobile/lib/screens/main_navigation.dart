@@ -41,10 +41,25 @@ class _MainNavigationState extends State<MainNavigation> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: const Color(0xFF002F34),
+            backgroundColor: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF1E293B)
+                : const Color(0xFF002F34),
             content: Text(
               tr('post_req_auth'),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF334155)
+                    : Colors.transparent,
+              ),
             ),
             duration: const Duration(seconds: 3),
           ),
@@ -63,6 +78,8 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return ListenableBuilder(
       listenable: LanguageController.instance,
       builder: (context, _) {
@@ -89,6 +106,7 @@ class _MainNavigationState extends State<MainNavigation> {
         ];
 
         return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: IndexedStack(
             index: _currentIndex,
             children: screens,
@@ -98,12 +116,12 @@ class _MainNavigationState extends State<MainNavigation> {
             onTap: _handleTabTapped,
             type: BottomNavigationBarType.fixed,
             backgroundColor: Theme.of(context).colorScheme.surface,
-            selectedItemColor: Theme.of(context).brightness == Brightness.dark
+            selectedItemColor: isDark
                 ? const Color(0xFF2DD4BF)
                 : const Color(0xFF002F34),
-            unselectedItemColor: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF64748B)
-                : Colors.grey.shade400,
+            unselectedItemColor: isDark
+                ? const Color(0xFF94A3B8)
+                : Colors.grey.shade500,
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 11),
             items: [
