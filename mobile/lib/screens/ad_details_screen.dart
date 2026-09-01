@@ -138,20 +138,22 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
     final hasPromo = origPrice != null && origPrice > numPrice && numPrice > 0;
     final discountPct = hasPromo ? ((origPrice - numPrice) / origPrice * 100).round() : 0;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF002F34), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onSurface, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
             icon: Icon(
               _isSaved ? Icons.favorite : Icons.favorite_border,
-              color: _isSaved ? Colors.redAccent : const Color(0xFF002F34),
+              color: _isSaved ? Colors.redAccent : Theme.of(context).colorScheme.onSurface,
             ),
             onPressed: _toggleSaved,
           ),
@@ -178,7 +180,7 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                           child: GestureDetector(
                             onTap: () => _openFullScreenGallery(context, images, idx),
                             child: Container(
-                              color: const Color(0xFFF2F4F5),
+                              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF2F4F5),
                               child: AppImage(
                                 imageUrl: images[idx],
                                 fit: BoxFit.contain,
@@ -205,8 +207,8 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                                   height: 6,
                                   decoration: BoxDecoration(
                                     color: currentIndex == i
-                                        ? const Color(0xFF002F34)
-                                        : Colors.black26,
+                                        ? const Color(0xFF0D9488)
+                                        : (isDark ? Colors.white30 : Colors.black26),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 ),
@@ -240,48 +242,48 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                           },
                         ),
                       ),
-                      // Tap to zoom hint badge
-                      Positioned(
-                        bottom: 12,
-                        right: 12,
-                        child: GestureDetector(
-                          onTap: () => _openFullScreenGallery(
-                            context,
-                            images,
-                            _selectedImageNotifier.value,
+                    // Tap to zoom hint badge
+                    Positioned(
+                      bottom: 12,
+                      right: 12,
+                      child: GestureDetector(
+                        onTap: () => _openFullScreenGallery(
+                          context,
+                          images,
+                          _selectedImageNotifier.value,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xB3000000),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.white24, width: 0.8),
                           ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xB3000000),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.white24, width: 0.8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.zoom_in, color: Colors.white, size: 15),
-                                const SizedBox(width: 4),
-                                Text(
-                                  tr('details_zoom_hint'),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.zoom_in, color: Colors.white, size: 15),
+                              const SizedBox(width: 4),
+                              Text(
+                                tr('details_zoom_hint'),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                    ),
                   ],
                 ),
               )
             else
               Container(
                 height: 200,
-                color: const Color(0xFFF2F4F5),
+                color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF2F4F5),
                 child: const Center(
                   child: Icon(Icons.image_outlined, size: 64, color: Colors.grey),
                 ),
@@ -302,12 +304,16 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF002F34),
+                          color: isDark ? const Color(0xFF134E4A) : const Color(0xFF002F34),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           trCat(catSlug, catName),
-                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: isDark ? const Color(0xFF5EEAD4) : Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       );
                     },
@@ -324,7 +330,9 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: hasPromo ? const Color(0xFF16A34A) : const Color(0xFF002F34),
+                          color: hasPromo
+                              ? const Color(0xFF16A34A)
+                              : (isDark ? const Color(0xFF2DD4BF) : const Color(0xFF002F34)),
                         ),
                       ),
                       if (hasPromo) ...[
@@ -366,10 +374,10 @@ class _AdDetailsScreenState extends State<AdDetailsScreen> {
                   // Title
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF002F34),
+                      color: Theme.of(context).colorScheme.onSurface,
                       height: 1.25,
                     ),
                   ),

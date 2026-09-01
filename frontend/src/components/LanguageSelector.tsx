@@ -44,23 +44,23 @@ export default function LanguageSelector({ compact = false }: LanguageSelectorPr
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-[#002f34] hover:text-teal-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer shadow-2xs"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-[#002f34] dark:text-slate-200 hover:text-teal-700 dark:hover:text-teal-400 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-700 transition-colors cursor-pointer shadow-2xs"
         aria-haspopup="true"
         aria-expanded={isOpen}
         title={currentLang.nativeName}
       >
         <span className="text-base leading-none select-none">{currentLang.flag}</span>
         {!compact && (
-          <span className="hidden sm:inline font-medium text-xs text-gray-700 uppercase tracking-wider">
+          <span className="hidden sm:inline font-medium text-xs text-gray-700 dark:text-slate-300 uppercase tracking-wider">
             {currentLang.code}
           </span>
         )}
-        <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+        <ChevronDown className="w-3.5 h-3.5 text-gray-400 dark:text-slate-400" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-          <div className="px-3 py-1.5 border-b border-gray-100 flex items-center gap-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="px-3 py-1.5 border-b border-gray-100 dark:border-slate-700 flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-slate-400 uppercase tracking-wider">
             <Globe className="w-3.5 h-3.5" />
             <span>Select Language</span>
           </div>
@@ -74,18 +74,18 @@ export default function LanguageSelector({ compact = false }: LanguageSelectorPr
                   onClick={() => handleSelect(l.code)}
                   className={`w-full text-left px-3.5 py-2 text-xs sm:text-sm flex items-center justify-between transition-colors cursor-pointer ${
                     isSelected
-                      ? "bg-teal-50 text-teal-800 font-bold"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 font-bold"
+                      : "text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/60"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <span className="text-base leading-none select-none">{l.flag}</span>
                     <div className="flex flex-col">
                       <span className="leading-tight">{l.nativeName}</span>
-                      <span className="text-[10px] text-gray-400 leading-tight">{l.name}</span>
+                      <span className="text-[10px] text-gray-400 dark:text-slate-400 leading-tight">{l.name}</span>
                     </div>
                   </div>
-                  {isSelected && <Check className="w-4 h-4 text-teal-600 shrink-0" />}
+                  {isSelected && <Check className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />}
                 </button>
               );
             })}

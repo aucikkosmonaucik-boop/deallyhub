@@ -376,6 +376,12 @@ class AppTranslations {
       'auth_create_account_title': 'Create Account',
       'auth_create_subtitle': 'Join Deallyhub and start buying and selling locally',
       'lang_picker_title': 'Select Language',
+      'theme_title': 'Appearance',
+      'theme_light': 'Light Mode',
+      'theme_dark': 'Dark Mode',
+      'theme_system': 'System Default',
+      'theme_switch_to_light': 'Switch to Light Mode',
+      'theme_switch_to_dark': 'Switch to Dark Mode',
     },
 
     // French (Francuski)
@@ -518,6 +524,12 @@ class AppTranslations {
       'auth_create_account_title': 'Créer un compte',
       'auth_create_subtitle': 'Rejoignez Deallyhub et vendez localement',
       'lang_picker_title': 'Choisir la langue',
+      'theme_title': 'Apparence',
+      'theme_light': 'Mode clair',
+      'theme_dark': 'Mode sombre',
+      'theme_system': 'Par défaut (système)',
+      'theme_switch_to_light': 'Passer au mode clair',
+      'theme_switch_to_dark': 'Passer au mode sombre',
     },
 
     // Spanish (Hiszpański)
@@ -660,6 +672,12 @@ class AppTranslations {
       'auth_create_account_title': 'Crear cuenta',
       'auth_create_subtitle': 'Únete a Deallyhub y empieza a comprar y vender localmente',
       'lang_picker_title': 'Seleccionar idioma',
+      'theme_title': 'Apariencia',
+      'theme_light': 'Modo claro',
+      'theme_dark': 'Modo oscuro',
+      'theme_system': 'Predeterminado del sistema',
+      'theme_switch_to_light': 'Cambiar a modo claro',
+      'theme_switch_to_dark': 'Cambiar a modo oscuro',
     },
 
     // German (Niemiecki)
@@ -802,6 +820,12 @@ class AppTranslations {
       'auth_create_account_title': 'Konto erstellen',
       'auth_create_subtitle': 'Treten Sie Deallyhub bei und handeln Sie lokal',
       'lang_picker_title': 'Sprache auswählen',
+      'theme_title': 'Erscheinungsbild',
+      'theme_light': 'Heller Modus',
+      'theme_dark': 'Dunkler Modus',
+      'theme_system': 'Systemstandard',
+      'theme_switch_to_light': 'Zu hellem Modus wechseln',
+      'theme_switch_to_dark': 'Zu dunklem Modus wechseln',
     },
 
     // Polish (Polski)
@@ -944,6 +968,12 @@ class AppTranslations {
       'auth_create_account_title': 'Załóż darmowe konto',
       'auth_create_subtitle': 'Dołącz do Deallyhub i kupuj oraz sprzedawaj lokalnie',
       'lang_picker_title': 'Wybierz język',
+      'theme_title': 'Motyw i Wygląd',
+      'theme_light': 'Jasny motyw',
+      'theme_dark': 'Ciemny motyw',
+      'theme_system': 'Zgodny z systemem',
+      'theme_switch_to_light': 'Przełącz na jasny motyw',
+      'theme_switch_to_dark': 'Przełącz na ciemny motyw',
     },
 
     // Italian (Włoski)
@@ -1086,6 +1116,12 @@ class AppTranslations {
       'auth_create_account_title': 'Crea un account',
       'auth_create_subtitle': 'Unisciti a Deallyhub e inizia a vendere localmente',
       'lang_picker_title': 'Seleziona lingua',
+      'theme_title': 'Aspetto',
+      'theme_light': 'Tema chiaro',
+      'theme_dark': 'Tema scuro',
+      'theme_system': 'Predefinito di sistema',
+      'theme_switch_to_light': 'Passa al tema chiaro',
+      'theme_switch_to_dark': 'Passa al tema scuro',
     },
 
     // Greek (Grecki)
@@ -1228,6 +1264,12 @@ class AppTranslations {
       'auth_create_account_title': 'Δημιουργία Λογαριασμού',
       'auth_create_subtitle': 'Γίνετε μέλος του Deallyhub και πουλήστε τοπικά',
       'lang_picker_title': 'Επιλογή Γλώσσας',
+      'theme_title': 'Εμφάνιση',
+      'theme_light': 'Φωτεινό θέμα',
+      'theme_dark': 'Σκοτεινό θέμα',
+      'theme_system': 'Προεπιλογή συστήματος',
+      'theme_switch_to_light': 'Αλλαγή σε φωτεινό θέμα',
+      'theme_switch_to_dark': 'Αλλαγή σε σκοτεινό θέμα',
     },
   };
 

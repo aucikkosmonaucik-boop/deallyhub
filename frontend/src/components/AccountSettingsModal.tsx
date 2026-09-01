@@ -12,10 +12,14 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  ShieldAlert
+  ShieldAlert,
+  Sun,
+  Moon,
+  Monitor
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
+import { useTheme } from "@/context/ThemeContext";
 import { containsProfanity } from "@/lib/contentFilter";
 
 interface UserProfile {
@@ -42,6 +46,7 @@ export default function AccountSettingsModal({
   onAccountDeleted
 }: AccountSettingsModalProps) {
   const { t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<"profile" | "password" | "danger">("profile");
 
   // Profile Form
@@ -213,17 +218,17 @@ export default function AccountSettingsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 w-full max-w-xl h-full sm:h-auto max-h-[100dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-slate-800 w-full max-w-xl h-full sm:h-auto max-h-[100dvh] sm:max-h-[90vh] flex flex-col overflow-hidden relative sm:my-auto transition-colors">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-5">
+        <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-5">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#002f34]">{t("settings.title")}</h2>
-            <p className="text-[11px] sm:text-xs text-gray-500">{t("settings.subtitle")}</p>
+            <h2 className="text-lg sm:text-xl font-bold text-[#002f34] dark:text-white">{t("settings.title")}</h2>
+            <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400">{t("settings.subtitle")}</p>
           </div>
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-[#002f34] p-1.5 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            className="text-gray-400 hover:text-[#002f34] dark:hover:text-white p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -231,13 +236,13 @@ export default function AccountSettingsModal({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 px-4 sm:px-6 bg-gray-50/50 shrink-0">
+        <div className="flex border-b border-gray-200 dark:border-slate-800 px-4 sm:px-6 bg-gray-50/50 dark:bg-slate-800/40 shrink-0">
           <button
             onClick={() => setActiveTab("profile")}
             className={`py-3 sm:py-3.5 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === "profile"
-                ? "border-[#002f34] text-[#002f34]"
-                : "border-transparent text-gray-400 hover:text-gray-600"
+                ? "border-[#002f34] dark:border-teal-400 text-[#002f34] dark:text-teal-300"
+                : "border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-slate-200"
             }`}
           >
             <User className="w-3.5 h-3.5" />
@@ -248,8 +253,8 @@ export default function AccountSettingsModal({
             onClick={() => setActiveTab("password")}
             className={`py-3 sm:py-3.5 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === "password"
-                ? "border-[#002f34] text-[#002f34]"
-                : "border-transparent text-gray-400 hover:text-gray-600"
+                ? "border-[#002f34] dark:border-teal-400 text-[#002f34] dark:text-teal-300"
+                : "border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-slate-200"
             }`}
           >
             <KeyRound className="w-3.5 h-3.5" />
@@ -260,7 +265,7 @@ export default function AccountSettingsModal({
             onClick={() => setActiveTab("danger")}
             className={`py-3 sm:py-3.5 px-3 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeTab === "danger"
-                ? "border-red-600 text-red-600"
+                ? "border-red-600 text-red-600 dark:text-red-400"
                 : "border-transparent text-gray-400 hover:text-red-500"
             }`}
           >
@@ -270,31 +275,31 @@ export default function AccountSettingsModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 text-slate-800 dark:text-slate-200">
           {/* TAB 1: PROFILE */}
           {activeTab === "profile" && (
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               {profileError && (
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
                   <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{profileError}</span>
                 </div>
               )}
 
               {profileSuccess && (
-                <div className="flex items-center gap-2.5 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <div className="flex items-center gap-2.5 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{profileSuccess}</span>
                 </div>
               )}
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider">
                     {t("auth.emailLabel")}
                   </label>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                     <span>{t("common.verified")}</span>
                   </span>
                 </div>
@@ -304,13 +309,13 @@ export default function AccountSettingsModal({
                     type="email"
                     disabled
                     value={currentUser.email}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl text-sm text-gray-500 cursor-not-allowed font-medium"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-gray-500 dark:text-slate-400 cursor-not-allowed font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                   {t("auth.nameLabel")}
                 </label>
                 <div className="relative">
@@ -320,8 +325,55 @@ export default function AccountSettingsModal({
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-medium"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all font-medium"
                   />
+                </div>
+              </div>
+
+              {/* Appearance / Theme Selector */}
+              <div>
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-2">
+                  {t("theme.title", "Appearance / Theme")}
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTheme("light")}
+                    className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      theme === "light"
+                        ? "border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 ring-2 ring-teal-500/20"
+                        : "border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    <Sun className="w-4 h-4 text-amber-500" />
+                    <span>{t("theme.light", "Light")}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTheme("dark")}
+                    className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      theme === "dark"
+                        ? "border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 ring-2 ring-teal-500/20"
+                        : "border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    <Moon className="w-4 h-4 text-indigo-400" />
+                    <span>{t("theme.dark", "Dark")}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTheme("system")}
+                    className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      theme === "system"
+                        ? "border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 ring-2 ring-teal-500/20"
+                        : "border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    <Monitor className="w-4 h-4 text-slate-500" />
+                    <span>{t("theme.system", "System")}</span>
+                  </button>
                 </div>
               </div>
 
@@ -329,7 +381,7 @@ export default function AccountSettingsModal({
                 <button
                   type="submit"
                   disabled={updatingProfile}
-                  className="w-full py-2.5 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="w-full py-2.5 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {updatingProfile ? (
                     <>
@@ -348,21 +400,21 @@ export default function AccountSettingsModal({
           {activeTab === "password" && (
             <form onSubmit={handleChangePassword} className="space-y-4">
               {passError && (
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
                   <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{passError}</span>
                 </div>
               )}
 
               {passSuccess && (
-                <div className="flex items-center gap-2.5 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <div className="flex items-center gap-2.5 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{passSuccess}</span>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                   {t("settings.currentPassword")}
                 </label>
                 <div className="relative">
@@ -373,12 +425,12 @@ export default function AccountSettingsModal({
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder={t("settings.currentPassword")}
-                    className="w-full pl-10 pr-11 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-11 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPass(!showCurrentPass)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 cursor-pointer"
                   >
                     {showCurrentPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -386,7 +438,7 @@ export default function AccountSettingsModal({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                   {t("settings.newPassword")}
                 </label>
                 <div className="relative">
@@ -398,12 +450,12 @@ export default function AccountSettingsModal({
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder={t("auth.passwordPlaceholder")}
-                    className="w-full pl-10 pr-11 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-11 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPass(!showNewPass)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 cursor-pointer"
                   >
                     {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -411,7 +463,7 @@ export default function AccountSettingsModal({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#002f34] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-[#002f34] dark:text-slate-200 uppercase tracking-wider mb-1.5">
                   {t("settings.confirmNewPassword")}
                 </label>
                 <div className="relative">
@@ -423,7 +475,7 @@ export default function AccountSettingsModal({
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder={t("settings.confirmNewPassword")}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                   />
                 </div>
               </div>
@@ -432,7 +484,7 @@ export default function AccountSettingsModal({
                 <button
                   type="submit"
                   disabled={changingPass}
-                  className="w-full py-2.5 bg-[#002f34] hover:bg-[#003e45] text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="w-full py-2.5 bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {changingPass ? (
                     <>
@@ -450,23 +502,23 @@ export default function AccountSettingsModal({
           {/* TAB 3: DANGER ZONE / DELETE ACCOUNT */}
           {activeTab === "danger" && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
+              <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-start gap-3">
                 <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                <div className="text-xs text-red-900 leading-relaxed">
+                <div className="text-xs text-red-900 dark:text-red-200 leading-relaxed">
                   <strong className="font-bold block mb-1">{t("settings.deleteAccount")}</strong>
                   {t("settings.deleteWarning")}
                 </div>
               </div>
 
               {deleteError && (
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs">
                   <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{deleteError}</span>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1.5">
                   {t("settings.deleteConfirmText")}
                 </label>
                 <input
@@ -474,7 +526,7 @@ export default function AccountSettingsModal({
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
                   placeholder='DELETE'
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-bold text-red-600 focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm font-bold text-red-600 dark:text-red-400 focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
                 />
               </div>
 

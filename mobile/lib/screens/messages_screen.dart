@@ -57,13 +57,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
       listenable: LanguageController.instance,
       builder: (context, _) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             title: Text(
               tr('messages_title'),
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             elevation: 0,
           ),
           body: RefreshIndicator(
@@ -85,7 +88,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               ElevatedButton(
                                 onPressed: _fetchConversations,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF002F34),
+                                  backgroundColor: Theme.of(context).brightness == Brightness.dark
+                                      ? const Color(0xFF0D9488)
+                                      : const Color(0xFF002F34),
                                   foregroundColor: Colors.white,
                                 ),
                                 child: Text(tr('common_retry')),
@@ -103,7 +108,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                 const SizedBox(height: 12),
                                 Text(
                                   tr('messages_empty'),
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF002F34)),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -116,7 +125,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           )
                         : ListView.separated(
                             itemCount: _conversations.length,
-                            separatorBuilder: (context, index) => const Divider(height: 1, indent: 80),
+                            separatorBuilder: (context, index) => Divider(
+                              height: 1,
+                              indent: 80,
+                              color: Theme.of(context).dividerColor,
+                            ),
                             itemBuilder: (ctx, idx) {
                               final c = _conversations[idx];
                               final otherName = c['other_user_name'] ?? 'User';
@@ -132,7 +145,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                   child: Container(
                                     width: 52,
                                     height: 52,
-                                    color: Colors.grey.shade100,
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? const Color(0xFF1E293B)
+                                        : Colors.grey.shade100,
                                     child: AppImage(
                                       imageUrl: imgUrl,
                                       fit: BoxFit.cover,
@@ -145,7 +160,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     Expanded(
                                       child: Text(
                                         otherName,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

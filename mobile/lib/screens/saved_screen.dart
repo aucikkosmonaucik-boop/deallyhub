@@ -64,18 +64,21 @@ class _SavedScreenState extends State<SavedScreen> {
       listenable: LanguageController.instance,
       builder: (context, _) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF9FAFB),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             title: ValueListenableBuilder<int>(
               valueListenable: ApiService.savedCountNotifier,
               builder: (context, count, _) {
                 return Text(
                   count > 0 ? '${tr("saved_title")} ($count)' : tr('saved_title'),
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 );
               },
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             elevation: 0,
           ),
           body: RefreshIndicator(
@@ -108,7 +111,11 @@ class _SavedScreenState extends State<SavedScreen> {
                                   const SizedBox(height: 12),
                                   Text(
                                     tr('saved_empty'),
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF002F34)),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
@@ -120,7 +127,9 @@ class _SavedScreenState extends State<SavedScreen> {
                                     ElevatedButton(
                                       onPressed: widget.onGoToAccount,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF002F34),
+                                        backgroundColor: Theme.of(context).brightness == Brightness.dark
+                                            ? const Color(0xFF0D9488)
+                                            : const Color(0xFF002F34),
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       ),
@@ -184,11 +193,11 @@ class _SavedScreenState extends State<SavedScreen> {
                                       margin: const EdgeInsets.only(bottom: 12),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                                        side: BorderSide(color: Theme.of(context).dividerColor),
                                       ),
                                       elevation: 0,
                                       clipBehavior: Clip.antiAlias,
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardColor,
                                       child: InkWell(
                                         onTap: () {
                                           Navigator.push(
@@ -253,7 +262,11 @@ class _SavedScreenState extends State<SavedScreen> {
                                                       title,
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
-                                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002F34)),
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 14,
+                                                        color: Theme.of(context).colorScheme.onSurface,
+                                                      ),
                                                     ),
                                                     const SizedBox(height: 4),
                                                     Row(
@@ -263,7 +276,11 @@ class _SavedScreenState extends State<SavedScreen> {
                                                           style: TextStyle(
                                                             fontWeight: FontWeight.w900,
                                                             fontSize: 13,
-                                                            color: hasPromo ? const Color(0xFF16A34A) : const Color(0xFF0D9488),
+                                                            color: hasPromo
+                                                                ? const Color(0xFF16A34A)
+                                                                : (Theme.of(context).brightness == Brightness.dark
+                                                                    ? const Color(0xFF2DD4BF)
+                                                                    : const Color(0xFF0D9488)),
                                                           ),
                                                         ),
                                                         if (hasPromo) ...[

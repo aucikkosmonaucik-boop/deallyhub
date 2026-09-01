@@ -97,9 +97,13 @@ class _MainNavigationState extends State<MainNavigation> {
             currentIndex: _currentIndex,
             onTap: _handleTabTapped,
             type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
-            selectedItemColor: const Color(0xFF002F34),
-            unselectedItemColor: Colors.grey.shade400,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            selectedItemColor: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF2DD4BF)
+                : const Color(0xFF002F34),
+            unselectedItemColor: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF64748B)
+                : Colors.grey.shade400,
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 11),
             items: [

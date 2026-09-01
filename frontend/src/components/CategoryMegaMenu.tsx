@@ -213,14 +213,14 @@ function CategoryMegaMenuComponent({
       {/* Mega Menu Modal Container */}
       <div
         ref={menuRef}
-        className="relative z-10 w-full max-w-6xl bg-white rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 overflow-hidden flex flex-col h-full sm:h-auto sm:max-h-[90vh] md:max-h-[85vh] animate-in zoom-in-[0.98] slide-in-from-bottom-2 sm:slide-in-from-top-2 duration-200"
+        className="relative z-10 w-full max-w-6xl bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-800 overflow-hidden flex flex-col h-full sm:h-auto sm:max-h-[90vh] md:max-h-[85vh] animate-in zoom-in-[0.98] slide-in-from-bottom-2 sm:slide-in-from-top-2 duration-200 transition-colors"
         style={{
           transform: "translate3d(0, 0, 0)",
           willChange: "transform, opacity"
         }}
       >
         {/* Top Header Bar */}
-        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#002f34] via-[#00383e] to-[#00424a] text-white border-b border-teal-900 shrink-0">
+        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#002f34] via-[#00383e] to-[#00424a] dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 text-white border-b border-teal-900 dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* On mobile, show back button when viewing subcategories */}
             <div className="md:hidden flex items-center">
@@ -247,7 +247,7 @@ function CategoryMegaMenuComponent({
 
             <h2 className="text-sm sm:text-base md:text-lg font-extrabold tracking-tight truncate flex items-center gap-2">
               <span>{t("nav.allCategories", "Kategorie")}</span>
-              <span className="text-[11px] sm:text-xs bg-teal-600/70 font-semibold px-2 py-0.5 rounded-full text-teal-100 shrink-0">
+              <span className="text-[11px] sm:text-xs bg-teal-600/70 dark:bg-teal-900/70 font-semibold px-2 py-0.5 rounded-full text-teal-100 shrink-0">
                 {categories.length}
               </span>
             </h2>
@@ -281,34 +281,34 @@ function CategoryMegaMenuComponent({
         </div>
 
         {/* Main Body: Desktop 2-Column Split View OR Mobile Drilldown */}
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden divide-y md:divide-y-0 md:divide-x divide-gray-200 min-h-0 bg-white">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-slate-800 min-h-0 bg-white dark:bg-slate-900">
           
           {/* ========================================================
               LEFT COLUMN: Categories List
               (Shown on desktop always; on mobile only when mobileView === "categories")
              ======================================================== */}
           <div
-            className={`w-full md:w-72 lg:w-80 bg-gray-50 flex-col shrink-0 overflow-y-auto ${
+            className={`w-full md:w-72 lg:w-80 bg-gray-50 dark:bg-slate-950 flex-col shrink-0 overflow-y-auto ${
               mobileView === "categories" ? "flex flex-1 md:flex-initial" : "hidden md:flex"
             }`}
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {/* Search Filter Header */}
-            <div className="p-2.5 sm:p-3 bg-white border-b border-gray-200 sticky top-0 z-10 shadow-2xs">
+            <div className="p-2.5 sm:p-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 sticky top-0 z-10 shadow-2xs">
               <div className="relative flex items-center">
-                <Search className="w-4 h-4 text-gray-500 absolute left-3 pointer-events-none stroke-[2.5]" />
+                <Search className="w-4 h-4 text-gray-500 dark:text-slate-400 absolute left-3 pointer-events-none stroke-[2.5]" />
                 <input
                   type="text"
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
                   placeholder={t("category.searchPlaceholder", "Filtruj kategorie...")}
-                  className="w-full text-xs sm:text-sm pl-9 pr-7 py-2 bg-gray-100/90 rounded-xl border border-gray-200 focus:border-teal-600 focus:bg-white text-gray-900 placeholder-gray-500 outline-none transition-all font-semibold"
+                  className="w-full text-xs sm:text-sm pl-9 pr-7 py-2 bg-gray-100/90 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 focus:border-teal-600 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 outline-none transition-all font-semibold"
                 />
                 {searchFilter && (
                   <button
                     type="button"
                     onClick={() => setSearchFilter("")}
-                    className="absolute right-2 text-xs font-bold text-gray-500 hover:text-gray-900 p-1 cursor-pointer"
+                    className="absolute right-2 text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white p-1 cursor-pointer"
                     aria-label="Clear filter"
                   >
                     ✕
@@ -327,8 +327,8 @@ function CategoryMegaMenuComponent({
                 }}
                 className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-between border ${
                   !activeCategory
-                    ? "bg-teal-700 text-white border-teal-800 shadow-xs"
-                    : "bg-white text-gray-900 border-gray-200 hover:bg-gray-100"
+                    ? "bg-teal-700 dark:bg-teal-600 text-white border-teal-800 dark:border-teal-500 shadow-xs"
+                    : "bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-800 hover:bg-gray-100 dark:hover:bg-slate-800"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -340,7 +340,7 @@ function CategoryMegaMenuComponent({
             </div>
 
             {/* List of 25 DB Categories */}
-            <div className="divide-y divide-gray-100 py-1 flex-1">
+            <div className="divide-y divide-gray-100 dark:divide-slate-800/80 py-1 flex-1">
               {filteredCategories.map((cat) => {
                 const IconComponent = ICON_MAP[cat.icon] || Sparkles;
                 const isSelected = selectedSlug === cat.slug;
@@ -358,10 +358,10 @@ function CategoryMegaMenuComponent({
                         setMobileView("subcategories");
                       }
                     }}
-                    className={`w-full text-left px-3.5 sm:px-4 py-3 sm:py-2.5 flex items-center justify-between text-[13px] sm:text-sm transition-colors cursor-pointer group active:bg-gray-200/80 ${
+                    className={`w-full text-left px-3.5 sm:px-4 py-3 sm:py-2.5 flex items-center justify-between text-[13px] sm:text-sm transition-colors cursor-pointer group active:bg-gray-200/80 dark:active:bg-slate-800 ${
                       isSelected
-                        ? "bg-white text-teal-950 shadow-xs md:border-l-4 md:border-teal-600 font-extrabold"
-                        : "text-gray-900 font-bold hover:bg-gray-100/90 hover:text-teal-900"
+                        ? "bg-white dark:bg-slate-900 text-teal-950 dark:text-teal-300 shadow-xs md:border-l-4 md:border-teal-600 font-extrabold"
+                        : "text-gray-900 dark:text-slate-200 font-bold hover:bg-gray-100/90 dark:hover:bg-slate-800/80 hover:text-teal-900 dark:hover:text-teal-300"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -370,8 +370,8 @@ function CategoryMegaMenuComponent({
                           isSelected
                             ? "bg-teal-600 text-white scale-105 shadow-xs"
                             : isCurrentActive
-                            ? "bg-teal-100 text-teal-900 font-black"
-                            : "bg-gray-200 text-gray-700 group-hover:bg-teal-100 group-hover:text-teal-800"
+                            ? "bg-teal-100 dark:bg-teal-950/80 text-teal-900 dark:text-teal-300 font-black"
+                            : "bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 group-hover:bg-teal-100 dark:group-hover:bg-slate-700 group-hover:text-teal-800 dark:group-hover:text-teal-300"
                         }`}
                       >
                         <IconComponent className="w-4 h-4 stroke-[2.5]" />
@@ -385,7 +385,7 @@ function CategoryMegaMenuComponent({
                       )}
                       <ChevronRight
                         className={`w-4 h-4 shrink-0 transition-transform stroke-[2.5] ${
-                          isSelected ? "text-teal-600 translate-x-0.5" : "text-gray-400 group-hover:text-gray-700"
+                          isSelected ? "text-teal-600 dark:text-teal-400 translate-x-0.5" : "text-gray-400 dark:text-slate-500 group-hover:text-gray-700 dark:group-hover:text-slate-300"
                         }`}
                       />
                     </div>
@@ -394,8 +394,8 @@ function CategoryMegaMenuComponent({
               })}
 
               {filteredCategories.length === 0 && (
-                <div className="p-6 text-center text-xs text-gray-500">
-                  <p className="font-bold text-gray-700 mb-1 text-sm">
+                <div className="p-6 text-center text-xs text-gray-500 dark:text-slate-400">
+                  <p className="font-bold text-gray-700 dark:text-slate-200 mb-1 text-sm">
                     {t("category.noMatch", "Nie znaleziono kategorii")}
                   </p>
                   <p>{t("hero.searchPlaceholder", "Spróbuj wpisać inną frazę")}</p>
@@ -410,7 +410,7 @@ function CategoryMegaMenuComponent({
              ======================================================== */}
           <div
             ref={rightPanelRef}
-            className={`flex-1 bg-white flex-col overflow-y-auto p-4 sm:p-6 ${
+            className={`flex-1 bg-white dark:bg-slate-900 flex-col overflow-y-auto p-4 sm:p-6 ${
               mobileView === "subcategories" ? "flex flex-1" : "hidden md:flex"
             }`}
             style={{
@@ -421,16 +421,16 @@ function CategoryMegaMenuComponent({
             {currentCategory && (
               <>
                 {/* Active Category Header Banner with "View all in category" CTA */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-gray-200 gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-gray-200 dark:border-slate-800 gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 flex items-center justify-center shrink-0 shadow-2xs">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800 flex items-center justify-center shrink-0 shadow-2xs">
                       <IconHeaderComp className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-base sm:text-xl font-black text-gray-950 tracking-tight truncate">
+                      <h3 className="text-base sm:text-xl font-black text-gray-950 dark:text-white tracking-tight truncate">
                         {getCategoryName(currentCategory.slug, currentCategory.name)}
                       </h3>
-                      <p className="text-xs font-medium text-gray-500 truncate">
+                      <p className="text-xs font-medium text-gray-500 dark:text-slate-400 truncate">
                         {t("category.exploreSubtitle", "Przeglądaj podkategorie i oferty")}
                       </p>
                     </div>
@@ -443,7 +443,7 @@ function CategoryMegaMenuComponent({
                       onSelectCategory(currentCategory.slug);
                       onClose();
                     }}
-                    className="inline-flex items-center justify-center gap-2 bg-[#002f34] hover:bg-teal-700 active:bg-[#001e22] text-white px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
+                    className="inline-flex items-center justify-center gap-2 bg-[#002f34] dark:bg-teal-600 hover:bg-teal-700 dark:hover:bg-teal-500 active:bg-[#001e22] text-white px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
                   >
                     <span>
                       {t("category.viewAllIn", "Wszystkie w")} {getCategoryName(currentCategory.slug, currentCategory.name)}
@@ -456,9 +456,9 @@ function CategoryMegaMenuComponent({
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 py-2">
                   {currentDetails && currentDetails.groups && currentDetails.groups.length > 0 ? (
                     currentDetails.groups.map((group, gIdx) => (
-                      <div key={gIdx} className="space-y-2 bg-gray-50/70 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-gray-200">
+                      <div key={gIdx} className="space-y-2 bg-gray-50/70 dark:bg-slate-800/50 sm:bg-transparent dark:sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-gray-200 dark:border-slate-800">
                         {/* Subcategory Group Header */}
-                        <h4 className="text-[12px] sm:text-[13px] font-black text-gray-950 uppercase tracking-wide border-b border-gray-200 pb-1.5 flex items-center gap-1.5">
+                        <h4 className="text-[12px] sm:text-[13px] font-black text-gray-950 dark:text-white uppercase tracking-wide border-b border-gray-200 dark:border-slate-800 pb-1.5 flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-teal-600 shrink-0" />
                           <span className="truncate">{getTranslated(group.title, "Grupa")}</span>
                         </h4>
@@ -475,9 +475,9 @@ function CategoryMegaMenuComponent({
                                     onSelectCategory(currentCategory.slug, item.query || itemName);
                                     onClose();
                                   }}
-                                  className="w-full text-left py-1.5 sm:py-1 px-1 rounded-lg text-gray-800 hover:text-teal-900 hover:bg-teal-50/80 sm:hover:bg-teal-50/50 font-semibold hover:font-bold hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5 cursor-pointer group active:scale-[0.99]"
+                                  className="w-full text-left py-1.5 sm:py-1 px-1 rounded-lg text-gray-800 dark:text-slate-300 hover:text-teal-900 dark:hover:text-teal-300 hover:bg-teal-50/80 dark:hover:bg-slate-800 sm:hover:bg-teal-50/50 dark:sm:hover:bg-slate-800/50 font-semibold hover:font-bold hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5 cursor-pointer group active:scale-[0.99]"
                                 >
-                                  <span className="text-teal-600 font-bold group-hover:text-teal-800 transition-colors">›</span>
+                                  <span className="text-teal-600 dark:text-teal-400 font-bold group-hover:text-teal-800 transition-colors">›</span>
                                   <span className="truncate">{itemName}</span>
                                 </button>
                               </li>
@@ -488,11 +488,11 @@ function CategoryMegaMenuComponent({
                     ))
                   ) : (
                     /* Fallback when category has direct items */
-                    <div className="col-span-full py-8 text-center bg-gray-50 rounded-2xl border border-gray-200 p-6">
-                      <p className="text-base font-extrabold text-gray-900 mb-2">
+                    <div className="col-span-full py-8 text-center bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-200 dark:border-slate-800 p-6">
+                      <p className="text-base font-extrabold text-gray-900 dark:text-white mb-2">
                         {getCategoryName(currentCategory.slug, currentCategory.name)}
                       </p>
-                      <p className="text-xs sm:text-sm font-medium text-gray-600 mb-4">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400 mb-4">
                         {t("category.noSpecificSub", "Przeglądaj wszystkie ogłoszenia w tej kategorii z bazy danych.")}
                       </p>
                       <button
@@ -511,10 +511,10 @@ function CategoryMegaMenuComponent({
 
                 {/* Popular Tags / Brands Footer inside Category Panel */}
                 {popularTags.length > 0 && (
-                  <div className="mt-6 pt-4 border-t border-gray-200">
+                  <div className="mt-6 pt-4 border-t border-gray-200 dark:border-slate-800">
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      <span className="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-1">
-                        <Tag className="w-3.5 h-3.5 text-teal-600 stroke-[2.5]" />
+                      <span className="text-xs font-black text-gray-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-1">
+                        <Tag className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 stroke-[2.5]" />
                         <span>{t("category.popularTags", "Popularne:")}</span>
                       </span>
                       {popularTags.map((tag, tIdx) => (
@@ -525,7 +525,7 @@ function CategoryMegaMenuComponent({
                             onSelectCategory(currentCategory.slug, tag);
                             onClose();
                           }}
-                          className="text-xs font-bold bg-gray-100 hover:bg-teal-50 hover:text-teal-900 text-gray-800 px-3 py-1.5 rounded-lg transition-colors cursor-pointer active:scale-95 border border-gray-300"
+                          className="text-xs font-bold bg-gray-100 dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-slate-700 hover:text-teal-900 dark:hover:text-teal-300 text-gray-800 dark:text-slate-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer active:scale-95 border border-gray-300 dark:border-slate-700"
                         >
                           {tag}
                         </button>
@@ -539,7 +539,7 @@ function CategoryMegaMenuComponent({
         </div>
 
         {/* Bottom Footer Bar with Quick Actions */}
-        <div className="px-3.5 sm:px-6 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500 shrink-0">
+        <div className="px-3.5 sm:px-6 py-2.5 sm:py-3 bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 shrink-0">
           <span className="hidden md:inline">
             {t("category.footerHint", "Wybierz kategorię lub kliknij podkategorię, aby szybko przefiltrować oferty.")}
           </span>
@@ -550,14 +550,14 @@ function CategoryMegaMenuComponent({
                 onSelectCategory(null);
                 onClose();
               }}
-              className="text-teal-700 font-bold hover:underline cursor-pointer px-2 py-1 text-xs"
+              className="text-teal-700 dark:text-teal-400 font-bold hover:underline cursor-pointer px-2 py-1 text-xs"
             >
               {t("feed.filterAll", "Wszystkie kategorie (Wyczyść filtr)")}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-200 hover:bg-gray-300 text-[#002f34] font-bold px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer active:scale-95 text-xs"
+              className="bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 dark:hover:bg-slate-700 text-[#002f34] dark:text-slate-200 font-bold px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer active:scale-95 text-xs"
             >
               {t("common.close", "Zamknij")}
             </button>

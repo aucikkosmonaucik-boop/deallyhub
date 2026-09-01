@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../api/api_service.dart';
 import '../l10n/app_translations.dart';
 import '../l10n/language_controller.dart';
+import '../theme/theme_controller.dart';
 import '../widgets/app_image.dart';
 import '../widgets/language_picker_dialog.dart';
 import '../utils/content_filter.dart';
@@ -1927,30 +1928,160 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _showThemePickerDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return ListenableBuilder(
+          listenable: ThemeController.instance,
+          builder: (context, _) {
+            final currentMode = ThemeController.instance.themeMode;
+            return AlertDialog(
+              backgroundColor: Theme.of(context).cardColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  const Icon(Icons.palette_outlined, color: Color(0xFF0D9488)),
+                  const SizedBox(width: 8),
+                  Text(
+                    tr('theme_title'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    tileColor: currentMode == ThemeMode.light
+                        ? (Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF134E4A)
+                            : const Color(0xFFF0FDFA))
+                        : null,
+                    leading: const Icon(Icons.light_mode_rounded, color: Color(0xFFF59E0B)),
+                    title: Text(
+                      tr('theme_light'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    trailing: currentMode == ThemeMode.light
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF0D9488))
+                        : const Icon(Icons.circle_outlined, color: Colors.grey),
+                    onTap: () {
+                      ThemeController.instance.setThemeMode(ThemeMode.light);
+                      Navigator.pop(ctx);
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    tileColor: currentMode == ThemeMode.dark
+                        ? (Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF134E4A)
+                            : const Color(0xFFF0FDFA))
+                        : null,
+                    leading: const Icon(Icons.dark_mode_rounded, color: Color(0xFF6366F1)),
+                    title: Text(
+                      tr('theme_dark'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    trailing: currentMode == ThemeMode.dark
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF0D9488))
+                        : const Icon(Icons.circle_outlined, color: Colors.grey),
+                    onTap: () {
+                      ThemeController.instance.setThemeMode(ThemeMode.dark);
+                      Navigator.pop(ctx);
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  ListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    tileColor: currentMode == ThemeMode.system
+                        ? (Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF134E4A)
+                            : const Color(0xFFF0FDFA))
+                        : null,
+                    leading: const Icon(Icons.settings_brightness_rounded, color: Colors.grey),
+                    title: Text(
+                      tr('theme_system'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    trailing: currentMode == ThemeMode.system
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF0D9488))
+                        : const Icon(Icons.circle_outlined, color: Colors.grey),
+                    onTap: () {
+                      ThemeController.instance.setThemeMode(ThemeMode.system);
+                      Navigator.pop(ctx);
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(tr('common_close')),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF0D9488))),
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488))),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           _user != null ? tr('profile_title') : (_isLogin ? tr('profile_sign_in') : tr('profile_create_account')),
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
         ),
         actions: [
+          // Theme Toggle Action Button
           IconButton(
-            icon: const Icon(Icons.language_rounded, color: Color(0xFF002F34), size: 22),
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode_rounded
+                  : Icons.dark_mode_rounded,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFFFBBF24)
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 22,
+            ),
+            tooltip: Theme.of(context).brightness == Brightness.dark
+                ? tr('theme_switch_to_light')
+                : tr('theme_switch_to_dark'),
+            onPressed: () => ThemeController.instance.toggleTheme(context),
+          ),
+          IconButton(
+            icon: Icon(Icons.language_rounded, color: Theme.of(context).colorScheme.onSurface, size: 22),
             tooltip: tr('lang_picker_title'),
             onPressed: () => LanguagePickerDialog.show(context),
           ),
         ],
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
       ),
       body: _user != null ? _buildProfileView() : _buildAuthForm(),
@@ -1966,13 +2097,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        // 1. Signed in as Header Card (Matches Screenshot media_1788016230579.png)
+        // 1. Signed in as Header Card
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: Theme.of(context).dividerColor),
             boxShadow: const [
               BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
             ],
@@ -1991,13 +2122,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFCCFBF1),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF134E4A)
+                            : const Color(0xFFCCFBF1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         tr('profile_owner_admin'),
-                        style: const TextStyle(
-                          color: Color(0xFF0F766E),
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF5EEAD4)
+                              : const Color(0xFF0F766E),
                           fontWeight: FontWeight.w900,
                           fontSize: 10,
                           letterSpacing: 0.5,
@@ -2024,10 +2159,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF002F34),
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -2046,19 +2181,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         const SizedBox(height: 20),
 
-        // 2. Options Menu Card (Matches the items from the web screenshot)
+        // 2. Options Menu Card
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Column(
             children: [
               // 1. Notifications
               ListTile(
                 leading: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0D9488)),
-                title: Text(tr('profile_notifications'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(
+                  tr('profile_notifications'),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
+                ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -2079,7 +2217,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 2. Messages
               ListTile(
                 leading: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF0D9488)),
-                title: Text(tr('nav_messages'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(
+                  tr('nav_messages'),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
                 onTap: () => widget.onNavigateTab?.call(3),
               ),
@@ -2088,7 +2229,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 3. My Advertisements
               ListTile(
                 leading: const Icon(Icons.description_outlined, color: Colors.blueGrey),
-                title: Text(tr('profile_my_ads'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(
+                  tr('profile_my_ads'),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
                 onTap: _showMyAdsDialog,
               ),
@@ -2102,7 +2246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   builder: (context, count, _) {
                     return Text(
                       '${tr("profile_saved_items")} ($count)',
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34)),
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
                     );
                   },
                 ),
@@ -2111,10 +2255,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const Divider(height: 1, indent: 56),
 
-              // 5. Language Selector Tile
+              // 5. Theme / Appearance Tile
+              ListTile(
+                leading: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode_rounded
+                      : Icons.dark_mode_rounded,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFFFBBF24)
+                      : const Color(0xFF0D9488),
+                ),
+                title: Text(
+                  tr('theme_title'),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      ThemeController.instance.themeMode == ThemeMode.system
+                          ? tr('theme_system')
+                          : (ThemeController.instance.themeMode == ThemeMode.dark
+                              ? tr('theme_dark')
+                              : tr('theme_light')),
+                      style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+                  ],
+                ),
+                onTap: _showThemePickerDialog,
+              ),
+              const Divider(height: 1, indent: 56),
+
+              // 6. Language Selector Tile
               ListTile(
                 leading: const Icon(Icons.language_rounded, color: Color(0xFF0D9488)),
-                title: Text(tr('profile_language'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(
+                  tr('profile_language'),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
+                ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -2133,24 +2313,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const Divider(height: 1, indent: 56),
 
-              // 6. Account Settings
+              // 7. Account Settings
               ListTile(
                 leading: const Icon(Icons.settings_outlined, color: Colors.grey),
-                title: Text(tr('profile_account_settings'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF002F34))),
+                title: Text(
+                  tr('profile_account_settings'),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
                 onTap: _showAccountSettingsDialog,
               ),
 
-              // 7. Admin Portal (Owner) - Only visible if admin!
+              // 8. Admin Portal (Owner) - Only visible if admin!
               if (isAdmin) ...[
                 const Divider(height: 1),
                 Container(
-                  color: const Color(0xFFF0FDF4),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF064E3B)
+                      : const Color(0xFFF0FDF4),
                   child: ListTile(
                     leading: const Icon(Icons.shield_outlined, color: Color(0xFF0D9488)),
                     title: const Text(
                       'Admin Portal (Owner)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF002F34)),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0D9488)),
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF0D9488)),
                     onTap: _showAdminPortalDialog,
@@ -2160,7 +2345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const Divider(height: 1),
 
-              // 8. Log Out
+              // 9. Log Out
               ListTile(
                 leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
                 title: Text(
@@ -2177,6 +2362,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAuthForm() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -2188,7 +2374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -2199,7 +2385,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: _isLogin ? Colors.white : Colors.transparent,
+                          color: _isLogin
+                              ? (isDark ? const Color(0xFF0F172A) : Colors.white)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: _isLogin ? const [BoxShadow(color: Colors.black12, blurRadius: 4)] : null,
                         ),
@@ -2208,7 +2396,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             tr('profile_sign_in'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: _isLogin ? const Color(0xFF002F34) : Colors.grey,
+                              color: _isLogin
+                                  ? (isDark ? const Color(0xFF2DD4BF) : const Color(0xFF002F34))
+                                  : Colors.grey,
                             ),
                           ),
                         ),
@@ -2221,7 +2411,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: !_isLogin ? Colors.white : Colors.transparent,
+                          color: !_isLogin
+                              ? (isDark ? const Color(0xFF0F172A) : Colors.white)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: !_isLogin ? const [BoxShadow(color: Colors.black12, blurRadius: 4)] : null,
                         ),
@@ -2230,7 +2422,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             tr('profile_create_account'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: !_isLogin ? const Color(0xFF002F34) : Colors.grey,
+                              color: !_isLogin
+                                  ? (isDark ? const Color(0xFF2DD4BF) : const Color(0xFF002F34))
+                                  : Colors.grey,
                             ),
                           ),
                         ),
@@ -2247,25 +2441,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
+                  color: isDark ? const Color(0xFF450A0A) : Colors.red.shade50,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
+                  border: Border.all(color: isDark ? const Color(0xFF991B1B) : Colors.red.shade200),
                 ),
                 child: Text(
                   _authError!,
-                  style: TextStyle(color: Colors.red.shade800, fontSize: 13),
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFFFCA5A5) : Colors.red.shade800,
+                    fontSize: 13,
+                  ),
                 ),
               ),
 
             if (!_isLogin) ...[
-              Text(tr('auth_full_name'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+              Text(
+                tr('auth_full_name'),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
               const SizedBox(height: 6),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'e.g. John Doe',
                   filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                  fillColor: Theme.of(context).cardColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                  ),
                 ),
                 validator: (val) => val == null || val.trim().isEmpty ? 'Name is required' : null,
                 onSaved: (val) => _name = val?.trim() ?? '',
@@ -2273,30 +2484,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
             ],
 
-            Text(tr('auth_email'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+            Text(
+              tr('auth_email'),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: 6),
             TextFormField(
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 hintText: 'name@example.com',
                 filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                fillColor: Theme.of(context).cardColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                ),
               ),
               validator: (val) => val == null || !val.contains('@') ? 'Valid email required' : null,
               onSaved: (val) => _email = val?.trim() ?? '',
             ),
             const SizedBox(height: 16),
 
-            Text(tr('auth_password'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+            Text(
+              tr('auth_password'),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: 6),
             TextFormField(
               obscureText: true,
               decoration: InputDecoration(
                 hintText: '••••••••',
                 filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                fillColor: Theme.of(context).cardColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                ),
               ),
               validator: (val) => val == null || val.length < 6 ? 'At least 6 characters' : null,
               onSaved: (val) => _password = val?.trim() ?? '',
@@ -2329,7 +2568,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ElevatedButton(
                 onPressed: _authSubmitting ? null : _handleAuth,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF002F34),
+                  backgroundColor: isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -2365,7 +2604,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Divider
             Row(
               children: [
-                Expanded(child: Divider(color: Colors.grey.shade300)),
+                Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
@@ -2378,7 +2617,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                Expanded(child: Divider(color: Colors.grey.shade300)),
+                Expanded(child: Divider(color: Theme.of(context).dividerColor)),
               ],
             ),
 
@@ -2391,8 +2630,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: OutlinedButton(
                 onPressed: (_authSubmitting || _googleSubmitting || _fbSubmitting) ? null : _handleGoogleSignIn,
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: BorderSide(color: Colors.grey.shade300),
+                  backgroundColor: Theme.of(context).cardColor,
+                  side: BorderSide(color: Theme.of(context).dividerColor),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
@@ -2400,7 +2639,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF002F34)),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D9488)),
                       )
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -2416,8 +2655,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(width: 10),
                           Text(
                             tr('auth_google'),
-                            style: const TextStyle(
-                              color: Color(0xFF002F34),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),

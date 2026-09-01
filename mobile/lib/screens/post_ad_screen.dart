@@ -250,23 +250,28 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_checkingAuth) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF0D9488))),
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488))),
       );
     }
 
     // If user is not logged in, enforce registration requirement
     if (!_isLoggedIn) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           title: Text(
             tr('post_title'),
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
         ),
         body: Center(
@@ -278,19 +283,19 @@ class _PostAdScreenState extends State<PostAdScreen> {
                 Container(
                   width: 80,
                   height: 80,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF0FDFA),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF134E4A) : const Color(0xFFF0FDFA),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.lock_outline, size: 40, color: Color(0xFF0D9488)),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Registration Required',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF002F34),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -303,17 +308,16 @@ class _PostAdScreenState extends State<PostAdScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 48,
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     onPressed: () => widget.onGoToAccount?.call(),
-                    icon: const Icon(Icons.login),
-                    label: const Text(
-                      'Go to Account (Sign In / Register)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF002F34),
+                      backgroundColor: isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text(
+                      'Go to Account (Sign In / Register)',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                   ),
                 ),
@@ -334,13 +338,16 @@ class _PostAdScreenState extends State<PostAdScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           tr('post_title'),
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002F34)),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
       ),
       body: _loadingCategories
@@ -352,7 +359,14 @@ class _PostAdScreenState extends State<PostAdScreen> {
                 padding: const EdgeInsets.all(20),
                 children: [
                   // Category Dropdown
-                  Text('${tr("post_category")} *', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF002F34))),
+                  Text(
+                    '${tr("post_category")} *',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     initialValue: _categories.any((c) => c['slug'] == _categorySlug)

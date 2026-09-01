@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/language_controller.dart';
+import 'theme/theme_controller.dart';
+import 'theme/app_theme.dart';
 import 'screens/main_navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LanguageController.instance.init();
+  await ThemeController.instance.init();
   runApp(const DeallyhubApp());
 }
 
@@ -15,7 +18,10 @@ class DeallyhubApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: LanguageController.instance,
+      listenable: Listenable.merge([
+        LanguageController.instance,
+        ThemeController.instance,
+      ]),
       builder: (context, _) {
         return MaterialApp(
           title: 'Deally',
@@ -35,19 +41,13 @@ class DeallyhubApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          theme: ThemeData(
-            useMaterial3: true,
-            fontFamily: 'Roboto',
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF002F34),
-              primary: const Color(0xFF002F34),
-              secondary: const Color(0xFF0D9488),
-            ),
-            scaffoldBackgroundColor: const Color(0xFFF9FAFB),
-          ),
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeController.instance.themeMode,
           home: const MainNavigation(),
         );
       },
     );
   }
 }
+

@@ -4,9 +4,10 @@ import '../l10n/language_controller.dart';
 
 class LanguagePickerDialog {
   static void show(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -31,10 +32,10 @@ class LanguagePickerDialog {
                           const SizedBox(width: 10),
                           Text(
                             tr('lang_picker_title', 'Select Language'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF002F34),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -64,7 +65,9 @@ class LanguagePickerDialog {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFF0FDFA) : const Color(0xFFF3F4F6),
+                            color: isSelected
+                                ? (isDark ? const Color(0xFF134E4A) : const Color(0xFFF0FDFA))
+                                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6)),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isSelected ? const Color(0xFF0D9488) : Colors.transparent,
@@ -80,7 +83,7 @@ class LanguagePickerDialog {
                           lang['native'] ?? '',
                           style: TextStyle(
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                            color: isSelected ? const Color(0xFF0D9488) : const Color(0xFF002F34),
+                            color: isSelected ? const Color(0xFF0D9488) : Theme.of(context).colorScheme.onSurface,
                             fontSize: 15,
                           ),
                         ),
