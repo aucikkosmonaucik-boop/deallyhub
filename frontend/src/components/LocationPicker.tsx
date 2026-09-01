@@ -39,30 +39,6 @@ function CountryFlag({ code, className = "w-4 h-3" }: { code: string; className?
           <rect y="7.34" width="16" height="3.67" fill="#FFCE00" />
         </svg>
       );
-    case "FR":
-      return (
-        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
-          <rect width="5.33" height="11" fill="#002395" />
-          <rect x="5.33" width="5.33" height="11" fill="#FFFFFF" />
-          <rect x="10.66" width="5.34" height="11" fill="#ED2939" />
-        </svg>
-      );
-    case "ES":
-      return (
-        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
-          <rect width="16" height="2.75" fill="#AA151B" />
-          <rect y="2.75" width="16" height="5.5" fill="#F1BF00" />
-          <rect y="8.25" width="16" height="2.75" fill="#AA151B" />
-        </svg>
-      );
-    case "IT":
-      return (
-        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
-          <rect width="5.33" height="11" fill="#009246" />
-          <rect x="5.33" width="5.33" height="11" fill="#FFFFFF" />
-          <rect x="10.66" width="5.34" height="11" fill="#CE2B37" />
-        </svg>
-      );
     case "GB":
       return (
         <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
@@ -73,19 +49,6 @@ function CountryFlag({ code, className = "w-4 h-3" }: { code: string; className?
           <path d="M8,0 V11 M0,5.5 H16" stroke="#C8102E" strokeWidth="2" />
         </svg>
       );
-    case "GR":
-      return (
-        <svg viewBox="0 0 16 11" className={`rounded-[2px] shadow-2xs shrink-0 overflow-hidden ${className}`}>
-          <rect width="16" height="11" fill="#0D5EAF" />
-          <rect y="1.22" width="16" height="1.22" fill="#FFFFFF" />
-          <rect y="3.66" width="16" height="1.22" fill="#FFFFFF" />
-          <rect y="6.1" width="16" height="1.22" fill="#FFFFFF" />
-          <rect y="8.54" width="16" height="1.22" fill="#FFFFFF" />
-          <rect width="6" height="6" fill="#0D5EAF" />
-          <rect x="2.4" width="1.2" height="6" fill="#FFFFFF" />
-          <rect y="2.4" width="6" height="1.2" fill="#FFFFFF" />
-        </svg>
-      );
     default:
       return <span className="text-xs">🌍</span>;
   }
@@ -94,11 +57,7 @@ function CountryFlag({ code, className = "w-4 h-3" }: { code: string; className?
 const LANG_TO_COUNTRY_CODE: Record<string, string> = {
   pl: "PL",
   de: "DE",
-  fr: "FR",
-  es: "ES",
-  it: "IT",
   en: "GB",
-  el: "GR",
 };
 
 interface LocationPickerProps {
