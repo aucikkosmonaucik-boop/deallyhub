@@ -1084,10 +1084,10 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setIsMegaMenuOpen((prev) => !prev)}
-                className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 shrink-0 cursor-pointer shadow-xs active:scale-95 ${
+                className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm transition-all duration-200 shrink-0 cursor-pointer shadow-xs active:scale-95 tracking-tight ${
                   isMegaMenuOpen || activeCategory
                     ? "bg-teal-600 text-white shadow-teal-700/20 ring-2 ring-teal-500 ring-offset-1"
-                    : "bg-white text-[#002f34] border border-gray-200/90 hover:bg-teal-50 hover:text-teal-900 hover:border-teal-300"
+                    : "bg-white text-gray-900 border border-gray-300 hover:bg-teal-50 hover:text-teal-950 hover:border-teal-400"
                 }`}
               >
                 <Menu className="w-4 h-4 stroke-[2.5]" />
@@ -1096,17 +1096,17 @@ export default function HomePage() {
                     ? `${t("nav.categories", "Kategorie")}: ${getCategoryName(activeCategory)}`
                     : t("nav.categories", "Kategorie")}
                 </span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isMegaMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${isMegaMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
               {activeCategory && (
                 <button
                   type="button"
                   onClick={() => setActiveCategory(null)}
-                  className="ml-2.5 inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-500 hover:text-rose-600 hover:bg-rose-50 bg-white border border-gray-200/80 transition-colors cursor-pointer"
+                  className="ml-2.5 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-gray-700 hover:text-rose-600 hover:bg-rose-50 bg-white border border-gray-300 transition-colors cursor-pointer active:scale-95"
                   title={t("feed.clearCategory", "Wyczyść filtry")}
                 >
-                  <span>✕</span>
+                  <span className="font-black">✕</span>
                   <span className="hidden sm:inline">{t("feed.clearCategory", "Wyczyść")}</span>
                 </button>
               )}
