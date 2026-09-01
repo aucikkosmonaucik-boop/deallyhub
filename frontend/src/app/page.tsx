@@ -54,6 +54,7 @@ import MessagesModal from "@/components/MessagesModal";
 import NotificationsModal, { NotificationItem } from "@/components/NotificationsModal";
 import AdminPanelModal from "@/components/AdminPanelModal";
 import LanguageSelector from "@/components/LanguageSelector";
+import LocationPicker from "@/components/LocationPicker";
 import { useLanguage } from "@/context/LanguageContext";
 import { getApiUrl } from "@/lib/api";
 
@@ -214,9 +215,10 @@ export default function HomePage() {
     isNotificationsOpen ||
     isAdminPanelOpen;
 
-  // Live Search Dropdown State
+  // Live Search & Location Picker State
   const [liveSearchResults, setLiveSearchResults] = useState<Advertisement[]>([]);
   const [isLiveDropdownOpen, setIsLiveDropdownOpen] = useState(false);
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
   const [isLiveSearching, setIsLiveSearching] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -264,7 +266,7 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [searchQuery, location]);
 
-  // Click Outside & Escape key to close live dropdown
+  // Click Outside & Escape key to close live dropdown and location picker
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -272,12 +274,14 @@ export default function HomePage() {
         !searchContainerRef.current.contains(e.target as Node)
       ) {
         setIsLiveDropdownOpen(false);
+        setIsLocationPickerOpen(false);
       }
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsLiveDropdownOpen(false);
+        setIsLocationPickerOpen(false);
       }
     };
 
@@ -852,6 +856,7 @@ export default function HomePage() {
                   type="text"
                   value={searchQuery}
                   onFocus={() => {
+                    setIsLocationPickerOpen(false);
                     if (searchQuery.trim().length >= 1) setIsLiveDropdownOpen(true);
                   }}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -873,26 +878,48 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* Location Input */}
-              <div className="flex-1 flex items-center px-3.5 sm:px-4 py-3 sm:py-3.5 border-b md:border-b-0 md:border-r border-gray-200">
-                <MapPin className="w-5 h-5 text-gray-400 mr-2.5 sm:mr-3 shrink-0" />
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder={t("hero.locationPlaceholder")}
-                  className="w-full text-base outline-none text-[#002f34] placeholder-gray-400 bg-transparent font-medium"
+              {/* Location Input / Expandable Rectangular Trigger */}
+              <div
+                onClick={() => {
+                  setIsLiveDropdownOpen(false);
+                  setIsLocationPickerOpen((prev) => !prev);
+                }}
+                className="flex-1 flex items-center px-3.5 sm:px-4 py-3 sm:py-3.5 border-b md:border-b-0 md:border-r border-gray-200 cursor-pointer group hover:bg-gray-50/70 transition-colors select-none"
+              >
+                <MapPin
+                  className={`w-5 h-5 mr-2.5 sm:mr-3 shrink-0 transition-colors ${
+                    location ? "text-teal-600" : "text-gray-400 group-hover:text-teal-600"
+                  }`}
                 />
-                {location && (
-                  <button
-                    type="button"
-                    onClick={() => setLocation("")}
-                    className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors ml-1 text-xs shrink-0 cursor-pointer"
-                    aria-label="Clear location"
+                <div className="w-full flex items-center justify-between min-w-0 pr-1">
+                  <span
+                    className={`text-sm sm:text-base font-medium truncate ${
+                      location ? "text-[#002f34] font-bold" : "text-gray-400"
+                    }`}
                   >
-                    ✕
-                  </button>
-                )}
+                    {location || t("hero.locationPlaceholder")}
+                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    {location && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLocation("");
+                        }}
+                        className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-200/70 transition-colors text-xs cursor-pointer"
+                        aria-label="Clear location"
+                      >
+                        ✕
+                      </button>
+                    )}
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 shrink-0 ${
+                        isLocationPickerOpen ? "rotate-180 text-teal-600" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Search Button */}
@@ -904,6 +931,19 @@ export default function HomePage() {
                 <Search className="w-4 h-4" />
               </button>
             </form>
+
+            {/* Expandable Rectangular Location Picker Panel */}
+            {isLocationPickerOpen && (
+              <LocationPicker
+                value={location}
+                isOpen={isLocationPickerOpen}
+                onChange={(newLoc) => {
+                  setLocation(newLoc);
+                  setIsLocationPickerOpen(false);
+                }}
+                onClose={() => setIsLocationPickerOpen(false)}
+              />
+            )}
 
             {/* Live Search Autocomplete Tree Dropdown */}
             {isLiveDropdownOpen && searchQuery.trim().length >= 1 && (

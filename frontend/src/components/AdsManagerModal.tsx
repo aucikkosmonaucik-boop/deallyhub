@@ -15,8 +15,10 @@ import {
   Loader2,
   Layers,
   Phone,
-  Edit3
+  Edit3,
+  ChevronDown
 } from "lucide-react";
+import LocationPicker from "@/components/LocationPicker";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
 import { containsProfanity } from "@/lib/contentFilter";
@@ -80,6 +82,7 @@ export default function AdsManagerModal({
   const [currency, setCurrency] = useState("USD");
   const [isFree, setIsFree] = useState(false);
   const [location, setLocation] = useState("Entire Country");
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
@@ -857,14 +860,33 @@ export default function AdsManagerModal({
                     {t("adsManager.locationLabel")}
                   </label>
                   <div className="relative">
-                    <MapPin className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      placeholder={t("adsManager.locationPlaceholder")}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-[#002f34] placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-medium"
-                    />
+                    <div
+                      onClick={() => setIsLocationPickerOpen((prev) => !prev)}
+                      className="w-full pl-10 pr-9 py-2.5 bg-gray-50 hover:bg-gray-100/80 border border-gray-200 rounded-xl text-sm text-[#002f34] focus:ring-2 focus:ring-teal-500 transition-all font-medium flex items-center justify-between cursor-pointer"
+                    >
+                      <MapPin className="w-4 h-4 text-teal-600 absolute left-3.5 top-3.5" />
+                      <span className="truncate">
+                        {location || t("adsManager.locationPlaceholder")}
+                      </span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${
+                          isLocationPickerOpen ? "rotate-180 text-teal-600" : ""
+                        }`}
+                      />
+                    </div>
+
+                    {/* Location Picker Dropdown */}
+                    {isLocationPickerOpen && (
+                      <LocationPicker
+                        value={location}
+                        isOpen={isLocationPickerOpen}
+                        onChange={(newLoc) => {
+                          setLocation(newLoc);
+                          setIsLocationPickerOpen(false);
+                        }}
+                        onClose={() => setIsLocationPickerOpen(false)}
+                      />
+                    )}
                   </div>
                 </div>
 
