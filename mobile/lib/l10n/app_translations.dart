@@ -1,14 +1,10 @@
-/// Comprehensive 7-language dictionary for Deallyhub Mobile App (APK)
-/// Supports: en (English), fr (French), es (Spanish), de (German), pl (Polish), it (Italian), el (Greek)
+/// Comprehensive 3-language dictionary for Deallyhub Mobile App (APK)
+/// Supports: en (English), de (German), pl (Polish)
 class AppTranslations {
   static const List<Map<String, String>> supportedLanguages = [
     {'code': 'en', 'name': 'English', 'native': 'English', 'flag': '🇬🇧'},
-    {'code': 'fr', 'name': 'French', 'native': 'Français', 'flag': '🇫🇷'},
-    {'code': 'es', 'name': 'Spanish', 'native': 'Español', 'flag': '🇪🇸'},
     {'code': 'de', 'name': 'German', 'native': 'Deutsch', 'flag': '🇩🇪'},
     {'code': 'pl', 'name': 'Polish', 'native': 'Polski', 'flag': '🇵🇱'},
-    {'code': 'it', 'name': 'Italian', 'native': 'Italiano', 'flag': '🇮🇹'},
-    {'code': 'el', 'name': 'Greek', 'native': 'Ελληνικά', 'flag': '🇬🇷'},
   ];
 
   static const Map<String, Map<String, String>> _categories = {
