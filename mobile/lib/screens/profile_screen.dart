@@ -636,115 +636,396 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // 1. Notifications Modal
   void _showNotificationsDialog() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    List<dynamic>? cachedNotifications;
+    String activeTab = 'all'; // 'all' | 'unread' | 'read'
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (ctx, scrollController) => FutureBuilder<List<dynamic>>(
-          future: ApiService.getNotifications(),
-          builder: (ctx, snapshot) {
-            final items = snapshot.data ?? [];
-            return Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (ctx, scrollController) => FutureBuilder<List<dynamic>>(
+            future: cachedNotifications != null
+                ? Future.value(cachedNotifications)
+                : ApiService.getNotifications().then((val) {
+                    cachedNotifications = val;
+                    return val;
+                  }),
+            builder: (ctx, snapshot) {
+              final items = cachedNotifications ?? snapshot.data ?? [];
+              final unreadItems = items.where((n) => n['is_read'] != true).toList();
+              final readItems = items.where((n) => n['is_read'] == true).toList();
+
+              Widget buildNotificationTile(dynamic n) {
+                final isRead = n['is_read'] == true;
+                final type = n['type']?.toString() ?? 'system';
+
+                Color iconColor = const Color(0xFF0D9488);
+                IconData iconData = Icons.notifications_rounded;
+                Color tileBg = isRead
+                    ? (isDark ? const Color(0xFF1E293B).withOpacity(0.5) : Colors.white)
+                    : (isDark ? const Color(0xFF134E4A).withOpacity(0.35) : const Color(0xFFF0FDFA));
+
+                if (type == 'alert') {
+                  iconColor = Colors.amber.shade700;
+                  iconData = Icons.warning_amber_rounded;
+                } else if (type == 'promotion') {
+                  iconColor = Colors.purple.shade600;
+                  iconData = Icons.auto_awesome_rounded;
+                } else if (type == 'system') {
+                  iconColor = const Color(0xFF0D9488);
+                  iconData = Icons.verified_user_rounded;
+                } else {
+                  iconColor = Colors.blue.shade600;
+                  iconData = Icons.info_outline_rounded;
+                }
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+                    color: tileBg,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isRead
+                          ? (isDark ? const Color(0xFF334155) : Colors.grey.shade200)
+                          : (isDark ? const Color(0xFF0D9488).withOpacity(0.5) : const Color(0xFF99F6E4)),
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.notifications_active_rounded, color: Color(0xFF0D9488)),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Notifications',
+                  child: ListTile(
+                    onTap: () async {
+                      if (!isRead && n['id'] != null) {
+                        setModalState(() {
+                          n['is_read'] = true;
+                        });
+                        await ApiService.markNotificationRead(n['id'] as int);
+                        _loadCounts();
+                      }
+                    },
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                    leading: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: isRead
+                            ? (isDark ? const Color(0xFF334155) : Colors.grey.shade100)
+                            : (isDark ? const Color(0xFF134E4A) : const Color(0xFFCCFBF1)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(iconData, size: 20, color: iconColor),
+                    ),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            n['title'] ?? '',
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontWeight: isRead ? FontWeight.w600 : FontWeight.bold,
+                              fontSize: 14,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
-                      ),
-                      if (items.isNotEmpty)
-                        TextButton(
-                          onPressed: () async {
-                            await ApiService.markAllNotificationsRead();
-                            _loadCounts();
-                            if (ctx.mounted) Navigator.pop(ctx);
-                          },
-                          child: const Text('Mark all read', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: snapshot.connectionState == ConnectionState.waiting
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
-                      : items.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.notifications_none, size: 48, color: Colors.grey),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'No notifications yet',
-                                    style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.separated(
-                              controller: scrollController,
-                              padding: const EdgeInsets.all(16),
-                              itemCount: items.length,
-                              separatorBuilder: (context, index) => Divider(height: 1, color: Theme.of(context).dividerColor),
-                              itemBuilder: (ctx, idx) {
-                                final n = items[idx];
-                                final isRead = n['is_read'] == true;
-                                return ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                                  leading: CircleAvatar(
-                                    backgroundColor: isRead
-                                        ? (isDark ? const Color(0xFF334155) : Colors.grey.shade100)
-                                        : (isDark ? const Color(0xFF134E4A) : const Color(0xFFE6FFFA)),
-                                    child: Icon(
-                                      Icons.notifications,
-                                      size: 20,
-                                      color: isRead ? Colors.grey : const Color(0xFF0D9488),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    n['title'] ?? '',
-                                    style: TextStyle(
-                                      fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                                      fontSize: 14,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    n['message'] ?? '',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark ? const Color(0xFF94A3B8) : Colors.black87,
-                                    ),
-                                  ),
-                                );
-                              },
+                        if (!isRead)
+                          Container(
+                            margin: const EdgeInsets.only(left: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0D9488),
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                ),
-              ],
-            );
-          },
+                            child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                          )
+                        else
+                          const Icon(Icons.done_all_rounded, size: 16, color: Colors.grey),
+                      ],
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        n['message'] ?? '',
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.35,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              return Column(
+                children: [
+                  // Modal Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.notifications_active_rounded, color: Color(0xFF0D9488)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Notifications',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            if (unreadItems.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade600,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '${unreadItems.length}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        if (unreadItems.isNotEmpty)
+                          TextButton.icon(
+                            onPressed: () async {
+                              setModalState(() {
+                                for (var it in items) {
+                                  it['is_read'] = true;
+                                }
+                              });
+                              await ApiService.markAllNotificationsRead();
+                              _loadCounts();
+                            },
+                            icon: const Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
+                            label: const Text('Mark all read', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // Filter Tabs: All / New / Read
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                      border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setModalState(() => activeTab = 'all'),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: activeTab == 'all'
+                                    ? (isDark ? const Color(0xFF334155) : Colors.white)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: activeTab == 'all'
+                                    ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                    : null,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'All (${items.length})',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: activeTab == 'all' ? FontWeight.bold : FontWeight.normal,
+                                  color: activeTab == 'all'
+                                      ? (isDark ? Colors.white : const Color(0xFF002F34))
+                                      : (isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setModalState(() => activeTab = 'unread'),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: activeTab == 'unread'
+                                    ? (isDark ? const Color(0xFF334155) : Colors.white)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: activeTab == 'unread'
+                                    ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                    : null,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'New (${unreadItems.length})',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: activeTab == 'unread' ? FontWeight.bold : FontWeight.normal,
+                                  color: activeTab == 'unread'
+                                      ? (unreadItems.isNotEmpty ? const Color(0xFF0D9488) : (isDark ? Colors.white : const Color(0xFF002F34)))
+                                      : (isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setModalState(() => activeTab = 'read'),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: activeTab == 'read'
+                                    ? (isDark ? const Color(0xFF334155) : Colors.white)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: activeTab == 'read'
+                                    ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                    : null,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Read (${readItems.length})',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: activeTab == 'read' ? FontWeight.bold : FontWeight.normal,
+                                  color: activeTab == 'read'
+                                      ? (isDark ? Colors.white : const Color(0xFF002F34))
+                                      : (isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Notifications List
+                  Expanded(
+                    child: snapshot.connectionState == ConnectionState.waiting && cachedNotifications == null
+                        ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
+                        : items.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.notifications_none, size: 48, color: Colors.grey),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'No notifications yet',
+                                      style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : activeTab == 'unread'
+                                ? unreadItems.isEmpty
+                                    ? Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.check_circle_outline_rounded, size: 48, color: Color(0xFF0D9488)),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              'No new notifications',
+                                              style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'You are all caught up!',
+                                              style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : ListView.builder(
+                                        controller: scrollController,
+                                        padding: const EdgeInsets.all(16),
+                                        itemCount: unreadItems.length,
+                                        itemBuilder: (ctx, idx) => buildNotificationTile(unreadItems[idx]),
+                                      )
+                                : activeTab == 'read'
+                                    ? readItems.isEmpty
+                                        ? Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(Icons.inbox_rounded, size: 48, color: Colors.grey),
+                                                const SizedBox(height: 12),
+                                                Text(
+                                                  'No read notifications',
+                                                  style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : ListView.builder(
+                                            controller: scrollController,
+                                            padding: const EdgeInsets.all(16),
+                                            itemCount: readItems.length,
+                                            itemBuilder: (ctx, idx) => buildNotificationTile(readItems[idx]),
+                                          )
+                                    : ListView(
+                                        controller: scrollController,
+                                        padding: const EdgeInsets.all(16),
+                                        children: [
+                                          if (unreadItems.isNotEmpty) ...[
+                                            Row(
+                                              children: [
+                                                Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF0D9488), shape: BoxShape.circle)),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  'NEW NOTIFICATIONS (${unreadItems.length})',
+                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D9488), letterSpacing: 0.5),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 8),
+                                            ...unreadItems.map((n) => buildNotificationTile(n)),
+                                            const SizedBox(height: 12),
+                                          ],
+                                          if (readItems.isNotEmpty) ...[
+                                            if (unreadItems.isNotEmpty) ...[
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.done_all_rounded, size: 14, color: Colors.grey),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'EARLIER (${readItems.length})',
+                                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600, letterSpacing: 0.5),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                            ],
+                                            ...readItems.map((n) => buildNotificationTile(n)),
+                                          ],
+                                        ],
+                                      ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

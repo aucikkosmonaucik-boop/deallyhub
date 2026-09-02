@@ -578,6 +578,17 @@ class ApiService {
     return [];
   }
 
+  static Future<void> markNotificationRead(int id) async {
+    final token = await getToken();
+    if (token == null) return;
+    try {
+      await http.post(
+        Uri.parse('$baseUrl/api/notifications/$id/read'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 8));
+    } catch (_) {}
+  }
+
   static Future<void> markAllNotificationsRead() async {
     final token = await getToken();
     if (token == null) return;
