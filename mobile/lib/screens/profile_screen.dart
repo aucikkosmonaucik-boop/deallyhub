@@ -669,8 +669,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Color iconColor = const Color(0xFF0D9488);
                 IconData iconData = Icons.notifications_rounded;
                 Color tileBg = isRead
-                    ? (isDark ? const Color(0xFF1E293B).withOpacity(0.5) : Colors.white)
-                    : (isDark ? const Color(0xFF134E4A).withOpacity(0.35) : const Color(0xFFF0FDFA));
+                    ? (isDark ? const Color(0x801E293B) : Colors.white)
+                    : (isDark ? const Color(0x59134E4A) : const Color(0xFFF0FDFA));
 
                 if (type == 'alert') {
                   iconColor = Colors.amber.shade700;
@@ -694,7 +694,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: Border.all(
                       color: isRead
                           ? (isDark ? const Color(0xFF334155) : Colors.grey.shade200)
-                          : (isDark ? const Color(0xFF0D9488).withOpacity(0.5) : const Color(0xFF99F6E4)),
+                          : (isDark ? const Color(0x800D9488) : const Color(0xFF99F6E4)),
                     ),
                   ),
                   child: ListTile(
@@ -840,7 +840,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                                 boxShadow: activeTab == 'all'
-                                    ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                    ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4)]
                                     : null,
                               ),
                               alignment: Alignment.center,
@@ -869,7 +869,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                                 boxShadow: activeTab == 'unread'
-                                    ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                    ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4)]
                                     : null,
                               ),
                               alignment: Alignment.center,
@@ -898,7 +898,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                                 boxShadow: activeTab == 'read'
-                                    ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]
+                                    ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4)]
                                     : null,
                               ),
                               alignment: Alignment.center,
