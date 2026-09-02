@@ -262,6 +262,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "auth.resendVerification": "Resend verification email",
     "auth.verificationSent": "Verification email resent! Check your inbox.",
     "auth.passwordsDoNotMatch": "Passwords do not match.",
+    "auth.forgotSuccess": "If an account exists with this email, a password reset link has been sent! Check your inbox.",
+    "auth.resetSuccess": "Your password has been successfully reset! You can now log in.",
+    "auth.resendSuccess": "Verification link sent! Check your email inbox and spam folder.",
 
     "adsManager.myAds": "My Advertisements",
     "adsManager.postNew": "Post New Ad",
@@ -626,6 +629,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "auth.resendVerification": "Bestätigungs-E-Mail erneut senden",
     "auth.verificationSent": "E-Mail erneut gesendet! Bitte prüfe deinen Posteingang.",
     "auth.passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
+    "auth.forgotSuccess": "Falls ein Konto mit dieser E-Mail existiert, wurde ein Reset-Link gesendet! Prüfe deinen Posteingang.",
+    "auth.resetSuccess": "Dein Passwort wurde erfolgreich zurückgesetzt! Du kannst dich jetzt anmelden.",
+    "auth.resendSuccess": "Bestätigungslink gesendet! Bitte prüfe deinen Posteingang und Spam-Ordner.",
 
     "adsManager.myAds": "Meine Anzeigen",
     "adsManager.postNew": "Anzeige aufgeben",
@@ -990,6 +996,9 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "auth.resendVerification": "Wyślij e-mail weryfikacyjny ponownie",
     "auth.verificationSent": "Wysłano link! Sprawdź skrzynkę odbiorczą i folder spam.",
     "auth.passwordsDoNotMatch": "Hasła nie są identyczne.",
+    "auth.forgotSuccess": "Jeśli konto z tym adresem e-mail istnieje, wysłaliśmy link do resetu hasła! Sprawdź swoją skrzynkę.",
+    "auth.resetSuccess": "Twoje hasło zostało pomyślnie zmienione! Możesz się teraz zalogować.",
+    "auth.resendSuccess": "Link weryfikacyjny został wysłany! Sprawdź skrzynkę odbiorczą oraz folder SPAM.",
 
     "adsManager.myAds": "Moje Ogłoszenia",
     "adsManager.postNew": "Dodaj Ogłoszenie",

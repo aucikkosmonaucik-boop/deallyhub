@@ -242,10 +242,10 @@ export default function AuthModal({
           throw new Error(data.error || "Failed to process password reset request.");
         }
 
-        setSuccessMsg("If an account exists with this email, a password reset link has been sent! Check your inbox.");
+        setSuccessMsg(t("auth.forgotSuccess"));
       } else if (mode === "reset") {
         if (password !== confirmPassword) {
-          throw new Error("Passwords do not match.");
+          throw new Error(t("auth.passwordsDoNotMatch"));
         }
 
         const res = await fetch(`${apiUrl}/api/auth/reset-password`, {
@@ -259,7 +259,7 @@ export default function AuthModal({
           throw new Error(data.error || "Failed to reset password. Link may be expired.");
         }
 
-        setSuccessMsg("Your password has been successfully reset! You can now log in.");
+        setSuccessMsg(t("auth.resetSuccess"));
         setTimeout(() => {
           setMode("login");
           setPassword("");
@@ -295,7 +295,7 @@ export default function AuthModal({
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Failed to resend verification email.");
       }
-      setSuccessMsg("Verification link sent! Check your email inbox and spam folder.");
+      setSuccessMsg(t("auth.resendSuccess"));
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

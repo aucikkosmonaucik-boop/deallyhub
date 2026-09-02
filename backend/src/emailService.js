@@ -130,13 +130,19 @@ function generateDeallyEmailHtml({ title, subtitle, name, messageText, buttonTex
                   ${messageText}
                 </p>
 
-                <!-- Action Button -->
+                <!-- Action Button (Bulletproof HTML email button for mobile) -->
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 28px 0;">
                   <tr>
                     <td align="center">
-                      <a href="${buttonUrl}" target="_blank" style="display: inline-block; background-color: #002f34; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 14px 36px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 47, 52, 0.25); border: 1px solid #0d9488;">
-                        ${buttonText}
-                      </a>
+                      <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; border-radius: 12px; background-color: #002f34; border: 1px solid #0d9488;">
+                        <tr>
+                          <td align="center" style="border-radius: 12px; background-color: #002f34; padding: 0;">
+                            <a href="${buttonUrl}" target="_blank" rel="noopener noreferrer" style="display: block; padding: 14px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px; -webkit-text-size-adjust: none;">
+                              ${buttonText}
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                 </table>
@@ -145,8 +151,8 @@ function generateDeallyEmailHtml({ title, subtitle, name, messageText, buttonTex
                   ${expirationNote}
                 </p>
                 <p style="margin: 0; font-size: 12px; color: #94a3b8; word-break: break-all;">
-                  If the button doesn't work, copy and paste this link into your browser:<br>
-                  <a href="${buttonUrl}" style="color: #0d9488; text-decoration: underline;">${buttonUrl}</a>
+                  If the button doesn't work, tap or copy and paste this link:<br>
+                  <a href="${buttonUrl}" target="_blank" rel="noopener noreferrer" style="color: #0d9488; text-decoration: underline; font-weight: 600;">${buttonUrl}</a>
                 </p>
               </td>
             </tr>
@@ -171,8 +177,16 @@ function generateDeallyEmailHtml({ title, subtitle, name, messageText, buttonTex
   `;
 }
 
+function resolveClientOrigin(clientOrigin) {
+  let origin = (clientOrigin || process.env.APP_URL || "https://deallyhub.com").trim().replace(/\/+$/, "");
+  if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+    origin = process.env.APP_URL ? process.env.APP_URL.trim().replace(/\/+$/, "") : "https://deallyhub.com";
+  }
+  return origin;
+}
+
 export async function sendVerificationEmail({ email, name, token, clientOrigin }) {
-  const origin = (clientOrigin || "https://deallyhub.com").replace(/\/+$/, "");
+  const origin = resolveClientOrigin(clientOrigin);
   const verifyUrl = `${origin}/?verify_email=${encodeURIComponent(token)}`;
 
   const title = "Verify your Deallyhub Account";
@@ -201,7 +215,7 @@ export async function sendVerificationEmail({ email, name, token, clientOrigin }
 }
 
 export async function sendPasswordResetEmail({ email, name, token, clientOrigin }) {
-  const origin = (clientOrigin || "https://deallyhub.com").replace(/\/+$/, "");
+  const origin = resolveClientOrigin(clientOrigin);
   const resetUrl = `${origin}/?reset_token=${encodeURIComponent(token)}`;
 
   const title = "Reset your Deallyhub Password";
