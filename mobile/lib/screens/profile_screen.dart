@@ -735,14 +735,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         if (!isRead)
-                          Container(
-                            margin: const EdgeInsets.only(left: 6),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0D9488),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(left: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0D9488),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(width: 6),
+                              GestureDetector(
+                                onTap: () async {
+                                  if (n['id'] != null) {
+                                    setModalState(() {
+                                      n['is_read'] = true;
+                                    });
+                                    await ApiService.markNotificationRead(n['id'] as int);
+                                    _loadCounts();
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.close_rounded,
+                                    size: 14,
+                                    color: isDark ? Colors.white70 : Colors.grey.shade700,
+                                  ),
+                                ),
+                              ),
+                            ],
                           )
                         else
                           const Icon(Icons.done_all_rounded, size: 16, color: Colors.grey),
@@ -820,7 +849,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  // Filter Tabs: All / New / Read
+                  // Filter Tabs: All / Read
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
@@ -857,36 +886,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setModalState(() => activeTab = 'unread'),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: activeTab == 'unread'
-                                    ? (isDark ? const Color(0xFF334155) : Colors.white)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: activeTab == 'unread'
-                                    ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4)]
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${tr('notif_new')} (${unreadItems.length})',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: activeTab == 'unread' ? FontWeight.bold : FontWeight.normal,
-                                  color: activeTab == 'unread'
-                                      ? (unreadItems.isNotEmpty ? const Color(0xFF0D9488) : (isDark ? Colors.white : const Color(0xFF002F34)))
-                                      : (isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: GestureDetector(
                             onTap: () => setModalState(() => activeTab = 'read'),
@@ -937,54 +937,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ],
                                 ),
                               )
-                            : activeTab == 'unread'
-                                ? unreadItems.isEmpty
-                                    ? Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(Icons.check_circle_outline_rounded, size: 48, color: Color(0xFF0D9488)),
-                                            const SizedBox(height: 12),
-                                            Text(
-                                              tr('notif_empty_new'),
-                                              style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              tr('notif_caught_up'),
-                                              style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12),
-                                            ),
-                                          ],
+                        : activeTab == 'read'
+                            ? readItems.isEmpty
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.inbox_rounded, size: 48, color: Colors.grey),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          tr('notif_empty_all'),
+                                          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
                                         ),
-                                      )
-                                    : ListView.builder(
-                                        controller: scrollController,
-                                        padding: const EdgeInsets.all(16),
-                                        itemCount: unreadItems.length,
-                                        itemBuilder: (ctx, idx) => buildNotificationTile(unreadItems[idx]),
-                                      )
-                                : activeTab == 'read'
-                                    ? readItems.isEmpty
-                                        ? Center(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                const Icon(Icons.inbox_rounded, size: 48, color: Colors.grey),
-                                                const SizedBox(height: 12),
-                                                Text(
-                                                  tr('notif_empty_all'),
-                                                  style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : ListView.builder(
-                                            controller: scrollController,
-                                            padding: const EdgeInsets.all(16),
-                                            itemCount: readItems.length,
-                                            itemBuilder: (ctx, idx) => buildNotificationTile(readItems[idx]),
-                                          )
-                                    : ListView(
+                                      ],
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    controller: scrollController,
+                                    padding: const EdgeInsets.all(16),
+                                    itemCount: readItems.length,
+                                    itemBuilder: (ctx, idx) => buildNotificationTile(readItems[idx]),
+                                  )
+                            : ListView(
                                         controller: scrollController,
                                         padding: const EdgeInsets.all(16),
                                         children: [

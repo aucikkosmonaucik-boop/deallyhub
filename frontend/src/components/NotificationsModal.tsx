@@ -32,7 +32,7 @@ interface NotificationsModalProps {
   onMarkAllAsRead: () => void;
 }
 
-type NotificationTab = "all" | "unread" | "read";
+type NotificationTab = "all" | "read";
 
 export default function NotificationsModal({
   isOpen,
@@ -96,18 +96,31 @@ export default function NotificationsModal({
               <h4 className="font-bold text-sm text-[#002f34] dark:text-white truncate">
                 {n.title}
               </h4>
-              {!n.is_read ? (
-                <span className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider bg-teal-100/80 dark:bg-teal-900/60 px-1.5 py-0.5 rounded-md">
-                    {t("notifications.tabUnread", "New")}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {!n.is_read ? (
+                  <>
+                    <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider bg-teal-100/80 dark:bg-teal-900/60 px-1.5 py-0.5 rounded-md">
+                      {t("notifications.tabUnread", "New")}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMarkAsRead(n.id);
+                      }}
+                      className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                      title={t("notifications.markAsRead", "Mark as read (move to read)")}
+                      aria-label="Mark as read"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-[11px] text-gray-400 dark:text-slate-500">
+                    <CheckCheck className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                   </span>
-                  <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 animate-pulse" />
-                </span>
-              ) : (
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 shrink-0">
-                  <CheckCheck className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
-                </span>
-              )}
+                )}
+              </div>
             </div>
             <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed break-words whitespace-pre-line">
               {n.message}
@@ -172,7 +185,7 @@ export default function NotificationsModal({
           </div>
         </div>
 
-        {/* Segmented Filter Tabs: Wszystkie / Nowe / Przeczytane */}
+        {/* Segmented Filter Tabs: Wszystkie / Przeczytane */}
         <div className="px-4 pt-3 pb-2 bg-gray-50/70 dark:bg-slate-900/90 border-b border-gray-100 dark:border-slate-800 shrink-0">
           <div className="flex bg-gray-200/70 dark:bg-slate-800 p-1 rounded-xl gap-1">
             <button
@@ -188,27 +201,6 @@ export default function NotificationsModal({
               <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold">
                 {notifications.length}
               </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("unread")}
-              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === "unread"
-                  ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white shadow-xs"
-                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <span>{t("notifications.tabUnread", "New")}</span>
-              {unreadItems.length > 0 ? (
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-teal-600 text-white font-bold">
-                  {unreadItems.length}
-                </span>
-              ) : (
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 font-semibold">
-                  0
-                </span>
-              )}
             </button>
 
             <button
@@ -242,24 +234,6 @@ export default function NotificationsModal({
                 {t("notifications.emptyDesc")}
               </p>
             </div>
-          ) : activeTab === "unread" ? (
-            unreadItems.length === 0 ? (
-              <div className="py-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center mx-auto mb-3 text-teal-600 dark:text-teal-400">
-                  <CheckCircle2 className="w-8 h-8" />
-                </div>
-                <p className="font-bold text-[#002f34] dark:text-white text-base">
-                  {t("notifications.emptyUnread", "No new notifications")}
-                </p>
-                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                  {t("notifications.emptyUnreadDesc", "You're all caught up! All notifications have been read.")}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {unreadItems.map((n) => renderNotificationCard(n))}
-              </div>
-            )
           ) : activeTab === "read" ? (
             readItems.length === 0 ? (
               <div className="py-12 text-center">
