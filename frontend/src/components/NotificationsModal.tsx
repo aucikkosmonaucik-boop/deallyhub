@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   X,
   Bell,
@@ -7,9 +7,7 @@ import {
   Sparkles,
   Info,
   Shield,
-  Clock,
-  Inbox,
-  CheckCircle2
+  Clock
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -33,8 +31,6 @@ interface NotificationsModalProps {
   onDeleteNotification?: (id: number) => void;
 }
 
-type NotificationTab = "all" | "read";
-
 export default function NotificationsModal({
   isOpen,
   onClose,
@@ -45,7 +41,6 @@ export default function NotificationsModal({
   onDeleteNotification
 }: NotificationsModalProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<NotificationTab>("all");
 
   if (!isOpen) return null;
 
@@ -113,14 +108,12 @@ export default function NotificationsModal({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!n.is_read) {
-                      onMarkAsRead(n.id);
-                    } else if (onDeleteNotification) {
+                    if (onDeleteNotification) {
                       onDeleteNotification(n.id);
                     }
                   }}
                   className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-                  title={!n.is_read ? t("notifications.markAsRead", "Oznacz jako przeczytane (przenieś)") : t("common.delete", "Usuń")}
+                  title={t("common.delete", "Usuń")}
                   aria-label="Remove notification"
                 >
                   <X className="w-4 h-4" />
@@ -157,9 +150,14 @@ export default function NotificationsModal({
                 <h3 className="font-bold text-base sm:text-lg text-[#002f34] dark:text-white">
                   {t("notifications.title")}
                 </h3>
+                {notifications.length > 0 && (
+                  <span className="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full border border-gray-200 dark:border-slate-700">
+                    {notifications.length}
+                  </span>
+                )}
                 {unreadCount > 0 && (
                   <span className="bg-red-500 text-white text-[10px] sm:text-xs font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full">
-                    {unreadCount}
+                    {unreadCount} {t("notifications.tabUnread", "New").toLowerCase()}
                   </span>
                 )}
               </div>
@@ -190,42 +188,7 @@ export default function NotificationsModal({
           </div>
         </div>
 
-        {/* Segmented Filter Tabs: Wszystkie / Przeczytane */}
-        <div className="px-4 pt-3 pb-2 bg-gray-50/70 dark:bg-slate-900/90 border-b border-gray-100 dark:border-slate-800 shrink-0">
-          <div className="flex bg-gray-200/70 dark:bg-slate-800 p-1 rounded-xl gap-1">
-            <button
-              type="button"
-              onClick={() => setActiveTab("all")}
-              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === "all"
-                  ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white shadow-xs"
-                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <span>{t("notifications.tabAll", "All")}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold">
-                {notifications.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("read")}
-              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === "read"
-                  ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white shadow-xs"
-                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <span>{t("notifications.tabRead", "Read")}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold">
-                {readItems.length}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Notifications Content */}
+        {/* Notifications Content - Unified 'Wszystkie' List */}
         <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-3">
           {notifications.length === 0 ? (
             <div className="py-12 text-center">
@@ -239,28 +202,9 @@ export default function NotificationsModal({
                 {t("notifications.emptyDesc")}
               </p>
             </div>
-          ) : activeTab === "read" ? (
-            readItems.length === 0 ? (
-              <div className="py-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3 text-gray-300 dark:text-slate-600">
-                  <Inbox className="w-8 h-8" />
-                </div>
-                <p className="font-bold text-[#002f34] dark:text-white text-base">
-                  {t("notifications.emptyRead", "No read notifications")}
-                </p>
-                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
-                  {t("notifications.emptyReadDesc", "Your read notifications history will appear here.")}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {readItems.map((n) => renderNotificationCard(n))}
-              </div>
-            )
           ) : (
-            /* activeTab === "all" */
             <div className="space-y-4">
-              {/* Section: Nowe powiadomienia (if any exist) */}
+              {/* Section: Nowe powiadomienia (if any unread exist) */}
               {unreadItems.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-2 px-1">
@@ -275,7 +219,7 @@ export default function NotificationsModal({
                 </div>
               )}
 
-              {/* Section: Przeczytane / Wcześniejsze (if any exist) */}
+              {/* Section: Przeczytane / Wcześniejsze (if any read exist) */}
               {readItems.length > 0 && (
                 <div>
                   {unreadItems.length > 0 && (

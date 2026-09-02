@@ -621,16 +621,19 @@ export default function HomePage() {
 
   const handleDeleteNotification = async (id: number) => {
     if (!token) return;
+    const itemToDelete = notifications.find((n) => n.id === id);
+    if (itemToDelete && !itemToDelete.is_read) {
+      setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
+    }
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
     try {
       const apiUrl = getApiUrl();
       await fetch(`${apiUrl}/api/notifications/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {
       console.error("Failed to delete notification:", err);
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
     }
   };
 

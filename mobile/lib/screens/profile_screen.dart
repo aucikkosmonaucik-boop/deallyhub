@@ -637,7 +637,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showNotificationsDialog() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     List<dynamic>? cachedNotifications;
-    String activeTab = 'all'; // 'all' | 'unread' | 'read'
 
     showModalBottomSheet(
       context: context,
@@ -748,26 +747,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                               ),
                               const SizedBox(width: 6),
-                            ] else ...[
-                              const Icon(Icons.done_all_rounded, size: 16, color: Colors.grey),
-                              const SizedBox(width: 6),
                             ],
                             GestureDetector(
                               onTap: () async {
                                 if (n['id'] != null) {
-                                  if (!isRead) {
-                                    setModalState(() {
-                                      n['is_read'] = true;
-                                    });
-                                    await ApiService.markNotificationRead(n['id'] as int);
-                                    _loadCounts();
-                                  } else {
-                                    setModalState(() {
-                                      items.removeWhere((it) => it['id'] == n['id']);
-                                    });
-                                    await ApiService.deleteNotification(n['id'] as int);
-                                    _loadCounts();
-                                  }
+                                  final notifId = n['id'] as int;
+                                  setModalState(() {
+                                    items.removeWhere((it) => it['id'] == notifId);
+                                  });
+                                  await ApiService.deleteNotification(notifId);
+                                  _loadCounts();
                                 }
                               },
                               child: Container(
@@ -804,7 +793,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               return Column(
                 children: [
-                  // Modal Header
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                     decoration: BoxDecoration(
@@ -825,8 +813,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            if (unreadItems.isNotEmpty) ...[
+                            if (items.isNotEmpty) ...[
                               const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '${items.length}',
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white70 : Colors.grey.shade800,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            if (unreadItems.isNotEmpty) ...[
+                              const SizedBox(width: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                 decoration: BoxDecoration(
@@ -859,77 +865,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  // Filter Tabs: All / Read
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                      border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setModalState(() => activeTab = 'all'),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: activeTab == 'all'
-                                    ? (isDark ? const Color(0xFF334155) : Colors.white)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: activeTab == 'all'
-                                    ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4)]
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${tr('notif_all')} (${items.length})',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: activeTab == 'all' ? FontWeight.bold : FontWeight.normal,
-                                  color: activeTab == 'all'
-                                      ? (isDark ? Colors.white : const Color(0xFF002F34))
-                                      : (isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setModalState(() => activeTab = 'read'),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: activeTab == 'read'
-                                    ? (isDark ? const Color(0xFF334155) : Colors.white)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: activeTab == 'read'
-                                    ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4)]
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${tr('notif_read')} (${readItems.length})',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: activeTab == 'read' ? FontWeight.bold : FontWeight.normal,
-                                  color: activeTab == 'read'
-                                      ? (isDark ? Colors.white : const Color(0xFF002F34))
-                                      : (isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Notifications List
                   Expanded(
                     child: snapshot.connectionState == ConnectionState.waiting && cachedNotifications == null
                         ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D9488)))
@@ -947,64 +882,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ],
                                 ),
                               )
-                        : activeTab == 'read'
-                            ? readItems.isEmpty
-                                ? Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                            : ListView(
+                                controller: scrollController,
+                                padding: const EdgeInsets.all(16),
+                                children: [
+                                  if (unreadItems.isNotEmpty) ...[
+                                    Row(
                                       children: [
-                                        const Icon(Icons.inbox_rounded, size: 48, color: Colors.grey),
-                                        const SizedBox(height: 12),
+                                        Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF0D9488), shape: BoxShape.circle)),
+                                        const SizedBox(width: 6),
                                         Text(
-                                          tr('notif_empty_all'),
-                                          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
+                                          '${tr('notif_new_section')} (${unreadItems.length})',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D9488), letterSpacing: 0.5),
                                         ),
                                       ],
                                     ),
-                                  )
-                                : ListView.builder(
-                                    controller: scrollController,
-                                    padding: const EdgeInsets.all(16),
-                                    itemCount: readItems.length,
-                                    itemBuilder: (ctx, idx) => buildNotificationTile(readItems[idx]),
-                                  )
-                            : ListView(
-                                        controller: scrollController,
-                                        padding: const EdgeInsets.all(16),
+                                    const SizedBox(height: 8),
+                                    ...unreadItems.map((n) => buildNotificationTile(n)),
+                                    const SizedBox(height: 12),
+                                  ],
+                                  if (readItems.isNotEmpty) ...[
+                                    if (unreadItems.isNotEmpty) ...[
+                                      Row(
                                         children: [
-                                          if (unreadItems.isNotEmpty) ...[
-                                            Row(
-                                              children: [
-                                                Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF0D9488), shape: BoxShape.circle)),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  '${tr('notif_new_section')} (${unreadItems.length})',
-                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D9488), letterSpacing: 0.5),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 8),
-                                            ...unreadItems.map((n) => buildNotificationTile(n)),
-                                            const SizedBox(height: 12),
-                                          ],
-                                          if (readItems.isNotEmpty) ...[
-                                            if (unreadItems.isNotEmpty) ...[
-                                              Row(
-                                                children: [
-                                                  const Icon(Icons.done_all_rounded, size: 14, color: Colors.grey),
-                                                  const SizedBox(width: 6),
-                                                  Text(
-                                                    '${tr('notif_earlier_section')} (${readItems.length})',
-                                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600, letterSpacing: 0.5),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                            ],
-                                            ...readItems.map((n) => buildNotificationTile(n)),
-                                          ],
+                                          const Icon(Icons.done_all_rounded, size: 14, color: Colors.grey),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '${tr('notif_earlier_section')} (${readItems.length})',
+                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600, letterSpacing: 0.5),
+                                          ),
                                         ],
                                       ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                    ...readItems.map((n) => buildNotificationTile(n)),
+                                  ],
+                                ],
+                              ),
                   ),
                 ],
               );
@@ -2206,7 +2120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
 
                     // Tab 2: Broadcast Notification
-                    _buildAdminBroadcastTab(ctx),
+                    const _AdminBroadcastTab(),
 
                     // Tab 3: Moderation / Manage Ads
                     _buildAdminAdsTab(),
@@ -2255,85 +2169,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAdminBroadcastTab(BuildContext ctx) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleCtrl = TextEditingController();
-    final msgCtrl = TextEditingController();
-    bool sending = false;
-
-    return StatefulBuilder(
-      builder: (ctx, setBState) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Send Notification to All Users',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text('Sends an instant bell notification across Deallyhub.', style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: titleCtrl,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              decoration: InputDecoration(
-                labelText: 'Title',
-                labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: msgCtrl,
-              maxLines: 3,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              decoration: InputDecoration(
-                labelText: 'Message Content',
-                labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: sending
-                    ? null
-                    : () async {
-                        final t = titleCtrl.text.trim();
-                        final m = msgCtrl.text.trim();
-                        if (t.isEmpty || m.isEmpty) return;
-                        setBState(() => sending = true);
-                        final res = await ApiService.sendAdminNotification(title: t, message: m);
-                        setBState(() => sending = false);
-                        if (res['success'] == true) {
-                          titleCtrl.clear();
-                          msgCtrl.clear();
-                          if (ctx.mounted) {
-                            ScaffoldMessenger.of(ctx).showSnackBar(
-                              const SnackBar(backgroundColor: Color(0xFF0D9488), content: Text('Broadcast notification sent!')),
-                            );
-                          }
-                        }
-                      },
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF002F34)),
-                child: sending
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Send Broadcast', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -3286,6 +3121,125 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AdminBroadcastTab extends StatefulWidget {
+  const _AdminBroadcastTab();
+
+  @override
+  State<_AdminBroadcastTab> createState() => _AdminBroadcastTabState();
+}
+
+class _AdminBroadcastTabState extends State<_AdminBroadcastTab> with AutomaticKeepAliveClientMixin {
+  late final TextEditingController _titleCtrl;
+  late final TextEditingController _msgCtrl;
+  bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleCtrl = TextEditingController();
+    _msgCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _msgCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Send Notification to All Users',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Sends an instant bell notification across Deallyhub.',
+            style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _titleCtrl,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            decoration: InputDecoration(
+              labelText: 'Title',
+              labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _msgCtrl,
+            maxLines: 3,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            decoration: InputDecoration(
+              labelText: 'Message Content',
+              labelStyle: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _sending
+                  ? null
+                  : () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      final t = _titleCtrl.text.trim();
+                      final m = _msgCtrl.text.trim();
+                      if (t.isEmpty || m.isEmpty) return;
+                      setState(() => _sending = true);
+                      final res = await ApiService.sendAdminNotification(title: t, message: m);
+                      if (!mounted) return;
+                      setState(() => _sending = false);
+                      if (res['success'] == true) {
+                        _titleCtrl.clear();
+                        _msgCtrl.clear();
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Color(0xFF0D9488),
+                            content: Text('Broadcast notification sent!'),
+                          ),
+                        );
+                      } else {
+                        messenger.showSnackBar(
+                          SnackBar(
+                            backgroundColor: Colors.redAccent,
+                            content: Text(res['error']?.toString() ?? 'Failed to send notification'),
+                          ),
+                        );
+                      }
+                    },
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF002F34)),
+              child: _sending
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Send Broadcast', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
       ),
     );
   }
