@@ -65,16 +65,87 @@ export default function MessagesModal({
   const [filterQuery, setFilterQuery] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Mobile visual viewport and keyboard tracking
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [viewportOffsetTop, setViewportOffsetTop] = useState<number>(0);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  // Auto-scroll to bottom of chat
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
+
+  // Body scroll lock & visualViewport tracking on mobile browsers
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalOverscroll = document.body.style.overscrollBehavior;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+
+    const updateViewport = () => {
+      if (typeof window !== "undefined" && window.visualViewport) {
+        const vv = window.visualViewport;
+        setViewportHeight(vv.height);
+        setViewportOffsetTop(vv.offsetTop);
+
+        // Detect if keyboard is open on mobile
+        const isKeyboard = window.innerHeight - vv.height > 100;
+        setIsKeyboardVisible(isKeyboard);
+      }
+    };
+
+    updateViewport();
+
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    if (vv) {
+      vv.addEventListener("resize", updateViewport);
+      vv.addEventListener("scroll", updateViewport);
+    }
+    window.addEventListener("resize", updateViewport);
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      document.body.style.overscrollBehavior = originalOverscroll;
+
+      if (vv) {
+        vv.removeEventListener("resize", updateViewport);
+        vv.removeEventListener("scroll", updateViewport);
+      }
+      window.removeEventListener("resize", updateViewport);
+    };
+  }, [isOpen]);
+
+  // Scroll strictly inside the message container without moving window/ancestors
+  const scrollToBottom = useCallback((smooth = false) => {
+    if (messagesContainerRef.current) {
+      const el = messagesContainerRef.current;
+      if (smooth) {
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      } else {
+        el.scrollTop = el.scrollHeight;
+      }
+    }
+  }, []);
+
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      isNearBottomRef.current = scrollHeight - scrollTop - clientHeight < 90;
+    }
   };
 
+  // Auto-scroll when messages change if user was near bottom
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isNearBottomRef.current) {
+      requestAnimationFrame(() => {
+        scrollToBottom(false);
+      });
+    }
+  }, [messages, scrollToBottom]);
 
   // Fetch all conversations
   const fetchConversations = useCallback(async () => {
@@ -131,7 +202,13 @@ export default function MessagesModal({
   useEffect(() => {
     if (selectedConvId && token && isOpen) {
       setLoadingMsgs(true);
-      fetchMessages(selectedConvId).finally(() => setLoadingMsgs(false));
+      isNearBottomRef.current = true;
+      fetchMessages(selectedConvId).finally(() => {
+        setLoadingMsgs(false);
+        requestAnimationFrame(() => {
+          scrollToBottom(false);
+        });
+      });
 
       // Polling for live updates every 3.5 seconds
       const interval = setInterval(() => {
@@ -141,7 +218,7 @@ export default function MessagesModal({
 
       return () => clearInterval(interval);
     }
-  }, [selectedConvId, token, isOpen, fetchMessages, fetchConversations]);
+  }, [selectedConvId, token, isOpen, fetchMessages, fetchConversations, scrollToBottom]);
 
   // Send message
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -174,6 +251,10 @@ export default function MessagesModal({
       if (data.success && data.message) {
         setInputText("");
         setMessages((prev) => [...prev, data.message]);
+        isNearBottomRef.current = true;
+        requestAnimationFrame(() => {
+          scrollToBottom(false);
+        });
         fetchConversations(); // Update snippet in thread list
       } else {
         const errText = data.error || "";
@@ -207,8 +288,15 @@ export default function MessagesModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-hidden animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-slate-800 w-full max-w-4xl h-[100dvh] sm:h-[88vh] flex flex-col overflow-hidden relative sm:my-auto text-[#002f34] dark:text-slate-100">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-hidden animate-in fade-in duration-150"
+      style={
+        viewportHeight && typeof window !== "undefined" && window.innerWidth < 640
+          ? { height: `${viewportHeight}px`, top: `${viewportOffsetTop}px` }
+          : undefined
+      }
+    >
+      <div className="bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-slate-800 w-full max-w-4xl h-full sm:h-[88vh] flex flex-col overflow-hidden relative sm:my-auto text-[#002f34] dark:text-slate-100">
         {/* Top Header */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4">
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -360,7 +448,11 @@ export default function MessagesModal({
                 </div>
 
                 {/* Messages Bubbles Stream */}
-                <div className="flex-1 min-h-0 p-3.5 sm:p-6 overflow-y-auto space-y-3 bg-[#f8f9fa] dark:bg-slate-950 overscroll-contain">
+                <div
+                  ref={messagesContainerRef}
+                  onScroll={handleScroll}
+                  className="flex-1 min-h-0 p-3.5 sm:p-6 overflow-y-auto space-y-3 bg-[#f8f9fa] dark:bg-slate-950 overscroll-contain touch-pan-y"
+                >
                   {loadingMsgs ? (
                     <div className="py-16 text-center text-gray-400 dark:text-slate-500">
                       <Loader2 className="w-6 h-6 animate-spin mx-auto text-teal-600 dark:text-teal-400 mb-2" />
@@ -402,7 +494,6 @@ export default function MessagesModal({
                       </div>
                     ))
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
 
                 {/* Error Banner if message blocked */}
@@ -426,7 +517,9 @@ export default function MessagesModal({
                 {/* Message Input Box - Fixed and anchored at bottom */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-2.5 sm:p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shrink-0 z-20 shadow-xs sm:shadow-none"
+                  className={`p-2.5 sm:p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2 shrink-0 z-20 shadow-xs sm:shadow-none ${
+                    isKeyboardVisible ? "pb-2.5" : "pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+                  }`}
                 >
                   <input
                     type="text"
@@ -436,15 +529,18 @@ export default function MessagesModal({
                       if (errorMsg) setErrorMsg(null);
                     }}
                     onFocus={() => {
-                      setTimeout(scrollToBottom, 250);
+                      if (errorMsg) setErrorMsg(null);
+                      setTimeout(() => {
+                        scrollToBottom(false);
+                      }, 100);
                     }}
                     placeholder={t("messages.placeholder")}
-                    className="flex-1 px-4 py-2.5 sm:py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-base sm:text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 outline-none font-normal min-w-0 transition-all"
+                    className="flex-1 px-4 py-2.5 sm:py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-base sm:text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 outline-none font-normal min-w-0 transition-colors"
                   />
                   <button
                     type="submit"
                     disabled={!inputText.trim() || sending}
-                    className="w-11 h-11 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 active:bg-[#001e22] text-white rounded-xl transition-all disabled:opacity-40 cursor-pointer shrink-0 shadow-xs active:scale-95 flex items-center justify-center"
+                    className="w-11 h-11 sm:w-10 sm:h-10 min-w-[44px] min-h-[44px] bg-[#002f34] dark:bg-teal-600 hover:bg-[#003e45] dark:hover:bg-teal-700 active:bg-[#001e22] text-white rounded-xl transition-colors disabled:opacity-40 cursor-pointer shrink-0 shadow-xs active:scale-95 flex items-center justify-center"
                     title={t("messages.send")}
                     aria-label={t("messages.send")}
                   >
