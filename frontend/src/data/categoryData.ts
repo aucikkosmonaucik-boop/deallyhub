@@ -19,49 +19,50 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Telefony i akcesoria", en: "Phones & Accessories", de: "Handys & Zubehör" },
         items: [
-          { name: { pl: "Smartfony", en: "Smartphones" }, query: "smartfon" },
-          { name: { pl: "Smartwatche i opaski", en: "Smartwatches" }, query: "smartwatch" },
-          { name: { pl: "Tablety", en: "Tablets" }, query: "tablet" },
-          { name: { pl: "Akcesoria GSM i ładowarki", en: "GSM Accessories & Chargers" }, query: "ładowarka" },
-          { name: { pl: "Etui, pokrowce i szkła", en: "Cases & Screen Protectors" }, query: "etui" },
-          { name: { pl: "Powerbanki", en: "Powerbanks" }, query: "powerbank" }
+          { name: { pl: "Smartfony", en: "Smartphones", de: "Smartphones" }, query: "smartfon" },
+          { name: { pl: "Smartwatche i opaski", en: "Smartwatches & Bands", de: "Smartwatches & Fitnesstracker" }, query: "smartwatch" },
+          { name: { pl: "Tablety", en: "Tablets", de: "Tablets" }, query: "tablet" },
+          { name: { pl: "Akcesoria GSM i ładowarki", en: "GSM Accessories & Chargers", de: "Handyzubehör & Ladegeräte" }, query: "ładowarka" },
+          { name: { pl: "Etui, pokrowce i szkła", en: "Cases & Screen Protectors", de: "Hüllen & Schutzgläser" }, query: "etui" },
+          { name: { pl: "Powerbanki", en: "Powerbanks", de: "Powerbanks" }, query: "powerbank" }
         ]
       },
       {
         title: { pl: "Komputery i laptopy", en: "Computers & Laptops", de: "Computer & Laptops" },
         items: [
-          { name: { pl: "Laptopy", en: "Laptops" }, query: "laptop" },
-          { name: { pl: "Komputery stacjonarne", en: "Desktop PCs" }, query: "komputer" },
-          { name: { pl: "Podzespoły komputerowe", en: "PC Components" }, query: "karta graficzna" },
-          { name: { pl: "Monitory", en: "Monitors" }, query: "monitor" },
-          { name: { pl: "Drukarki i skanery", en: "Printers & Scanners" }, query: "drukarka" },
-          { name: { pl: "Dyski i pamięci", en: "Storage & Drives" }, query: "dysk" }
+          { name: { pl: "Laptopy", en: "Laptops", de: "Laptops & Notebooks" }, query: "laptop" },
+          { name: { pl: "Komputery stacjonarne", en: "Desktop PCs", de: "Desktop-PCs" }, query: "komputer" },
+          { name: { pl: "Podzespoły komputerowe", en: "PC Components", de: "PC-Komponenten" }, query: "karta graficzna" },
+          { name: { pl: "Monitory", en: "Monitors", de: "Monitore" }, query: "monitor" },
+          { name: { pl: "Drukarki i skanery", en: "Printers & Scanners", de: "Drucker & Scanner" }, query: "drukarka" },
+          { name: { pl: "Dyski i pamięci", en: "Storage & Drives", de: "Festplatten & Speicher" }, query: "dysk" }
         ]
       },
       {
         title: { pl: "Telewizory i audio", en: "TV & Audio", de: "Fernseher & Audio" },
         items: [
-          { name: { pl: "Telewizory Smart TV", en: "Smart TVs" }, query: "telewizor" },
-          { name: { pl: "Słuchawki bezprzewodowe", en: "Headphones" }, query: "słuchawki" },
-          { name: { pl: "Głośniki i Soundbary", en: "Speakers & Soundbars" }, query: "głośnik" },
-          { name: { pl: "Projektory i rzutniki", en: "Projectors" }, query: "projektor" },
-          { name: { pl: "Kino domowe i amplitunery", en: "Home Theater" }, query: "kino domowe" }
+          { name: { pl: "Telewizory Smart TV", en: "Smart TVs", de: "Smart-TVs" }, query: "telewizor" },
+          { name: { pl: "Słuchawki bezprzewodowe", en: "Wireless Headphones", de: "Kabellose Kopfhörer" }, query: "słuchawki" },
+          { name: { pl: "Głośniki i Soundbary", en: "Speakers & Soundbars", de: "Lautsprecher & Soundbars" }, query: "głośnik" },
+          { name: { pl: "Projektory i rzutniki", en: "Projectors", de: "Projektoren & Beamer" }, query: "projektor" },
+          { name: { pl: "Kino domowe i amplitunery", en: "Home Theater & Receivers", de: "Heimkino & Receiver" }, query: "kino domowe" }
         ]
       },
       {
         title: { pl: "Konsole i gaming", en: "Gaming & Consoles", de: "Konsolen & Gaming" },
         items: [
-          { name: { pl: "PlayStation 5 / PS4", en: "PlayStation 5 / PS4" }, query: "PlayStation" },
-          { name: { pl: "Xbox Series X/S / One", en: "Xbox Series X/S" }, query: "Xbox" },
-          { name: { pl: "Nintendo Switch", en: "Nintendo Switch" }, query: "Nintendo" },
-          { name: { pl: "Gry na konsole i PC", en: "Video Games" }, query: "gry" },
-          { name: { pl: "Fotele i biurka gamingowe", en: "Gaming Chairs & Desks" }, query: "gaming" }
+          { name: { pl: "PlayStation 5 / PS4", en: "PlayStation 5 / PS4", de: "PlayStation 5 / PS4" }, query: "PlayStation" },
+          { name: { pl: "Xbox Series X/S / One", en: "Xbox Series X/S / One", de: "Xbox Series X/S / One" }, query: "Xbox" },
+          { name: { pl: "Nintendo Switch", en: "Nintendo Switch", de: "Nintendo Switch" }, query: "Nintendo" },
+          { name: { pl: "Gry na konsole i PC", en: "Video Games (Console & PC)", de: "Videospiele (Konsole & PC)" }, query: "gry" },
+          { name: { pl: "Fotele i biurka gamingowe", en: "Gaming Chairs & Desks", de: "Gaming-Stühle & Schreibtische" }, query: "gaming" }
         ]
       }
     ],
     popularTags: {
       pl: ["iPhone", "Samsung Galaxy", "MacBook", "PlayStation 5", "RTX 4070", "iPad", "JBL", "Xiaomi"],
-      en: ["iPhone", "Samsung Galaxy", "MacBook", "PS5", "RTX 4080", "iPad Pro", "Sony", "Dell"]
+      en: ["iPhone", "Samsung Galaxy", "MacBook", "PS5", "RTX 4080", "iPad Pro", "Sony", "Dell"],
+      de: ["iPhone", "Samsung Galaxy", "MacBook", "PS5", "RTX 4080", "iPad Pro", "Sony", "Bose"]
     }
   },
 
@@ -71,44 +72,45 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Samochody osobowe", en: "Passenger Cars", de: "Personenkraftwagen" },
         items: [
-          { name: { pl: "Samochody używane", en: "Used Cars" }, query: "samochód" },
-          { name: { pl: "Samochody nowe", en: "New Cars" }, query: "salon" },
-          { name: { pl: "Auta hybrydowe i elektryczne", en: "Electric & Hybrid" }, query: "hybryda" },
-          { name: { pl: "Kombi i SUV", en: "SUV & Estate" }, query: "SUV" },
-          { name: { pl: "Hatchback i Sedan", en: "Sedan & Hatchback" }, query: "sedan" }
+          { name: { pl: "Samochody używane", en: "Used Cars", de: "Gebrauchtwagen" }, query: "samochód" },
+          { name: { pl: "Samochody nowe", en: "New Cars", de: "Neuwagen" }, query: "salon" },
+          { name: { pl: "Auta hybrydowe i elektryczne", en: "Electric & Hybrid Cars", de: "Elektro- & Hybridautos" }, query: "hybryda" },
+          { name: { pl: "Kombi i SUV", en: "SUV & Estate", de: "SUVs & Kombis" }, query: "SUV" },
+          { name: { pl: "Hatchback i Sedan", en: "Sedan & Hatchback", de: "Limousinen & Schrägheck" } }
         ]
       },
       {
         title: { pl: "Dostawcze i ciężarowe", en: "Commercial & Trucks", de: "Nutzfahrzeuge & LKW" },
         items: [
-          { name: { pl: "Samochody dostawcze do 3.5t", en: "Vans up to 3.5t" }, query: "dostawczy" },
-          { name: { pl: "Ciągniki siodłowe", en: "Semi-Trucks" }, query: "ciągnik" },
-          { name: { pl: "Naczepy i przyczepy", en: "Trailers" }, query: "przyczepa" },
-          { name: { pl: "Autobusy i busy", en: "Buses & Minibuses" }, query: "bus" }
+          { name: { pl: "Samochody dostawcze do 3.5t", en: "Vans up to 3.5t", de: "Lieferwagen bis 3,5t" }, query: "dostawczy" },
+          { name: { pl: "Ciągniki siodłowe", en: "Semi-Trucks", de: "Sattelzugmaschinen" }, query: "ciągnik" },
+          { name: { pl: "Naczepy i przyczepy", en: "Trailers & Semi-Trailers", de: "Anhänger & Auflieger" }, query: "przyczepa" },
+          { name: { pl: "Autobusy i busy", en: "Buses & Minibuses", de: "Busse & Minibusse" }, query: "bus" }
         ]
       },
       {
         title: { pl: "Jednoślady i rekreacja", en: "Motorcycles & Quads", de: "Motorräder & Quads" },
         items: [
-          { name: { pl: "Motocykle szosowe i turystyczne", en: "Motorcycles" }, query: "motocykl" },
-          { name: { pl: "Skutery i motorowery", en: "Scooters" }, query: "skuter" },
-          { name: { pl: "Quady i ATV", en: "Quads & ATVs" }, query: "quad" },
-          { name: { pl: "Cross i Enduro", en: "Cross & Enduro" }, query: "cross" }
+          { name: { pl: "Motocykle szosowe i turystyczne", en: "Road & Touring Motorcycles", de: "Straßen- & Tourer-Motorräder" }, query: "motocykl" },
+          { name: { pl: "Skutery i motorowery", en: "Scooters & Mopeds", de: "Roller & Mopeds" }, query: "skuter" },
+          { name: { pl: "Quady i ATV", en: "Quads & ATVs", de: "Quads & ATVs" }, query: "quad" },
+          { name: { pl: "Cross i Enduro", en: "Cross & Enduro", de: "Motocross & Enduro" }, query: "cross" }
         ]
       },
       {
         title: { pl: "Części i wyposażenie", en: "Parts & Accessories", de: "Teile & Zubehör" },
         items: [
-          { name: { pl: "Opony i felgi", en: "Tires & Rims" }, query: "opony" },
-          { name: { pl: "Części karoserii", en: "Body Parts" }, query: "zderzak" },
-          { name: { pl: "Silniki i osprzęt", en: "Engines & Parts" }, query: "silnik" },
-          { name: { pl: "Oleje i chemia", en: "Oils & Car Care" }, query: "olej" }
+          { name: { pl: "Opony i felgi", en: "Tires & Rims", de: "Reifen & Felgen" }, query: "opony" },
+          { name: { pl: "Części karoserii", en: "Body Parts", de: "Karosserieteile" }, query: "zderzak" },
+          { name: { pl: "Silniki i osprzęt", en: "Engines & Parts", de: "Motoren & Zubehör" }, query: "silnik" },
+          { name: { pl: "Oleje i chemia", en: "Oils & Car Care", de: "Öle & Autopflege" }, query: "olej" }
         ]
       }
     ],
     popularTags: {
       pl: ["BMW", "Audi", "Volkswagen", "Mercedes-Benz", "Toyota", "Ford", "Skoda", "Volvo", "Honda"],
-      en: ["BMW", "Audi", "Mercedes-Benz", "Toyota", "Ford", "Volkswagen", "Tesla", "Porsche"]
+      en: ["BMW", "Audi", "Mercedes-Benz", "Toyota", "Ford", "Volkswagen", "Tesla", "Porsche"],
+      de: ["BMW", "Audi", "Mercedes-Benz", "Volkswagen", "Toyota", "Porsche", "Opel", "Ford"]
     }
   },
 
@@ -118,43 +120,44 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Mieszkania", en: "Apartments & Flats", de: "Wohnungen" },
         items: [
-          { name: { pl: "Mieszkania na sprzedaż", en: "Apartments for Sale" }, query: "mieszkanie sprzedaż" },
-          { name: { pl: "Mieszkania na wynajem", en: "Apartments for Rent" }, query: "mieszkanie wynajem" },
-          { name: { pl: "Kawalerki i 1-pokojowe", en: "Studio Apartments" }, query: "kawalerka" },
-          { name: { pl: "Apartamenty i lofty", en: "Luxury Lofts" }, query: "apartament" }
+          { name: { pl: "Mieszkania na sprzedaż", en: "Apartments for Sale", de: "Wohnungen zum Kauf" }, query: "mieszkanie sprzedaż" },
+          { name: { pl: "Mieszkania na wynajem", en: "Apartments for Rent", de: "Wohnungen zur Miete" }, query: "mieszkanie wynajem" },
+          { name: { pl: "Kawalerki i 1-pokojowe", en: "Studio Apartments", de: "1-Zimmer-Wohnungen & Studios" }, query: "kawalerka" },
+          { name: { pl: "Apartamenty i lofty", en: "Luxury Apartments & Lofts", de: "Luxus-Apartments & Lofts" }, query: "apartament" }
         ]
       },
       {
         title: { pl: "Domy i wille", en: "Houses & Villas", de: "Häuser & Villen" },
         items: [
-          { name: { pl: "Domy jednorodzinne", en: "Single-Family Houses" }, query: "dom" },
-          { name: { pl: "Szeregowce i bliźniaki", en: "Townhouses & Semis" }, query: "bliźniak" },
-          { name: { pl: "Domy letniskowe", en: "Holiday Homes" }, query: "letniskowy" },
-          { name: { pl: "Domy na wynajem", en: "Houses for Rent" }, query: "dom wynajem" }
+          { name: { pl: "Domy jednorodzinne", en: "Single-Family Houses", de: "Einfamilienhäuser" }, query: "dom" },
+          { name: { pl: "Szeregowce i bliźniaki", en: "Townhouses & Semis", de: "Reihen- & Doppelhäuser" }, query: "bliźniak" },
+          { name: { pl: "Domy letniskowe", en: "Holiday Homes", de: "Ferienhäuser" }, query: "letniskowy" },
+          { name: { pl: "Domy na wynajem", en: "Houses for Rent", de: "Häuser zur Miete" }, query: "dom wynajem" }
         ]
       },
       {
         title: { pl: "Działki i grunty", en: "Plots & Land", de: "Grundstücke" },
         items: [
-          { name: { pl: "Działki budowlane", en: "Building Land" }, query: "działka budowlana" },
-          { name: { pl: "Działki rekreacyjne / ROD", en: "Recreation Plots" }, query: "działka rekreacyjna" },
-          { name: { pl: "Grunty rolne i leśne", en: "Agricultural Land" }, query: "rolna" },
-          { name: { pl: "Działki inwestycyjne", en: "Commercial Plots" }, query: "inwestycyjna" }
+          { name: { pl: "Działki budowlane", en: "Building Land", de: "Baugrundstücke" }, query: "działka budowlana" },
+          { name: { pl: "Działki rekreacyjne / ROD", en: "Recreation Plots", de: "Freizeit- & Gartengrundstücke" }, query: "działka rekreacyjna" },
+          { name: { pl: "Grunty rolne i leśne", en: "Agricultural Land", de: "Land- & Forstwirtschaftsflächen" }, query: "rolna" },
+          { name: { pl: "Działki inwestycyjne", en: "Commercial Plots", de: "Gewerbegrundstücke" }, query: "inwestycyjna" }
         ]
       },
       {
         title: { pl: "Lokale i komercyjne", en: "Commercial Properties", de: "Gewerbeimmobilien" },
         items: [
-          { name: { pl: "Lokale użytkowe i sklepy", en: "Retail & Shops" }, query: "lokal" },
-          { name: { pl: "Biura i gabinety", en: "Offices" }, query: "biuro" },
-          { name: { pl: "Magazyny i hale", en: "Warehouses" }, query: "magazyn" },
-          { name: { pl: "Garaże i miejsca postojowe", en: "Garages & Parking" }, query: "garaż" }
+          { name: { pl: "Lokale użytkowe i sklepy", en: "Retail & Commercial Units", de: "Ladenflächen & Gewerbe" }, query: "lokal" },
+          { name: { pl: "Biura i gabinety", en: "Offices & Practices", de: "Büros & Praxen" }, query: "biuro" },
+          { name: { pl: "Magazyny i hale", en: "Warehouses & Halls", de: "Lager & Hallen" }, query: "magazyn" },
+          { name: { pl: "Garaże i miejsca postojowe", en: "Garages & Parking Spaces", de: "Garagen & Stellplätze" }, query: "garaż" }
         ]
       }
     ],
     popularTags: {
       pl: ["Warszawa", "Kraków", "Wrocław", "Gdańsk", "Poznań", "Kawalerka", "Działka budowlana", "Bez pośredników"],
-      en: ["For Rent", "For Sale", "Studio Flat", "2-Bedroom", "City Center", "Plot", "Garage"]
+      en: ["For Rent", "For Sale", "Studio Flat", "2-Bedroom", "City Center", "Plot", "Garage"],
+      de: ["Zur Miete", "Zum Kauf", "Wohnung", "Haus", "Grundstück", "Garage", "Balkon"]
     }
   },
 
@@ -164,44 +167,45 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Meble i wyposażenie", en: "Furniture & Decor", de: "Möbel & Wohnen" },
         items: [
-          { name: { pl: "Sofy, narożniki i kanapy", en: "Sofas & Couches" }, query: "sofa" },
-          { name: { pl: "Stoły, krzesła i jadalnia", en: "Tables & Chairs" }, query: "stół" },
-          { name: { pl: "Szafy, komody i regały", en: "Wardrobes & Chests" }, query: "szafa" },
-          { name: { pl: "Łóżka i materace", en: "Beds & Mattresses" }, query: "łóżko" },
-          { name: { pl: "Meble kuchenne", en: "Kitchen Furniture" }, query: "meble kuchenne" }
+          { name: { pl: "Sofy, narożniki i kanapy", en: "Sofas, Couches & Corner Sofas", de: "Sofas, Couches & Ecksofas" }, query: "sofa" },
+          { name: { pl: "Stoły, krzesła i jadalnia", en: "Tables, Chairs & Dining", de: "Tische, Stühle & Esszimmer" }, query: "stół" },
+          { name: { pl: "Szafy, komody i regały", en: "Wardrobes, Dressers & Shelves", de: "Schränke, Kommoden & Regale" }, query: "szafa" },
+          { name: { pl: "Łóżka i materace", en: "Beds & Mattresses", de: "Betten & Matratzen" }, query: "łóżko" },
+          { name: { pl: "Meble kuchenne", en: "Kitchen Furniture", de: "Küchenmöbel" }, query: "meble kuchenne" }
         ]
       },
       {
         title: { pl: "Ogród i rośliny", en: "Garden & Plants", de: "Garten & Pflanzen" },
         items: [
-          { name: { pl: "Meble ogrodowe i grille", en: "Garden Furniture & BBQs" }, query: "meble ogrodowe" },
-          { name: { pl: "Kosiarki i traktorki", en: "Lawn Mowers" }, query: "kosiarka" },
-          { name: { pl: "Rośliny, krzewy i sadzonki", en: "Plants & Trees" }, query: "rośliny" },
-          { name: { pl: "Baseny i trampoliny", en: "Pools & Trampolines" }, query: "basen" }
+          { name: { pl: "Meble ogrodowe i grille", en: "Garden Furniture & BBQs", de: "Gartenmöbel & Grills" }, query: "meble ogrodowe" },
+          { name: { pl: "Kosiarki i traktorki", en: "Lawn Mowers & Tractors", de: "Rasenmäher & Traktoren" }, query: "kosiarka" },
+          { name: { pl: "Rośliny, krzewy i sadzonki", en: "Plants, Shrubs & Seedlings", de: "Pflanzen, Sträucher & Setzlinge" }, query: "rośliny" },
+          { name: { pl: "Baseny i trampoliny", en: "Pools & Trampolines", de: "Pools & Trampoline" }, query: "basen" }
         ]
       },
       {
         title: { pl: "Narzędzia i majsterkowanie", en: "Tools & DIY", de: "Werkzeuge & Heimwerker" },
         items: [
-          { name: { pl: "Elektronarzędzia (wkrętarki, wiertarki)", en: "Power Tools" }, query: "wkrętarka" },
-          { name: { pl: "Narzędzia ręczne i zestawy", en: "Hand Tools" }, query: "narzędzia" },
-          { name: { pl: "Spawarki i kompresory", en: "Welders & Compressors" }, query: "kompresor" },
-          { name: { pl: "Oświetlenie i elektryka", en: "Lighting & Electrical" }, query: "oświetlenie" }
+          { name: { pl: "Elektronarzędzia (wkrętarki, wiertarki)", en: "Power Tools (Drills, Screwdrivers)", de: "Elektrowerkzeuge (Bohrer, Schrauber)" }, query: "wkrętarka" },
+          { name: { pl: "Narzędzia ręczne i zestawy", en: "Hand Tools & Sets", de: "Handwerkzeuge & Sets" }, query: "narzędzia" },
+          { name: { pl: "Spawarki i kompresory", en: "Welders & Compressors", de: "Schweißgeräte & Kompressoren" }, query: "kompresor" },
+          { name: { pl: "Oświetlenie i elektryka", en: "Lighting & Electrical", de: "Beleuchtung & Elektrik" }, query: "oświetlenie" }
         ]
       },
       {
         title: { pl: "Dekoracje i tekstylia", en: "Home Accents & Textiles", de: "Deko & Textilien" },
         items: [
-          { name: { pl: "Dywany i chodniki", en: "Rugs & Carpets" }, query: "dywan" },
-          { name: { pl: "Zasłony, firany i pościele", en: "Curtains & Bedding" }, query: "zasłony" },
-          { name: { pl: "Obrazy, plakaty i lustra", en: "Wall Art & Mirrors" }, query: "lustro" },
-          { name: { pl: "Zastawa i akcesoria kuchenne", en: "Cookware & Dining" }, query: "zastawa" }
+          { name: { pl: "Dywany i chodniki", en: "Rugs & Carpets", de: "Teppiche & Läufer" }, query: "dywan" },
+          { name: { pl: "Zasłony, firany i pościele", en: "Curtains, Drapes & Bedding", de: "Vorhänge, Gardinen & Bettwäsche" }, query: "zasłony" },
+          { name: { pl: "Obrazy, plakaty i lustra", en: "Wall Art, Posters & Mirrors", de: "Bilder, Poster & Spiegel" }, query: "lustro" },
+          { name: { pl: "Zastawa i akcesoria kuchenne", en: "Cookware & Dining", de: "Geschirr & Küchenzubehör" }, query: "zastawa" }
         ]
       }
     ],
     popularTags: {
       pl: ["IKEA", "Kosiarka", "Makita", "Bosch", "Narożnik", "Stół dębowy", "Meble tarasowe", "Grill"],
-      en: ["IKEA", "Sofa", "Makita", "Lawnmower", "Dining Table", "Garden Set", "Drill"]
+      en: ["IKEA", "Sofa", "Makita", "Lawnmower", "Dining Table", "Garden Set", "Drill"],
+      de: ["IKEA", "Sofa", "Makita", "Bosch", "Rasenmäher", "Esstisch", "Gartenmöbel", "Grill"]
     }
   },
 
@@ -211,43 +215,44 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Odzież damska", en: "Women's Clothing", de: "Damenmode" },
         items: [
-          { name: { pl: "Sukienki i spódnice", en: "Dresses & Skirts" }, query: "sukienka" },
-          { name: { pl: "Kurtki, płaszcze i trencze", en: "Jackets & Coats" }, query: "kurtka" },
-          { name: { pl: "Swetry, bluzy i kardigany", en: "Sweaters & Hoodies" }, query: "sweter" },
-          { name: { pl: "Spodnie, jeansy i legginsy", en: "Jeans & Trousers" }, query: "jeansy" }
+          { name: { pl: "Sukienki i spódnice", en: "Dresses & Skirts", de: "Kleider & Röcke" }, query: "sukienka" },
+          { name: { pl: "Kurtki, płaszcze i trencze", en: "Jackets, Coats & Trench Coats", de: "Jacken, Mäntel & Trenchcoats" }, query: "kurtka" },
+          { name: { pl: "Swetry, bluzy i kardigany", en: "Sweaters, Hoodies & Cardigans", de: "Pullover, Hoodies & Strickjacken" }, query: "sweter" },
+          { name: { pl: "Spodnie, jeansy i legginsy", en: "Jeans, Trousers & Leggings", de: "Hosen, Jeans & Leggings" }, query: "jeansy" }
         ]
       },
       {
         title: { pl: "Odzież męska", en: "Men's Clothing", de: "Herrenmode" },
         items: [
-          { name: { pl: "Kurtki i płaszcze męskie", en: "Men's Jackets" }, query: "kurtka męska" },
-          { name: { pl: "Garnitury i marynarki", en: "Suits & Blazers" }, query: "garnitur" },
-          { name: { pl: "Koszule i polo", en: "Shirts & Polos" }, query: "koszula" },
-          { name: { pl: "Bluzy i dresy", en: "Hoodies & Tracksuits" }, query: "bluza" }
+          { name: { pl: "Kurtki i płaszcze męskie", en: "Men's Jackets & Coats", de: "Herrenjacken & Mäntel" }, query: "kurtka męska" },
+          { name: { pl: "Garnitury i marynarki", en: "Suits & Blazers", de: "Anzüge & Sakkos" }, query: "garnitur" },
+          { name: { pl: "Koszule i polo", en: "Shirts & Polos", de: "Hemden & Poloshirts" }, query: "koszula" },
+          { name: { pl: "Bluzy i dresy", en: "Hoodies & Tracksuits", de: "Hoodies & Trainingsanzüge" }, query: "bluza" }
         ]
       },
       {
         title: { pl: "Obuwie", en: "Shoes & Footwear", de: "Schuhe" },
         items: [
-          { name: { pl: "Sneakersy i buty sportowe", en: "Sneakers & Trainers" }, query: "sneakers" },
-          { name: { pl: "Buty eleganckie i szpilki", en: "Dress Shoes & Heels" }, query: "szpilki" },
-          { name: { pl: "Kozaki, botki i trapery", en: "Boots" }, query: "botki" },
-          { name: { pl: "Sandały i klapki", en: "Sandals & Slippers" }, query: "sandały" }
+          { name: { pl: "Sneakersy i buty sportowe", en: "Sneakers & Trainers", de: "Sneaker & Sportschuhe" }, query: "sneakers" },
+          { name: { pl: "Buty eleganckie i szpilki", en: "Dress Shoes & Heels", de: "Elegante Schuhe & High Heels" }, query: "szpilki" },
+          { name: { pl: "Kozaki, botki i trapery", en: "Boots & Ankle Boots", de: "Stiefel & Stiefeletten" }, query: "botki" },
+          { name: { pl: "Sandały i klapki", en: "Sandals & Slippers", de: "Sandalen & Pantoletten" }, query: "sandały" }
         ]
       },
       {
         title: { pl: "Dodatki i akcesoria", en: "Accessories & Bags", de: "Accessoires & Taschen" },
         items: [
-          { name: { pl: "Torebki i plecaki", en: "Handbags & Backpacks" }, query: "torebka" },
-          { name: { pl: "Zegarki i smartbandy", en: "Watches" }, query: "zegarek" },
-          { name: { pl: "Biżuteria (złoto, srebro)", en: "Jewelry" }, query: "biżuteria" },
-          { name: { pl: "Okulary przeciwsłoneczne", en: "Sunglasses" }, query: "okulary" }
+          { name: { pl: "Torebki i plecaki", en: "Handbags & Backpacks", de: "Handtaschen & Rucksäcke" }, query: "torebka" },
+          { name: { pl: "Zegarki i smartbandy", en: "Watches & Bands", de: "Uhren & Smartbands" }, query: "zegarek" },
+          { name: { pl: "Biżuteria (złoto, srebro)", en: "Jewelry (Gold, Silver)", de: "Schmuck (Gold, Silber)" }, query: "biżuteria" },
+          { name: { pl: "Okulary przeciwsłoneczne", en: "Sunglasses", de: "Sonnenbrillen" }, query: "okulary" }
         ]
       }
     ],
     popularTags: {
       pl: ["Zara", "Nike", "Adidas", "Tommy Hilfiger", "Calvin Klein", "Jordan", "Gucci", "Złoto 585"],
-      en: ["Nike", "Adidas", "Zara", "Gucci", "Sneakers", "Leather Jacket", "Watch", "Handbag"]
+      en: ["Nike", "Adidas", "Zara", "Gucci", "Sneakers", "Leather Jacket", "Watch", "Handbag"],
+      de: ["Nike", "Adidas", "Zara", "Tommy Hilfiger", "Sneaker", "Uhr", "Handtasche", "Gold"]
     }
   },
 
@@ -257,43 +262,44 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Branże techniczne i IT", en: "Tech & Engineering", de: "IT & Technik" },
         items: [
-          { name: { pl: "Programowanie i IT", en: "Software & IT" }, query: "programista" },
-          { name: { pl: "Budownictwo i instalacje", en: "Construction" }, query: "budownictwo" },
-          { name: { pl: "Inżynieria i produkcja", en: "Engineering & Production" }, query: "inżynier" },
-          { name: { pl: "Mechanika i elektromechanika", en: "Mechanics" }, query: "mechanik" }
+          { name: { pl: "Programowanie i IT", en: "Software & IT", de: "Programmierung & IT" }, query: "programista" },
+          { name: { pl: "Budownictwo i instalacje", en: "Construction & Installations", de: "Bau & Installationen" }, query: "budownictwo" },
+          { name: { pl: "Inżynieria i produkcja", en: "Engineering & Production", de: "Ingenieurwesen & Produktion" }, query: "inżynier" },
+          { name: { pl: "Mechanika i elektromechanika", en: "Mechanics & Electromechanics", de: "Mechanik & Elektromechanik" }, query: "mechanik" }
         ]
       },
       {
         title: { pl: "Handel, logistyka i usługi", en: "Logistics & Services", de: "Handel & Logistik" },
         items: [
-          { name: { pl: "Kierowcy i kurierzy (kat. B, C, C+E)", en: "Drivers & Couriers" }, query: "kierowca" },
-          { name: { pl: "Magazynierzy i operatorzy wózków", en: "Warehouse Workers" }, query: "magazynier" },
-          { name: { pl: "Sprzedaż, kasjer i obsługa klienta", en: "Sales & Retail" }, query: "sprzedawca" },
-          { name: { pl: "Gastronomia, kucharz i kelner", en: "Hospitality & Chefs" }, query: "kucharz" }
+          { name: { pl: "Kierowcy i kurierzy (kat. B, C, C+E)", en: "Drivers & Couriers (B, C, C+E)", de: "Fahrer & Kuriere (Kl. B, C, CE)" }, query: "kierowca" },
+          { name: { pl: "Magazynierzy i operatorzy wózków", en: "Warehouse Workers & Forklift Drivers", de: "Lagerarbeiter & Staplerfahrer" }, query: "magazynier" },
+          { name: { pl: "Sprzedaż, kasjer i obsługa klienta", en: "Sales, Cashiers & Customer Service", de: "Verkauf, Kasse & Kundenservice" }, query: "sprzedawca" },
+          { name: { pl: "Gastronomia, kucharz i kelner", en: "Hospitality, Chefs & Waiters", de: "Gastronomie, Köche & Kellner" }, query: "kucharz" }
         ]
       },
       {
         title: { pl: "Praca biurowa i specjaliści", en: "Office & Healthcare", de: "Büro & Gesundheit" },
         items: [
-          { name: { pl: "Księgowość, finanse i HR", en: "Accounting & HR" }, query: "księgowa" },
-          { name: { pl: "Marketing, social media i reklama", en: "Marketing & Ads" }, query: "marketing" },
-          { name: { pl: "Medycyna, opieka i farmacja", en: "Healthcare & Nursing" }, query: "pielęgniarka" },
-          { name: { pl: "Edukacja, korepetycje i nauka", en: "Teaching & Tutoring" }, query: "korepetycje" }
+          { name: { pl: "Księgowość, finanse i HR", en: "Accounting, Finance & HR", de: "Buchhaltung, Finanzen & HR" }, query: "księgowa" },
+          { name: { pl: "Marketing, social media i reklama", en: "Marketing, Social Media & Ads", de: "Marketing, Social Media & Werbung" }, query: "marketing" },
+          { name: { pl: "Medycyna, opieka i farmacja", en: "Healthcare, Nursing & Pharmacy", de: "Medizin, Pflege & Pharmazie" }, query: "pielęgniarka" },
+          { name: { pl: "Edukacja, korepetycje i nauka", en: "Education & Tutoring", de: "Bildung & Nachhilfe" }, query: "korepetycje" }
         ]
       },
       {
-        title: { pl: "Tryb pracy i za granicą", en: "Work Mode & Abroad", de: "Ausland & Remote" },
+        title: { pl: "Tryb pracy i za granicą", en: "Work Mode & Abroad", de: "Arbeitsmodell & Ausland" },
         items: [
-          { name: { pl: "Praca zdalna / Home office", en: "Remote Work" }, query: "praca zdalna" },
-          { name: { pl: "Praca za granicą (Niemcy, Holandia)", en: "Jobs Abroad" }, query: "za granicą" },
-          { name: { pl: "Praca dodatkowa i dla studentów", en: "Part-Time & Student" }, query: "dodatkowa" },
-          { name: { pl: "Praca tymczasowa i sezonowa", en: "Seasonal Jobs" }, query: "sezonowa" }
+          { name: { pl: "Praca zdalna / Home office", en: "Remote Work / Home Office", de: "Homeoffice / Remote-Arbeit" }, query: "praca zdalna" },
+          { name: { pl: "Praca za granicą (Niemcy, Holandia)", en: "Jobs Abroad (Germany, Netherlands)", de: "Jobs im Ausland" }, query: "za granicą" },
+          { name: { pl: "Praca dodatkowa i dla studentów", en: "Part-Time & Student Jobs", de: "Nebenjobs & Studentenjobs" }, query: "dodatkowa" },
+          { name: { pl: "Praca tymczasowa i sezonowa", en: "Temporary & Seasonal Jobs", de: "Zeitarbeit & Saisonarbeit" }, query: "sezonowa" }
         ]
       }
     ],
     popularTags: {
       pl: ["Kierowca C+E", "Praca zdalna", "Magazynier", "Spawacz", "Operator CNC", "Księgowa", "Praca od zaraz", "Niemcy"],
-      en: ["Driver", "Remote", "Software Developer", "Warehouse", "Part-Time", "Urgent Hire"]
+      en: ["Driver", "Remote", "Software Developer", "Warehouse", "Part-Time", "Urgent Hire"],
+      de: ["Fahrer", "Homeoffice", "Lagerarbeiter", "Schweißer", "Vollzeit", "Teilzeit"]
     }
   },
 
@@ -303,43 +309,44 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Materiały budowlane", en: "Building Materials", de: "Baumaterialien" },
         items: [
-          { name: { pl: "Stal, pustaki i cegły", en: "Bricks, Blocks & Steel" }, query: "pustak" },
-          { name: { pl: "Ocieplenie, styropian i wełna", en: "Insulation & Foam" }, query: "styropian" },
-          { name: { pl: "Dachówki i pokrycia dachowe", en: "Roofing Materials" }, query: "blachodachówka" },
-          { name: { pl: "Drewno budowlane i kantówki", en: "Lumber & Timber" }, query: "drewno" }
+          { name: { pl: "Stal, pustaki i cegły", en: "Steel, Bricks & Blocks", de: "Stahl, Ziegel & Mauersteine" }, query: "pustak" },
+          { name: { pl: "Ocieplenie, styropian i wełna", en: "Insulation, EPS & Mineral Wool", de: "Dämmung, Styropor & Mineralwolle" }, query: "styropian" },
+          { name: { pl: "Dachówki i pokrycia dachowe", en: "Roof Tiles & Roofing Materials", de: "Dachziegel & Dacheindeckung" }, query: "blachodachówka" },
+          { name: { pl: "Drewno budowlane i kantówki", en: "Lumber & Timber", de: "Bauholz & Kanthölzer" }, query: "drewno" }
         ]
       },
       {
         title: { pl: "Wykończenie wnętrz", en: "Interior Finishing", de: "Innenausbau" },
         items: [
-          { name: { pl: "Płytki, gres i kafelki", en: "Tiles & Ceramics" }, query: "płytki" },
-          { name: { pl: "Panele podłogowe i deski", en: "Flooring & Parquet" }, query: "panele" },
-          { name: { pl: "Farby, tynki i gładzie", en: "Paints & Plaster" }, query: "farba" },
-          { name: { pl: "Drzwi wewnętrzne i zewnętrzne", en: "Doors & Frames" }, query: "drzwi" }
+          { name: { pl: "Płytki, gres i kafelki", en: "Tiles & Ceramics", de: "Fliesen & Feinsteinzeug" }, query: "płytki" },
+          { name: { pl: "Panele podłogowe i deski", en: "Laminate Flooring & Wood Boards", de: "Laminat & Parkett" }, query: "panele" },
+          { name: { pl: "Farby, tynki i gładzie", en: "Paints, Plasters & Skim Coats", de: "Farben, Putze & Spachtelmassen" }, query: "farba" },
+          { name: { pl: "Drzwi wewnętrzne i zewnętrzne", en: "Interior & Exterior Doors", de: "Innen- & Außentüren" }, query: "drzwi" }
         ]
       },
       {
         title: { pl: "Instalacje i hydraulika", en: "Plumbing & Heating", de: "Heizung & Sanitär" },
         items: [
-          { name: { pl: "Pompy ciepła i klimatyzacja", en: "Heat Pumps & AC" }, query: "pompa ciepła" },
-          { name: { pl: "Kotły, piece i grzejniki", en: "Boilers & Radiators" }, query: "piec" },
-          { name: { pl: "Fotowoltaika i inwertery", en: "Solar & Inverters" }, query: "fotowoltaika" },
-          { name: { pl: "Rury, zawory i armatura", en: "Pipes & Fittings" }, query: "armatura" }
+          { name: { pl: "Pompy ciepła i klimatyzacja", en: "Heat Pumps & Air Conditioning", de: "Wärmepumpen & Klimaanlagen" }, query: "pompa ciepła" },
+          { name: { pl: "Kotły, piece i grzejniki", en: "Boilers, Furnaces & Radiators", de: "Heizkessel, Öfen & Heizkörper" }, query: "piec" },
+          { name: { pl: "Fotowoltaika i inwertery", en: "Photovoltaics & Inverters", de: "Photovoltaik & Wechselrichter" }, query: "fotowoltaika" },
+          { name: { pl: "Rury, zawory i armatura", en: "Pipes, Valves & Fittings", de: "Rohre, Ventile & Armaturen" }, query: "armatura" }
         ]
       },
       {
         title: { pl: "Maszyny i rusztowania", en: "Machinery & Scaffolding", de: "Baumaschinen & Gerüste" },
         items: [
-          { name: { pl: "Rusztowania i drabiny", en: "Scaffolding & Ladders" }, query: "rusztowanie" },
-          { name: { pl: "Betoniarki i zacieraczki", en: "Cement Mixers" }, query: "betoniarka" },
-          { name: { pl: "Agregaty tynkarskie i malarskie", en: "Sprayers & Generators" }, query: "agregat" },
-          { name: { pl: "Zagęszczarki do gruntu", en: "Plate Compactors" }, query: "zagęszczarka" }
+          { name: { pl: "Rusztowania i drabiny", en: "Scaffolding & Ladders", de: "Gerüste & Leitern" }, query: "rusztowanie" },
+          { name: { pl: "Betoniarki i zacieraczki", en: "Cement Mixers & Power Trowels", de: "Betonmischer & Glättmaschinen" }, query: "betoniarka" },
+          { name: { pl: "Agregaty tynkarskie i malarskie", en: "Plaster & Paint Sprayers", de: "Putz- & Farbspritzgeräte" }, query: "agregat" },
+          { name: { pl: "Zagęszczarki do gruntu", en: "Plate Compactors", de: "Rüttelplatten & Bodenverdichter" }, query: "zagęszczarka" }
         ]
       }
     ],
     popularTags: {
       pl: ["Styropian", "Pompa ciepła", "Kostka brukowa", "Gres", "Rusztowanie elewacyjne", "Fotowoltaika", "Wełna mineralna"],
-      en: ["Heat Pump", "Scaffolding", "Tiles", "Timber", "Insulation", "Cement Mixer"]
+      en: ["Heat Pump", "Scaffolding", "Tiles", "Timber", "Insulation", "Cement Mixer"],
+      de: ["Wärmepumpe", "Gerüst", "Fliesen", "Bauholz", "Dämmung", "Photovoltaik"]
     }
   },
 
@@ -349,41 +356,42 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Maszyny przemysłowe", en: "Industrial Machinery", de: "Industriemaschinen" },
         items: [
-          { name: { pl: "Tokarki, frezarki i CNC", en: "Lathes, Mills & CNC" }, query: "tokarka" },
-          { name: { pl: "Wtryskarki i prasy hydrauliczne", en: "Injection & Presses" }, query: "prasa" },
-          { name: { pl: "Kompresory przemysłowe", en: "Industrial Compressors" }, query: "kompresor śrubowy" },
-          { name: { pl: "Maszyny do obróbki drewna i metalu", en: "Wood & Metal Tools" }, query: "obróbka" }
+          { name: { pl: "Tokarki, frezarki i CNC", en: "Lathes, Mills & CNC", de: "Drehbänke, Fräsen & CNC" }, query: "tokarka" },
+          { name: { pl: "Wtryskarki i prasy hydrauliczne", en: "Injection Molding & Hydraulic Presses", de: "Spritzguss & Hydraulikpressen" }, query: "prasa" },
+          { name: { pl: "Kompresory przemysłowe", en: "Industrial Compressors", de: "Industriekompressoren" }, query: "kompresor śrubowy" },
+          { name: { pl: "Maszyny do obróbki drewna i metalu", en: "Wood & Metal Working Machines", de: "Holz- & Metallbearbeitungsmaschinen" }, query: "obróbka" }
         ]
       },
       {
         title: { pl: "Wyposażenie firm i sklepów", en: "Store & Office Equipment", de: "Laden- & Geschäftsausstattung" },
         items: [
-          { name: { pl: "Regały magazynowe wysokiego składowania", en: "Storage Racks" }, query: "regały magazynowe" },
-          { name: { pl: "Lady chłodnicze i lodówki sklepowe", en: "Refrigerated Counters" }, query: "lada chłodnicza" },
-          { name: { pl: "Wyposażenie gastronomii i pizzerii", en: "Restaurant Equipment" }, query: "gastronomia" },
-          { name: { pl: "Wózki widłowe i paletowe", en: "Forklifts & Pallet Jacks" }, query: "wózek widłowy" }
+          { name: { pl: "Regały magazynowe wysokiego składowania", en: "High-Bay Storage Racks", de: "Schwerlast- & Hochregale" }, query: "regały magazynowe" },
+          { name: { pl: "Lady chłodnicze i lodówki sklepowe", en: "Refrigerated Counters & Display Fridges", de: "Kühltheken & Verkaufskühlschränke" }, query: "lada chłodnicza" },
+          { name: { pl: "Wyposażenie gastronomii i pizzerii", en: "Commercial Kitchen & Pizzeria Equipment", de: "Gastronomie- & Pizzeria-Ausstattung" }, query: "gastronomia" },
+          { name: { pl: "Wózki widłowe i paletowe", en: "Forklifts & Pallet Jacks", de: "Gabelstapler & Hubwagen" }, query: "wózek widłowy" }
         ]
       },
       {
-        title: { pl: "Surowce i półprodukty", en: "Raw Materials", de: "Rohstoffe" },
+        title: { pl: "Surowce i półprodukty", en: "Raw Materials", de: "Rohstoffe & Halbzeuge" },
         items: [
-          { name: { pl: "Metale kolorowe i stal", en: "Steel & Metals" }, query: "stal" },
-          { name: { pl: "Tworzywa sztuczne i granulaty", en: "Plastics & Resins" }, query: "granulat" },
-          { name: { pl: "Opakowania, kartony i palety", en: "Packaging & Pallets" }, query: "palety" }
+          { name: { pl: "Metale kolorowe i stal", en: "Non-Ferrous Metals & Steel", de: "Buntmetalle & Stahl" }, query: "stal" },
+          { name: { pl: "Tworzywa sztuczne i granulaty", en: "Plastics & Granulates", de: "Kunststoffe & Granulate" }, query: "granulat" },
+          { name: { pl: "Opakowania, kartony i palety", en: "Packaging, Boxes & Pallets", de: "Verpackungen, Kartons & Paletten" }, query: "palety" }
         ]
       },
       {
-        title: { pl: "Sprzedaż przedsiębiorstw", en: "Businesses for Sale", de: "Firmenverkauf" },
+        title: { pl: "Sprzedaż przedsiębiorstw", en: "Businesses for Sale", de: "Unternehmensverkauf" },
         items: [
-          { name: { pl: "Gotowe spółki i firmy", en: "Companies for Sale" }, query: "spółka" },
-          { name: { pl: "Udziały i inwestorzy", en: "Shares & Investors" }, query: "udziały" },
-          { name: { pl: "Franczyza i koncepty", en: "Franchise" }, query: "franczyza" }
+          { name: { pl: "Gotowe spółki i firmy", en: "Ready-Made Companies & Businesses", de: "Vorratsgesellschaften & Firmen" }, query: "spółka" },
+          { name: { pl: "Udziały i inwestorzy", en: "Company Shares & Investors", de: "Firmenanteile & Investoren" }, query: "udziały" },
+          { name: { pl: "Franczyza i koncepty", en: "Franchise & Business Concepts", de: "Franchise & Geschäftskonzepte" }, query: "franczyza" }
         ]
       }
     ],
     popularTags: {
       pl: ["Wózek widłowy", "Regały magazynowe", "CNC", "Lada chłodnicza", "Palety EPAL", "Piec do pizzy", "Tokarka"],
-      en: ["Forklift", "CNC Machine", "Storage Racking", "Commercial Kitchen", "Pallets"]
+      en: ["Forklift", "CNC Machine", "Storage Racking", "Commercial Kitchen", "Pallets"],
+      de: ["Gabelstapler", "Lagerregale", "CNC-Maschine", "Kühltheke", "Paletten", "Drehbank"]
     }
   },
 
@@ -393,41 +401,42 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Ciągniki i traktory", en: "Tractors & Harvesters", de: "Traktoren & Erntemaschinen" },
         items: [
-          { name: { pl: "Ciągniki rolnicze (Ursus, Zetor, John Deere)", en: "Tractors" }, query: "ciągnik rolniczy" },
-          { name: { pl: "Kombajny zbożowe i sieczkarnie", en: "Combine Harvesters" }, query: "kombajn" },
-          { name: { pl: "Mini traktorki i kosiarki sadownicze", en: "Compact Tractors" }, query: "traktorek" }
+          { name: { pl: "Ciągniki rolnicze (Ursus, Zetor, John Deere)", en: "Agricultural Tractors", de: "Traktoren & Schlepper" }, query: "ciągnik rolniczy" },
+          { name: { pl: "Kombajny zbożowe i sieczkarnie", en: "Combine Harvesters & Forage Harvesters", de: "Mähdrescher & Feldhäcksler" }, query: "kombajn" },
+          { name: { pl: "Mini traktorki i kosiarki sadownicze", en: "Compact Tractors & Orchard Mowers", de: "Kleintraktoren & Obstbaumäher" }, query: "traktorek" }
         ]
       },
       {
         title: { pl: "Maszyny rolnicze i osprzęt", en: "Agricultural Implements", de: "Landmaschinen" },
         items: [
-          { name: { pl: "Pługi, brony i agregaty", en: "Ploughs & Harrows" }, query: "pług" },
-          { name: { pl: "Siewniki i opryskiwacze", en: "Seeders & Sprayers" }, query: "opryskiwacz" },
-          { name: { pl: "Prasy zwijające i kostkujące", en: "Balers" }, query: "prasa zwijająca" },
-          { name: { pl: "Przyczepy rolnicze i wywrotki", en: "Farm Trailers" }, query: "przyczepa rolnicza" }
+          { name: { pl: "Pługi, brony i agregaty", en: "Ploughs, Harrows & Tillers", de: "Pflüge, Eggen & Grubber" }, query: "pług" },
+          { name: { pl: "Siewniki i opryskiwacze", en: "Seeders & Crop Sprayers", de: "Sämaschinen & Feldspritzen" }, query: "opryskiwacz" },
+          { name: { pl: "Prasy zwijające i kostkujące", en: "Round & Square Balers", de: "Rund- & Quaderballenpressen" }, query: "prasa zwijająca" },
+          { name: { pl: "Przyczepy rolnicze i wywrotki", en: "Farm Trailers & Tippers", de: "Landwirtschaftliche Anhänger & Kipper" }, query: "przyczepa rolnicza" }
         ]
       },
       {
         title: { pl: "Płody rolne i pasze", en: "Crops, Hay & Feed", de: "Futtermittel & Ernte" },
         items: [
-          { name: { pl: "Zboża, kukurydza i rzepak", en: "Grain & Corn" }, query: "zboże" },
-          { name: { pl: "Siano, słoma i sianokiszonka", en: "Hay & Straw" }, query: "siano" },
-          { name: { pl: "Pasze, koncentraty i nawozy", en: "Feed & Fertilizers" }, query: "nawóz" }
+          { name: { pl: "Zboża, kukurydza i rzepak", en: "Grains, Corn & Rapeseed", de: "Getreide, Mais & Raps" }, query: "zboże" },
+          { name: { pl: "Siano, słoma i sianokiszonka", en: "Hay, Straw & Silage", de: "Heu, Stroh & Silage" }, query: "siano" },
+          { name: { pl: "Pasze, koncentraty i nawozy", en: "Animal Feed & Fertilizers", de: "Futtermittel & Dünger" }, query: "nawóz" }
         ]
       },
       {
         title: { pl: "Zwierzęta hodowlane", en: "Livestock & Farm Animals", de: "Nutztiere" },
         items: [
-          { name: { pl: "Bydło, krowy i cielęta", en: "Cattle & Calves" }, query: "bydło" },
-          { name: { pl: "Trzoda chlewna i prosięta", en: "Pigs" }, query: "prosięta" },
-          { name: { pl: "Drób, kury i kaczki", en: "Poultry & Chickens" }, query: "kury" },
-          { name: { pl: "Konie i kuce", en: "Horses & Ponies" }, query: "koń" }
+          { name: { pl: "Bydło, krowy i cielęta", en: "Cattle, Cows & Calves", de: "Rinder, Kühe & Kälber" }, query: "bydło" },
+          { name: { pl: "Trzoda chlewna i prosięta", en: "Pigs & Piglets", de: "Schweine & Ferkel" }, query: "prosięta" },
+          { name: { pl: "Drób, kury i kaczki", en: "Poultry, Chickens & Ducks", de: "Geflügel, Hühner & Enten" }, query: "kury" },
+          { name: { pl: "Konie i kuce", en: "Horses & Ponies", de: "Pferde & Ponys" }, query: "koń" }
         ]
       }
     ],
     popularTags: {
       pl: ["Ursus C-360", "Zetor", "John Deere", "Prasa zwijająca", "Siano w balotach", "Pług obrotowy", "Przyczepa rolnicza"],
-      en: ["John Deere", "Tractor", "Harvester", "Hay Bales", "Farm Trailer", "Livestock"]
+      en: ["John Deere", "Tractor", "Harvester", "Hay Bales", "Farm Trailer", "Livestock"],
+      de: ["Traktor", "Mähdrescher", "Pflug", "Heu", "Anhänger", "John Deere", "Rinder"]
     }
   },
 
@@ -437,39 +446,40 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Psy i szczenięta", en: "Dogs & Puppies", de: "Hunde & Welpen" },
         items: [
-          { name: { pl: "Psy rasowe z rodowodem (FCI/ZKwP)", en: "Pedigree Dogs" }, query: "pies" },
-          { name: { pl: "Szczeniaki do adopcji", en: "Puppies for Adoption" }, query: "szczeniak" },
-          { name: { pl: "Legowiska, budy i klatki", en: "Beds & Crates" }, query: "legowisko" }
+          { name: { pl: "Psy rasowe z rodowodem (FCI/ZKwP)", en: "Pedigree Dogs", de: "Rassehunde mit Stammbaum" }, query: "pies" },
+          { name: { pl: "Szczeniaki do adopcji", en: "Puppies for Adoption", de: "Welpen zur Adoption" }, query: "szczeniak" },
+          { name: { pl: "Legowiska, budy i klatki", en: "Dog Beds, Kennels & Crates", de: "Hundebetten, Hütten & Boxen" }, query: "legowisko" }
         ]
       },
       {
         title: { pl: "Koty i kocięta", en: "Cats & Kittens", de: "Katzen & Kätzchen" },
         items: [
-          { name: { pl: "Koty rasowe (brytyjskie, ragdoll, maine coon)", en: "Pedigree Cats" }, query: "kot" },
-          { name: { pl: "Drapaki, kuwety i transportery", en: "Scratching Posts & Litter" }, query: "drapak" },
-          { name: { pl: "Karmy i przysmaki", en: "Cat Food" }, query: "karma dla kota" }
+          { name: { pl: "Koty rasowe (brytyjskie, ragdoll, maine coon)", en: "Pedigree Cats (British, Ragdoll, Maine Coon)", de: "Rassekatzen (BKH, Ragdoll, Maine Coon)" }, query: "kot" },
+          { name: { pl: "Drapaki, kuwety i transportery", en: "Scratching Posts, Litter Boxes & Carriers", de: "Kratzbäume, Katzenklos & Transportboxen" }, query: "drapak" },
+          { name: { pl: "Karmy i przysmaki", en: "Pet Food & Treats", de: "Tierfutter & Leckerlis" }, query: "karma dla kota" }
         ]
       },
       {
         title: { pl: "Akwarystyka i terrarystyka", en: "Aquarium & Terrarium", de: "Aquaristik & Terraristik" },
         items: [
-          { name: { pl: "Akwaria, filtry i oświetlenie", en: "Aquariums & Filters" }, query: "akwarium" },
-          { name: { pl: "Ryby akwariowe i krewetki", en: "Fish & Shrimp" }, query: "rybki" },
-          { name: { pl: "Terraria, gady i pająki", en: "Terrariums & Reptiles" }, query: "terrarium" }
+          { name: { pl: "Akwaria, filtry i oświetlenie", en: "Aquariums, Filters & Lighting", de: "Aquarien, Filter & Beleuchtung" }, query: "akwarium" },
+          { name: { pl: "Ryby akwariowe i krewetki", en: "Aquarium Fish & Shrimps", de: "Aquarienfische & Garnelen" }, query: "rybki" },
+          { name: { pl: "Terraria, gady i pająki", en: "Terrariums, Reptiles & Spiders", de: "Terrarien, Reptilien & Spinnen" }, query: "terrarium" }
         ]
       },
       {
         title: { pl: "Ptaki i gryzonie", en: "Birds & Small Pets", de: "Vögel & Kleintiere" },
         items: [
-          { name: { pl: "Papugi, kanarki i klatki", en: "Parrots & Cages" }, query: "papuga" },
-          { name: { pl: "Króliki miniaturowe, chomiki, świnki", en: "Rabbits & Guinea Pigs" }, query: "królik" },
-          { name: { pl: "Klatki, poidełka i sianko", en: "Cages & Accessories" }, query: "klatka" }
+          { name: { pl: "Papugi, kanarki i klatki", en: "Parrots, Canaries & Cages", de: "Papageien, Kanarienvögel & Käfige" }, query: "papuga" },
+          { name: { pl: "Króliki miniaturowe, chomiki, świnki", en: "Dwarf Rabbits, Hamsters & Guinea Pigs", de: "Zwergkaninchen, Hamster & Meerschweinchen" }, query: "królik" },
+          { name: { pl: "Klatki, poidełka i sianko", en: "Cages, Drinkers & Hay", de: "Käfige, Tränken & Heu" }, query: "klatka" }
         ]
       }
     ],
     popularTags: {
       pl: ["Owczarek niemiecki", "Maltańczyk", "Kot brytyjski", "Ragdoll", "Akwarium", "Drapak", "Królik miniaturka"],
-      en: ["Puppy", "French Bulldog", "British Shorthair", "Aquarium", "Dog Bed", "Parrot"]
+      en: ["Puppy", "French Bulldog", "British Shorthair", "Aquarium", "Dog Bed", "Parrot"],
+      de: ["Welpe", "Schäferhund", "BKH Katze", "Kratzbaum", "Aquarium", "Zwergkaninchen"]
     }
   },
 
@@ -479,40 +489,41 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Wózki i foteliki", en: "Strollers & Car Seats", de: "Kinderwagen & Kindersitze" },
         items: [
-          { name: { pl: "Wózki 2w1 i 3w1", en: "2in1 / 3in1 Strollers" }, query: "wózek" },
-          { name: { pl: "Wózki spacerowe / spacerówki", en: "Pushchairs" }, query: "spacerówka" },
-          { name: { pl: "Foteliki samochodowe (Isofix)", en: "Car Seats" }, query: "fotelik" }
+          { name: { pl: "Wózki 2w1 i 3w1", en: "2in1 / 3in1 Strollers & Prams", de: "Kombi-Kinderwagen 2-in-1 / 3-in-1" }, query: "wózek" },
+          { name: { pl: "Wózki spacerowe / spacerówki", en: "Pushchairs & Buggies", de: "Buggys & Sportwagen" }, query: "spacerówka" },
+          { name: { pl: "Foteliki samochodowe (Isofix)", en: "Car Seats (Isofix)", de: "Kindersitze (Isofix)" }, query: "fotelik" }
         ]
       },
       {
         title: { pl: "Pokój dziecięcy", en: "Nursery & Kids Room", de: "Kinderzimmer" },
         items: [
-          { name: { pl: "Łóżeczka dziecięce i kołyski", en: "Cribs & Cots" }, query: "łóżeczko" },
-          { name: { pl: "Krzesełka do karmienia", en: "High Chairs" }, query: "krzesełko" },
-          { name: { pl: "Przewijaki i wanienki", en: "Changing Tables & Baths" }, query: "przewijak" }
+          { name: { pl: "Łóżeczka dziecięce i kołyski", en: "Cots, Cribs & Cradles", de: "Kinderbetten & Wiegen" }, query: "łóżeczko" },
+          { name: { pl: "Krzesełka do karmienia", en: "High Chairs", de: "Hochstühle" }, query: "krzesełko" },
+          { name: { pl: "Przewijaki i wanienki", en: "Changing Tables & Baby Baths", de: "Wickeltische & Babywannen" }, query: "przewijak" }
         ]
       },
       {
         title: { pl: "Zabawki i gry", en: "Toys & Games", de: "Spielzeug & Spiele" },
         items: [
-          { name: { pl: "Klocki LEGO i konstrukcyjne", en: "LEGO Sets" }, query: "LEGO" },
-          { name: { pl: "Lalki, domki i maskotki", en: "Dolls & Plush Toys" }, query: "lalka" },
-          { name: { pl: "Samochody i pojazdy na akumulator", en: "Ride-on Cars" }, query: "na akumulator" },
-          { name: { pl: "Gry planszowe i edukacyjne", en: "Board Games" }, query: "planszówka" }
+          { name: { pl: "Klocki LEGO i konstrukcyjne", en: "LEGO & Building Blocks", de: "LEGO & Bausteine" }, query: "LEGO" },
+          { name: { pl: "Lalki, domki i maskotki", en: "Dolls, Dollhouses & Plushies", de: "Puppen, Puppenhäuser & Plüschtiere" }, query: "lalka" },
+          { name: { pl: "Samochody i pojazdy na akumulator", en: "Electric Ride-on Cars & Vehicles", de: "Elektro-Kinderautos & Fahrzeuge" }, query: "na akumulator" },
+          { name: { pl: "Gry planszowe i edukacyjne", en: "Board Games & Educational Toys", de: "Brettspiele & Lernspielzeug" }, query: "planszówka" }
         ]
       },
       {
         title: { pl: "Ubranka i buciki", en: "Baby Clothes & Shoes", de: "Babybekleidung & Schuhe" },
         items: [
-          { name: { pl: "Pakiety ubranek dla niemowląt", en: "Baby Bundles" }, query: "ubranka" },
-          { name: { pl: "Kombinezony i kurtki dziecięce", en: "Kids Winter Suits" }, query: "kombinezon" },
-          { name: { pl: "Buciki i kapcie", en: "Kids Shoes" }, query: "buty dziecięce" }
+          { name: { pl: "Pakiety ubranek dla niemowląt", en: "Baby Clothing Bundles", de: "Babykleidung-Pakete" }, query: "ubranka" },
+          { name: { pl: "Kombinezony i kurtki dziecięce", en: "Kids Snowsuits & Jackets", de: "Kinder-Schneeanzüge & Jacken" }, query: "kombinezon" },
+          { name: { pl: "Buciki i kapcie", en: "Kids Shoes & Slippers", de: "Kinderschuhe & Hausschuhe" }, query: "buty dziecięce" }
         ]
       }
     ],
     popularTags: {
       pl: ["LEGO", "Wózek 3w1", "Cybex", "Fotelik Isofix", "Łóżeczko", "Auto na akumulator", "Rowerek biegowy"],
-      en: ["LEGO", "Stroller", "Cybex", "Car Seat", "Crib", "Kids Bike", "Toys"]
+      en: ["LEGO", "Stroller", "Cybex", "Car Seat", "Crib", "Kids Bike", "Toys"],
+      de: ["LEGO", "Kinderwagen", "Cybex", "Kindersitz", "Babybett", "Kinderfahrrad", "Spielzeug"]
     }
   },
 
@@ -522,40 +533,41 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Rowery i hulajnogi", en: "Bikes & Scooters", de: "Fahrräder & Roller" },
         items: [
-          { name: { pl: "Rowery górskie (MTB)", en: "Mountain Bikes (MTB)" }, query: "rower MTB" },
-          { name: { pl: "Rowery szosowe i gravel", en: "Road & Gravel Bikes" }, query: "gravel" },
-          { name: { pl: "Rowery elektryczne (e-bike)", en: "Electric Bikes" }, query: "rower elektryczny" },
-          { name: { pl: "Hulajnogi elektryczne i wyczynowe", en: "E-Scooters" }, query: "hulajnoga elektryczna" }
+          { name: { pl: "Rowery górskie (MTB)", en: "Mountain Bikes (MTB)", de: "Mountainbikes (MTB)" }, query: "rower MTB" },
+          { name: { pl: "Rowery szosowe i gravel", en: "Road & Gravel Bikes", de: "Rennräder & Gravelbikes" }, query: "gravel" },
+          { name: { pl: "Rowery elektryczne (e-bike)", en: "Electric Bikes (E-Bikes)", de: "E-Bikes & Pedelecs" }, query: "rower elektryczny" },
+          { name: { pl: "Hulajnogi elektryczne i wyczynowe", en: "E-Scooters & Stunt Scooters", de: "E-Scooter & Stunt-Roller" }, query: "hulajnoga elektryczna" }
         ]
       },
       {
         title: { pl: "Siłownia i fitness", en: "Gym & Fitness", de: "Fitness & Kraftsport" },
         items: [
-          { name: { pl: "Hantle, gryfy i obciążenia", en: "Dumbbells & Weights" }, query: "hantle" },
-          { name: { pl: "Bieżnie i rowerki treningowe", en: "Treadmills & Bikes" }, query: "bieżnia" },
-          { name: { pl: "Ławki i atlasy do ćwiczeń", en: "Benches & Multigyms" }, query: "ławka do ćwiczeń" }
+          { name: { pl: "Hantle, gryfy i obciążenia", en: "Dumbbells, Bars & Weights", de: "Hanteln, Stangen & Gewichte" }, query: "hantle" },
+          { name: { pl: "Bieżnie i rowerki treningowe", en: "Treadmills & Exercise Bikes", de: "Laufbänder & Ergometer" }, query: "bieżnia" },
+          { name: { pl: "Ławki i atlasy do ćwiczeń", en: "Weight Benches & Multigyms", de: "Hantelbänke & Kraftstationen" }, query: "ławka do ćwiczeń" }
         ]
       },
       {
         title: { pl: "Wędkarstwo i myślistwo", en: "Fishing & Hunting", de: "Angeln & Jagd" },
         items: [
-          { name: { pl: "Wędki, kołowrotki i zestawy", en: "Fishing Rods & Reels" }, query: "wędka" },
-          { name: { pl: "Łodzie i pontony wędkarskie", en: "Boats & Inflatables" }, query: "ponton" },
-          { name: { pl: "Namioty i fotele wędkarskie", en: "Fishing Chairs & Tents" }, query: "fotel wędkarski" }
+          { name: { pl: "Wędki, kołowrotki i zestawy", en: "Fishing Rods, Reels & Sets", de: "Angelruten, Rollen & Sets" }, query: "wędka" },
+          { name: { pl: "Łodzie i pontony wędkarskie", en: "Fishing Boats & Inflatables", de: "Angelboote & Schlauchboote" }, query: "ponton" },
+          { name: { pl: "Namioty i fotele wędkarskie", en: "Fishing Chairs & Bivvies", de: "Angelstühle & Zelte" }, query: "fotel wędkarski" }
         ]
       },
       {
         title: { pl: "Turystyka i sporty wodne", en: "Outdoor & Water Sports", de: "Outdoor & Wassersport" },
         items: [
-          { name: { pl: "Deski SUP, kajaki i żeglarstwo", en: "SUP Boards & Kayaks" }, query: "deska SUP" },
-          { name: { pl: "Namioty, śpiwory i plecaki", en: "Tents & Sleeping Bags" }, query: "namiot" },
-          { name: { pl: "Narty, snowboard i łyżwy", en: "Skis & Snowboards" }, query: "narty" }
+          { name: { pl: "Deski SUP, kajaki i żeglarstwo", en: "SUP Boards, Kayaks & Sailing", de: "SUP-Boards, Kajaks & Segeln" }, query: "deska SUP" },
+          { name: { pl: "Namioty, śpiwory i plecaki", en: "Tents, Sleeping Bags & Backpacks", de: "Zelte, Schlafsäcke & Rucksäcke" }, query: "namiot" },
+          { name: { pl: "Narty, snowboard i łyżwy", en: "Skis, Snowboards & Ice Skates", de: "Ski, Snowboards & Schlittschuhe" }, query: "narty" }
         ]
       }
     ],
     popularTags: {
       pl: ["Rower elektryczny", "Gravel", "Hantle", "Deska SUP", "Bieżnia", "Wędka karpiowa", "KROSS", "Trek"],
-      en: ["E-Bike", "Gravel Bike", "SUP Board", "Treadmill", "Dumbbells", "Fishing Rod", "Trek"]
+      en: ["E-Bike", "Gravel Bike", "SUP Board", "Treadmill", "Dumbbells", "Fishing Rod", "Trek"],
+      de: ["E-Bike", "Gravelbike", "SUP Board", "Laufband", "Hanteln", "Angelrute", "Trek", "Cube"]
     }
   },
 
@@ -565,39 +577,40 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Remonty i budownictwo", en: "Renovation & Construction", de: "Renovierung & Bau" },
         items: [
-          { name: { pl: "Wykończenia wnętrz i malowanie", en: "Painting & Plastering" }, query: "remont" },
-          { name: { pl: "Układanie płytek i glazurnictwo", en: "Tiling & Floors" }, query: "glazurnik" },
-          { name: { pl: "Instalacje elektryczne i hydraulika", en: "Electrician & Plumber" }, query: "elektryk" }
+          { name: { pl: "Wykończenia wnętrz i malowanie", en: "Interior Finishing & Painting", de: "Innenausbau & Malerarbeiten" }, query: "remont" },
+          { name: { pl: "Układanie płytek i glazurnictwo", en: "Tiling & Floor Laying", de: "Fliesenlegen & Bodenbeläge" }, query: "glazurnik" },
+          { name: { pl: "Instalacje elektryczne i hydraulika", en: "Electrical & Plumbing Services", de: "Elektro- & Sanitärinstallationen" }, query: "elektryk" }
         ]
       },
       {
         title: { pl: "Transport i przeprowadzki", en: "Moving & Transport", de: "Umzüge & Transport" },
         items: [
-          { name: { pl: "Przeprowadzki mieszkań i firm", en: "Home & Office Moving" }, query: "przeprowadzki" },
-          { name: { pl: "Transport busem i bagażówka", en: "Van Transport" }, query: "transport busem" },
-          { name: { pl: "Autolaweta i pomoc drogowa 24/7", en: "Towing Service 24/7" }, query: "laweta" }
+          { name: { pl: "Przeprowadzki mieszkań i firm", en: "Home & Office Moving", de: "Wohnungs- & Firmenumzüge" }, query: "przeprowadzki" },
+          { name: { pl: "Transport busem i bagażówka", en: "Van Delivery & Courier Services", de: "Kleintransporte & Kurierdienste" }, query: "transport busem" },
+          { name: { pl: "Autolaweta i pomoc drogowa 24/7", en: "Towing & Roadside Assistance 24/7", de: "Abschleppdienst & Pannenhilfe 24/7" }, query: "laweta" }
         ]
       },
       {
-        title: { pl: "Mechanika i naprawa", en: "Auto Repair & Mechanics", de: "Autoreparatur" },
+        title: { pl: "Mechanika i naprawa", en: "Auto Repair & Mechanics", de: "Autoreparatur & Werkstatt" },
         items: [
-          { name: { pl: "Mechanika samochodowa i wulkanizacja", en: "Car Repair & Tires" }, query: "mechanik samochodowy" },
-          { name: { pl: "Naprawa AGD i sprzętu RTV", en: "Appliance Repair" }, query: "naprawa AGD" },
-          { name: { pl: "Serwis komputerów i telefonów", en: "Phone & PC Repair" }, query: "serwis telefonów" }
+          { name: { pl: "Mechanika samochodowa i wulkanizacja", en: "Car Mechanics & Tire Service", de: "Kfz-Mechanik & Reifenservice" }, query: "mechanik samochodowy" },
+          { name: { pl: "Naprawa AGD i sprzętu RTV", en: "Home Appliance & Electronics Repair", de: "Haushaltsgeräte- & Elektronikreparatur" }, query: "naprawa AGD" },
+          { name: { pl: "Serwis komputerów i telefonów", en: "PC, Laptop & Smartphone Repair", de: "PC-, Laptop- & Smartphone-Reparatur" }, query: "serwis telefonów" }
         ]
       },
       {
-        title: { pl: "Uroda, sprzątanie i ogród", en: "Cleaning, Beauty & Garden", de: "Reinigung & Pflege" },
+        title: { pl: "Uroda, sprzątanie i ogród", en: "Cleaning, Beauty & Garden", de: "Reinigung, Beauty & Garten" },
         items: [
-          { name: { pl: "Sprzątanie domów i biur", en: "House & Office Cleaning" }, query: "sprzątanie" },
-          { name: { pl: "Pielęgnacja ogrodów i wycinka drzew", en: "Gardening & Tree Cutting" }, query: "pielęgnacja ogrodu" },
-          { name: { pl: "Fryzjer, kosmetyczka i masaż", en: "Beauty & Massage" }, query: "masaż" }
+          { name: { pl: "Sprzątanie domów i biur", en: "House & Office Cleaning", de: "Haus- & Büroreinigung" }, query: "sprzątanie" },
+          { name: { pl: "Pielęgnacja ogrodów i wycinka drzew", en: "Garden Care & Tree Removal", de: "Gartenpflege & Baumfällung" }, query: "pielęgnacja ogrodu" },
+          { name: { pl: "Fryzjer, kosmetyczka i masaż", en: "Hairdresser, Cosmetology & Massage", de: "Friseur, Kosmetik & Massage" }, query: "masaż" }
         ]
       }
     ],
     popularTags: {
       pl: ["Remonty mieszkań", "Przeprowadzki", "Laweta 24h", "Elektryk", "Hydraulik", "Sprzątanie", "Naprawa pralki"],
-      en: ["Moving Service", "Plumber", "Electrician", "Car Towing", "Cleaning", "Painting"]
+      en: ["Moving Service", "Plumber", "Electrician", "Car Towing", "Cleaning", "Painting"],
+      de: ["Umzug", "Malerarbeiten", "Elektriker", "Klempner", "Abschleppdienst", "Reinigung"]
     }
   },
 
@@ -607,39 +620,40 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Numizmatyka i banknoty", en: "Coins & Banknotes", de: "Münzen & Banknoten" },
         items: [
-          { name: { pl: "Monety polskie i zagraniczne", en: "Coins" }, query: "monety" },
-          { name: { pl: "Monety srebrne i złote", en: "Silver & Gold Coins" }, query: "srebrne monety" },
-          { name: { pl: "Banknoty i walory kolekcjonerskie", en: "Banknotes" }, query: "banknoty" }
+          { name: { pl: "Monety polskie i zagraniczne", en: "Domestic & Foreign Coins", de: "In- & Ausländische Münzen" }, query: "monety" },
+          { name: { pl: "Monety srebrne i złote", en: "Silver & Gold Coins", de: "Silber- & Goldmünzen" }, query: "srebrne monety" },
+          { name: { pl: "Banknoty i walory kolekcjonerskie", en: "Banknotes & Paper Money", de: "Banknoten & Papiergeld" }, query: "banknoty" }
         ]
       },
       {
         title: { pl: "Militaria i odznaczenia", en: "Militaria & Medals", de: "Militaria & Orden" },
         items: [
-          { name: { pl: "Bagnety, szable i biała broń", en: "Bayonets & Swords" }, query: "szabla" },
-          { name: { pl: "Medale, ordery i odznaki", en: "Medals & Badges" }, query: "medale" },
-          { name: { pl: "Mundury i hełmy", en: "Uniforms & Helmets" }, query: "hełm" }
+          { name: { pl: "Bagnety, szable i biała broń", en: "Bayonets, Swords & Blades", de: "Bajonette, Säbel & Blankwaffen" }, query: "szabla" },
+          { name: { pl: "Medale, ordery i odznaki", en: "Medals, Orders & Badges", de: "Medaillen, Orden & Abzeichen" }, query: "medale" },
+          { name: { pl: "Mundury i hełmy", en: "Uniforms & Helmets", de: "Uniformen & Helme" }, query: "hełm" }
         ]
       },
       {
         title: { pl: "Meble i zegary antyczne", en: "Antique Furniture & Clocks", de: "Antike Möbel & Uhren" },
         items: [
-          { name: { pl: "Meble zabytkowe (secesja, biedermeier)", en: "Period Furniture" }, query: "meble antyczne" },
-          { name: { pl: "Zegary stojące, ścienne i kominkowe", en: "Antique Clocks" }, query: "zegar ścienny" },
-          { name: { pl: "Gramofony i patefony", en: "Gramophones" }, query: "gramofon" }
+          { name: { pl: "Meble zabytkowe (secesja, biedermeier)", en: "Antique Furniture (Art Nouveau, Biedermeier)", de: "Antikmöbel (Jugendstil, Biedermeier)" }, query: "meble antyczne" },
+          { name: { pl: "Zegary stojące, ścienne i kominkowe", en: "Grandfather, Wall & Mantel Clocks", de: "Stand-, Wand- & Kaminuhren" }, query: "zegar ścienny" },
+          { name: { pl: "Gramofony i patefony", en: "Gramophones & Phonographs", de: "Grammophone & Phonographen" }, query: "gramofon" }
         ]
       },
       {
         title: { pl: "Sztuka i pamiątki PRL", en: "Art & Vintage Items", de: "Kunst & Vintage" },
         items: [
-          { name: { pl: "Obrazy olejne i grafiki", en: "Oil Paintings" }, query: "obraz olejny" },
-          { name: { pl: "Porcelana, szkło i kryształy", en: "Porcelain & Crystal" }, query: "porcelana" },
-          { name: { pl: "Pamiątki z okresu PRL", en: "Vintage / Retro Collectibles" }, query: "PRL" }
+          { name: { pl: "Obrazy olejne i grafiki", en: "Oil Paintings & Prints", de: "Ölgemälde & Grafiken" }, query: "obraz olejny" },
+          { name: { pl: "Porcelana, szkło i kryształy", en: "Porcelain, Glass & Crystal", de: "Porzellan, Glas & Kristall" }, query: "porcelana" },
+          { name: { pl: "Pamiątki z okresu PRL", en: "Vintage & Retro Collectibles", de: "Vintage- & Retro-Sammlerstücke" }, query: "PRL" }
         ]
       }
     ],
     popularTags: {
       pl: ["Monety srebrne", "PRL", "Zegar wiszący", "Porcelana Ćmielów", "Szabla", "Militaria", "Obraz olejny"],
-      en: ["Silver Coins", "Vintage", "Antique Clock", "Porcelain", "Oil Painting", "Medals"]
+      en: ["Silver Coins", "Vintage", "Antique Clock", "Porcelain", "Oil Painting", "Medals"],
+      de: ["Silbermünzen", "Goldmünzen", "Antike Uhr", "Porzellan", "Ölgemälde", "Militaria", "Vintage"]
     }
   },
 
@@ -649,39 +663,40 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Perfumy i zapachy", en: "Perfumes & Fragrances", de: "Parfums & Düfte" },
         items: [
-          { name: { pl: "Perfumy damskie", en: "Women's Perfumes" }, query: "perfumy damskie" },
-          { name: { pl: "Perfumy męskie", en: "Men's Perfumes" }, query: "perfumy męskie" },
-          { name: { pl: "Perfumy niszowe i próbki", en: "Niche Fragrances" }, query: "perfumy niszowe" }
+          { name: { pl: "Perfumy damskie", en: "Women's Perfumes", de: "Damenparfums" }, query: "perfumy damskie" },
+          { name: { pl: "Perfumy męskie", en: "Men's Perfumes", de: "Herrenparfums" }, query: "perfumy męskie" },
+          { name: { pl: "Perfumy niszowe i próbki", en: "Niche Perfumes & Decants", de: "Nischendüfte & Proben" }, query: "perfumy niszowe" }
         ]
       },
       {
         title: { pl: "Pielęgnacja i makijaż", en: "Skincare & Makeup", de: "Hautpflege & Make-up" },
         items: [
-          { name: { pl: "Kremy, sera i maseczki", en: "Creams & Serums" }, query: "krem do twarzy" },
-          { name: { pl: "Kosmetyki do makijażu", en: "Makeup & Palettes" }, query: "makijaż" },
-          { name: { pl: "Pielęgnacja włosów i szampony", en: "Haircare" }, query: "szampon" }
+          { name: { pl: "Kremy, sera i maseczki", en: "Face Creams, Serums & Masks", de: "Gesichtscremes, Seren & Masken" }, query: "krem do twarzy" },
+          { name: { pl: "Kosmetyki do makijażu", en: "Makeup & Palettes", de: "Make-up & Paletten" }, query: "makijaż" },
+          { name: { pl: "Pielęgnacja włosów i szampony", en: "Haircare & Shampoos", de: "Haarpflege & Shampoos" }, query: "szampon" }
         ]
       },
       {
         title: { pl: "Sprzęt kosmetyczny i fryzjerski", en: "Beauty & Hair Devices", de: "Beauty-Geräte" },
         items: [
-          { name: { pl: "Suszarki, prostownice i lokówki", en: "Hair Dryers & Straighteners" }, query: "prostownica" },
-          { name: { pl: "Depilatory laserowe i IPL", en: "IPL Hair Removal" }, query: "depilator" },
-          { name: { pl: "Lampy UV/LED do paznokci", en: "Nail Lamps" }, query: "lampa UV" }
+          { name: { pl: "Suszarki, prostownice i lokówki", en: "Hair Dryers, Straighteners & Curlers", de: "Haartrockner, Glätteisen & Lockenstäbe" }, query: "prostownica" },
+          { name: { pl: "Depilatory laserowe i IPL", en: "Laser & IPL Hair Removers", de: "Laser- & IPL-Haarentferner" }, query: "depilator" },
+          { name: { pl: "Lampy UV/LED do paznokci", en: "UV/LED Nail Lamps", de: "UV/LED-Nagellampen" }, query: "lampa UV" }
         ]
       },
       {
         title: { pl: "Zdrowie i masaż", en: "Health & Wellness", de: "Gesundheit & Massage" },
         items: [
-          { name: { pl: "Masażery i pistolety do masażu", en: "Massage Guns" }, query: "masażer" },
-          { name: { pl: "Ciśnieniomierze i inhalatory", en: "Inhalers & Monitors" }, query: "ciśnieniomierz" },
-          { name: { pl: "Suplementy diety i witaminy", en: "Supplements" }, query: "witaminy" }
+          { name: { pl: "Masażery i pistolety do masażu", en: "Massagers & Massage Guns", de: "Massagegeräte & Massagepistolen" }, query: "masażer" },
+          { name: { pl: "Ciśnieniomierze i inhalatory", en: "Blood Pressure Monitors & Inhalers", de: "Blutdruckmessgeräte & Inhalatoren" }, query: "ciśnieniomierz" },
+          { name: { pl: "Suplementy diety i witaminy", en: "Dietary Supplements & Vitamins", de: "Nahrungsergänzungsmittel & Vitamine" }, query: "witaminy" }
         ]
       }
     ],
     popularTags: {
       pl: ["Dior", "Chanel", "Dyson Airwrap", "Pistolet do masażu", "Depilator IPL", "Perfumy", "Lampa do paznokci"],
-      en: ["Chanel", "Dior", "Dyson", "Massage Gun", "IPL", "Skincare", "Perfume"]
+      en: ["Chanel", "Dior", "Dyson", "Massage Gun", "IPL", "Skincare", "Perfume"],
+      de: ["Chanel", "Dior", "Dyson", "Massagepistole", "IPL", "Parfum", "Hautpflege"]
     }
   },
 
@@ -691,41 +706,42 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Instrumenty muzyczne", en: "Musical Instruments", de: "Musikinstrumente" },
         items: [
-          { name: { pl: "Gitary (akustyczne, elektryczne, basowe)", en: "Guitars" }, query: "gitara" },
-          { name: { pl: "Pianina, fortepiany i keyboardy", en: "Pianos & Keyboards" }, query: "pianino" },
-          { name: { pl: "Perkusje i talerze", en: "Drums & Cymbals" }, query: "perkusja" },
-          { name: { pl: "Skrzypce, saksofony i dęte", en: "Violins & Wind Instruments" }, query: "skrzypce" }
+          { name: { pl: "Gitary (akustyczne, elektryczne, basowe)", en: "Guitars (Acoustic, Electric, Bass)", de: "Gitarren (Akustik, E-Gitarre, Bass)" }, query: "gitara" },
+          { name: { pl: "Pianina, fortepiany i keyboardy", en: "Pianos, Keyboards & Synthesizers", de: "Klaviere, Keyboards & Synthesizer" }, query: "pianino" },
+          { name: { pl: "Perkusje i talerze", en: "Drums & Cymbals", de: "Schlagzeuge & Becken" }, query: "perkusja" },
+          { name: { pl: "Skrzypce, saksofony i dęte", en: "Violins, Saxophones & Wind Instruments", de: "Geigen, Saxophone & Blasinstrumente" }, query: "skrzypce" }
         ]
       },
       {
         title: { pl: "Sprzęt studyjny i DJ", en: "Studio & DJ Gear", de: "Studio- & DJ-Equipment" },
         items: [
-          { name: { pl: "Mikrofony studyjne i estradowe", en: "Microphones" }, query: "mikrofon" },
-          { name: { pl: "Karty dźwiękowe i interfejsy", en: "Audio Interfaces" }, query: "interfejs audio" },
-          { name: { pl: "Kontrolery DJ i miksery", en: "DJ Controllers" }, query: "kontroler DJ" },
-          { name: { pl: "Wzmacniacze i kolumny estradowe", en: "Amplifiers & PA" }, query: "wzmacniacz" }
+          { name: { pl: "Mikrofony studyjne i estradowe", en: "Studio & Stage Microphones", de: "Studio- & Bühnenmikrofone" }, query: "mikrofon" },
+          { name: { pl: "Karty dźwiękowe i interfejsy", en: "Audio Interfaces & Sound Cards", de: "Audio-Interfaces & Soundkarten" }, query: "interfejs audio" },
+          { name: { pl: "Kontrolery DJ i miksery", en: "DJ Controllers & Mixers", de: "DJ-Controller & Mischpulte" }, query: "kontroler DJ" },
+          { name: { pl: "Wzmacniacze i kolumny estradowe", en: "Amplifiers & PA Speakers", de: "Verstärker & PA-Lautsprecher" }, query: "wzmacniacz" }
         ]
       },
       {
-        title: { pl: "Płyty i muzyka", en: "Vinyl & Music Media", de: "Vinyl & CDs" },
+        title: { pl: "Płyty i muzyka", en: "Vinyl & Music Media", de: "Vinyl & Tonträger" },
         items: [
-          { name: { pl: "Płyty winylowe", en: "Vinyl Records" }, query: "winyl" },
-          { name: { pl: "Płyty CD i kasety magnetofonowe", en: "CDs & Cassettes" }, query: "płyta CD" },
-          { name: { pl: "Nuty, śpiewniki i podręczniki", en: "Sheet Music" }, query: "nuty" }
+          { name: { pl: "Płyty winylowe", en: "Vinyl Records", de: "Schallplatten (Vinyl)" }, query: "winyl" },
+          { name: { pl: "Płyty CD i kasety magnetofonowe", en: "CDs & Cassette Tapes", de: "CDs & Musikkassetten" }, query: "płyta CD" },
+          { name: { pl: "Nuty, śpiewniki i podręczniki", en: "Sheet Music & Songbooks", de: "Noten & Liederbücher" }, query: "nuty" }
         ]
       },
       {
         title: { pl: "Korepetycje i kursy", en: "Lessons & Courses", de: "Unterricht & Kurse" },
         items: [
-          { name: { pl: "Lekcje gry na instrumentach", en: "Instrument Lessons" }, query: "nauka gry" },
-          { name: { pl: "Lekcje śpiewu i emisji głosu", en: "Vocal Lessons" }, query: "lekcje śpiewu" },
-          { name: { pl: "Kursy językowe i korepetycje", en: "Language Tutors" }, query: "korepetycje angielski" }
+          { name: { pl: "Lekcje gry na instrumentach", en: "Music Instrument Lessons", de: "Instrumentalunterricht" }, query: "nauka gry" },
+          { name: { pl: "Lekcje śpiewu i emisji głosu", en: "Vocal Lessons & Voice Training", de: "Gesangsunterricht & Stimmtraining" }, query: "lekcje śpiewu" },
+          { name: { pl: "Kursy językowe i korepetycje", en: "Language Courses & Tutoring", de: "Sprachkurse & Nachhilfe" }, query: "korepetycje angielski" }
         ]
       }
     ],
     popularTags: {
       pl: ["Gitara klasyczna", "Pianino cyfrowe", "Yamaha", "Fender", "Płyty winylowe", "Mikrofon Shure", "Pioneer DJ"],
-      en: ["Fender Guitar", "Yamaha Piano", "Vinyl Records", "DJ Controller", "Microphone", "Drum Kit"]
+      en: ["Fender Guitar", "Yamaha Piano", "Vinyl Records", "DJ Controller", "Microphone", "Drum Kit"],
+      de: ["E-Gitarre", "Klavier", "Yamaha", "Fender", "Schallplatten", "DJ-Controller", "Mikrofon"]
     }
   },
 
@@ -735,32 +751,33 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Noclegi nad morzem i w górach", en: "Coast & Mountains", de: "Küste & Berge" },
         items: [
-          { name: { pl: "Domki całoroczne i letniskowe", en: "Holiday Cottages" }, query: "domek" },
-          { name: { pl: "Apartamenty wakacyjne", en: "Holiday Apartments" }, query: "apartament wakacyjny" },
-          { name: { pl: "Pokoje gościnne i kwatery", en: "Guest Rooms" }, query: "pokoje gościnne" }
+          { name: { pl: "Domki całoroczne i letniskowe", en: "Holiday Cottages & Cabins", de: "Ferienhäuser & Hütten" }, query: "domek" },
+          { name: { pl: "Apartamenty wakacyjne", en: "Holiday Apartments", de: "Ferienwohnungen" }, query: "apartament wakacyjny" },
+          { name: { pl: "Pokoje gościnne i kwatery", en: "Guest Rooms & B&Bs", de: "Gästezimmer & Pensionen" }, query: "pokoje gościnne" }
         ]
       },
       {
         title: { pl: "Hotele i agroturystyka", en: "Hotels & Agritourism", de: "Hotels & Bauernhofurlaub" },
         items: [
-          { name: { pl: "Gospodarstwa agroturystyczne", en: "Agritourism Farms" }, query: "agroturystyka" },
-          { name: { pl: "Pensjonaty i wille", en: "Guesthouses & B&Bs" }, query: "pensjonat" },
-          { name: { pl: "Kempingi, glamping i pola namiotowe", en: "Glamping & Camping" }, query: "glamping" }
+          { name: { pl: "Gospodarstwa agroturystyczne", en: "Agritourism Farms", de: "Bauernhöfe & Landurlaub" }, query: "agroturystyka" },
+          { name: { pl: "Pensjonaty i wille", en: "Guesthouses & Villas", de: "Pensionen & Villen" }, query: "pensjonat" },
+          { name: { pl: "Kempingi, glamping i pola namiotowe", en: "Campsites, Glamping & Tent Pitches", de: "Camping, Glamping & Zeltplätze" }, query: "glamping" }
         ]
       },
       {
         title: { pl: "Popularne regiony", en: "Popular Destinations", de: "Beliebte Regionen" },
         items: [
-          { name: { pl: "Zakopane i Tatry", en: "Zakopane & Tatras" }, query: "Zakopane" },
-          { name: { pl: "Władysławowo, Łeba, Hel", en: "Baltic Coast" }, query: "morze" },
-          { name: { pl: "Mazury i Kraina Jezior", en: "Masurian Lakes" }, query: "Mazury" },
-          { name: { pl: "Bieszczady i Karkonosze", en: "Bieszczady Mountains" }, query: "Bieszczady" }
+          { name: { pl: "Zakopane i Tatry", en: "Zakopane & Tatra Mountains", de: "Zakopane & Hohe Tatra" }, query: "Zakopane" },
+          { name: { pl: "Władysławowo, Łeba, Hel", en: "Baltic Coast (Hel, Łeba)", de: "Ostseeküste (Hel, Leba)" }, query: "morze" },
+          { name: { pl: "Mazury i Kraina Jezior", en: "Masurian Lake District", de: "Masuren & Seenplatte" }, query: "Mazury" },
+          { name: { pl: "Bieszczady i Karkonosze", en: "Bieszczady & Giant Mountains", de: "Bieszczady & Riesengebirge" }, query: "Bieszczady" }
         ]
       }
     ],
     popularTags: {
       pl: ["Domek z bali", "Zakopane", "Apartament nad morzem", "Mazury", "Glamping z jacuzzi", "Bieszczady", "Agroturystyka"],
-      en: ["Cabin with Jacuzzi", "Sea View Apartment", "Mountain Chalet", "Glamping", "Lake Cottage"]
+      en: ["Cabin with Jacuzzi", "Sea View Apartment", "Mountain Chalet", "Glamping", "Lake Cottage"],
+      de: ["Ferienhaus", "Ferienwohnung", "Ostsee", "Berghütte", "Glamping", "Bauernhof"]
     }
   },
 
@@ -768,33 +785,34 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
     slug: "rentals-hire",
     groups: [
       {
-        title: { pl: "Wynajem sprzętu budowlanego", en: "Construction Equipment", de: "Baumaschinenverleih" },
+        title: { pl: "Wynajem sprzętu budowlanego", en: "Construction Equipment Hire", de: "Baumaschinenverleih" },
         items: [
-          { name: { pl: "Minikoparki i ładowarki", en: "Mini Excavators" }, query: "wynajem minikoparki" },
-          { name: { pl: "Zagęszczarki i skoczki", en: "Compactors" }, query: "wynajem zagęszczarki" },
-          { name: { pl: "Rusztowania i podnośniki koszowe", en: "Cherry Pickers & Scaffolding" }, query: "wynajem rusztowań" }
+          { name: { pl: "Minikoparki i ładowarki", en: "Mini Excavators & Loaders", de: "Minibagger & Radlader" }, query: "wynajem minikoparki" },
+          { name: { pl: "Zagęszczarki i skoczki", en: "Compactors & Tampers", de: "Rüttelplatten & Stampfer" }, query: "wynajem zagęszczarki" },
+          { name: { pl: "Rusztowania i podnośniki koszowe", en: "Scaffolding & Cherry Pickers", de: "Gerüste & Hebebühnen" }, query: "wynajem rusztowań" }
         ]
       },
       {
         title: { pl: "Wypożyczalnia aut i przyczep", en: "Vehicles & Trailers", de: "Fahrzeug- & Anhängerverleih" },
         items: [
-          { name: { pl: "Auta osobowe i sportowe", en: "Cars & Sports Cars" }, query: "wynajem aut" },
-          { name: { pl: "Busy dostawcze i 9-osobowe", en: "Vans & Minibuses" }, query: "wynajem busa" },
-          { name: { pl: "Przyczepy i lawety", en: "Trailers & Car Haulers" }, query: "wypożyczalnia przyczep" }
+          { name: { pl: "Auta osobowe i sportowe", en: "Passenger & Sports Cars", de: "Pkw & Sportwagen" }, query: "wynajem aut" },
+          { name: { pl: "Busy dostawcze i 9-osobowe", en: "Delivery Vans & 9-Seaters", de: "Lieferwagen & 9-Sitzer-Busse" }, query: "wynajem busa" },
+          { name: { pl: "Przyczepy i lawety", en: "Trailers & Car Transporters", de: "Anhänger & Autotransporter" }, query: "wypożyczalnia przyczep" }
         ]
       },
       {
         title: { pl: "Imprezy i eventy", en: "Party & Events", de: "Eventausstattung" },
         items: [
-          { name: { pl: "Namioty bankietowe i hale", en: "Party Tents" }, query: "namioty imprezowe" },
-          { name: { pl: "Dmuchance i atrakcje dla dzieci", en: "Bouncy Castles" }, query: "dmuchańce" },
-          { name: { pl: "Nagłośnienie i oświetlenie sceniczne", en: "Sound & Lighting" }, query: "nagłośnienie" }
+          { name: { pl: "Namioty bankietowe i hale", en: "Party Tents & Pavilions", de: "Festzelte & Pavillons" }, query: "namioty imprezowe" },
+          { name: { pl: "Dmuchance i atrakcje dla dzieci", en: "Bouncy Castles & Kids Attractions", de: "Hüpfburgen & Kinderattraktionen" }, query: "dmuchańce" },
+          { name: { pl: "Nagłośnienie i oświetlenie sceniczne", en: "Sound Systems & Stage Lighting", de: "Tontechnik & Bühnenbeleuchtung" }, query: "nagłośnienie" }
         ]
       }
     ],
     popularTags: {
       pl: ["Wynajem minikoparki", "Wypożyczalnia busów", "Dmuchańce na urodziny", "Wynajem lawety", "Podnośnik koszowy"],
-      en: ["Mini Excavator Hire", "Van Rental", "Bouncy Castle Hire", "Trailer Rental"]
+      en: ["Mini Excavator Hire", "Van Rental", "Bouncy Castle Hire", "Trailer Rental"],
+      de: ["Minibagger mieten", "Transporter mieten", "Hüpfburg mieten", "Anhänger mieten"]
     }
   },
 
@@ -804,23 +822,24 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Oddam za darmo", en: "Free Giveaways", de: "Zu verschenken" },
         items: [
-          { name: { pl: "Meble i wyposażenie za darmo", en: "Free Furniture" }, query: "oddam meble" },
-          { name: { pl: "AGD i elektronika za darmo", en: "Free Appliances & Electronics" }, query: "oddam AGD" },
-          { name: { pl: "Ubrania i artykuły dziecięce", en: "Free Clothes & Baby Items" }, query: "oddam ubrania" },
-          { name: { pl: "Materiały budowlane i gruz", en: "Free Materials & Dirt" }, query: "oddam za darmo" }
+          { name: { pl: "Meble i wyposażenie za darmo", en: "Free Furniture & Home Goods", de: "Kostenlose Möbel & Einrichtung" }, query: "oddam meble" },
+          { name: { pl: "AGD i elektronika za darmo", en: "Free Appliances & Electronics", de: "Kostenlose Haushaltsgeräte & Elektronik" }, query: "oddam AGD" },
+          { name: { pl: "Ubrania i artykuły dziecięce", en: "Free Clothes & Baby Items", de: "Kostenlose Kleidung & Babyartikel" }, query: "oddam ubrania" },
+          { name: { pl: "Materiały budowlane i gruz", en: "Free Building Materials & Rubble", de: "Kostenloses Baumaterial & Bauschutt" }, query: "oddam za darmo" }
         ]
       },
       {
         title: { pl: "Zwierzęta do adopcji", en: "Pets for Adoption", de: "Tiere zur Adoption" },
         items: [
-          { name: { pl: "Pieski i szczeniaki do adopcji", en: "Dogs for Adoption" }, query: "oddam psa" },
-          { name: { pl: "Kocięta szukające domu", en: "Kittens for Adoption" }, query: "oddam kota" }
+          { name: { pl: "Pieski i szczeniaki do adopcji", en: "Dogs & Puppies for Adoption", de: "Hunde & Welpen zur Adoption" }, query: "oddam psa" },
+          { name: { pl: "Kocięta szukające domu", en: "Kittens for Adoption", de: "Katzen & Kätzchen zur Adoption" }, query: "oddam kota" }
         ]
       }
     ],
     popularTags: {
       pl: ["Oddam meble", "Oddam za darmo", "Do odebrania", "Sofa za darmo", "Adopcja psa", "Gruz za darmo"],
-      en: ["Free Furniture", "Free Pickup", "Free Dog", "Free Clothes", "Giveaway"]
+      en: ["Free Furniture", "Free Pickup", "Free Dog", "Free Clothes", "Giveaway"],
+      de: ["Zu verschenken", "Möbel gratis", "Hund adoptieren", "Selbstabholer", "Kostenlos"]
     }
   },
 
@@ -830,16 +849,17 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Kategorie z szybką wysyłką", en: "Fast Shipping Deals", de: "Schneller Versand" },
         items: [
-          { name: { pl: "Elektronika z wysyłką paczkomatem", en: "Electronics with Locker Delivery" }, query: "wysyłka paczkomat" },
-          { name: { pl: "Moda i obuwie z dostawą", en: "Fashion with Delivery" }, query: "z dostawą" },
-          { name: { pl: "Książki, gry i drobiazgi", en: "Books & Media with Delivery" }, query: "wysyłka" },
-          { name: { pl: "Części samochodowe kurierem", en: "Auto Parts Delivered" }, query: "kurier" }
+          { name: { pl: "Elektronika z wysyłką paczkomatem", en: "Electronics with Locker Delivery", de: "Elektronik mit Paketstation-Versand" }, query: "wysyłka paczkomat" },
+          { name: { pl: "Moda i obuwie z dostawą", en: "Fashion & Shoes with Delivery", de: "Mode & Schuhe mit Lieferung" }, query: "z dostawą" },
+          { name: { pl: "Książki, gry i drobiazgi", en: "Books, Games & Small Items", de: "Bücher, Spiele & Medien" }, query: "wysyłka" },
+          { name: { pl: "Części samochodowe kurierem", en: "Auto Parts by Courier", de: "Autoteile per Kurier" }, query: "kurier" }
         ]
       }
     ],
     popularTags: {
       pl: ["Paczkomat", "Wysyłka OLX/InPost", "Darmowa dostawa", "Kurier DPD", "Wysyłka w 24h"],
-      en: ["Parcel Locker", "Free Delivery", "Express Shipping", "Same-Day Dispatch"]
+      en: ["Parcel Locker", "Free Delivery", "Express Shipping", "Same-Day Dispatch"],
+      de: ["Kostenloser Versand", "Expressversand", "Paketstation", "24h Versand"]
     }
   },
 
@@ -849,25 +869,26 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Podręczniki i nauka", en: "Textbooks & Education", de: "Schulbücher & Lernen" },
         items: [
-          { name: { pl: "Podręczniki do liceum i technikum", en: "High School Books" }, query: "podręczniki liceum" },
-          { name: { pl: "Podręczniki do szkoły podstawowej", en: "Primary School Books" }, query: "podręczniki podstawówka" },
-          { name: { pl: "Książki akademickie i medyczne", en: "University & Medical" }, query: "podręcznik akademicki" },
-          { name: { pl: "Słowniki i nauka języków obcych", en: "Language Learning & Dictionaries" }, query: "język angielski" }
+          { name: { pl: "Podręczniki do liceum i technikum", en: "High School & Technical College Textbooks", de: "Gymnasium- & Berufsschulbücher" }, query: "podręczniki liceum" },
+          { name: { pl: "Podręczniki do szkoły podstawowej", en: "Primary School Textbooks", de: "Grundschulbücher" }, query: "podręczniki podstawówka" },
+          { name: { pl: "Książki akademickie i medyczne", en: "University & Medical Books", de: "Universitäts- & Medizinbücher" }, query: "podręcznik akademicki" },
+          { name: { pl: "Słowniki i nauka języków obcych", en: "Dictionaries & Language Learning", de: "Wörterbücher & Sprachkurse" }, query: "język angielski" }
         ]
       },
       {
         title: { pl: "Literatura i komiksy", en: "Fiction & Comics", de: "Literatur & Comics" },
         items: [
-          { name: { pl: "Kryminały, thrillery i sensacja", en: "Thrillers & Crime" }, query: "kryminał" },
-          { name: { pl: "Fantastyka, Sci-Fi i horror", en: "Fantasy & Sci-Fi" }, query: "fantasy" },
-          { name: { pl: "Komiksy, manga i powieści graficzne", en: "Comics & Manga" }, query: "manga" },
-          { name: { pl: "Literatura faktu, biografie i historia", en: "Biographies & History" }, query: "biografia" }
+          { name: { pl: "Kryminały, thrillery i sensacja", en: "Thrillers, Crime & Mystery", de: "Krimis & Thriller" }, query: "kryminał" },
+          { name: { pl: "Fantastyka, Sci-Fi i horror", en: "Fantasy, Sci-Fi & Horror", de: "Fantasy, Sci-Fi & Horror" }, query: "fantasy" },
+          { name: { pl: "Komiksy, manga i powieści graficzne", en: "Comics, Manga & Graphic Novels", de: "Comics, Manga & Graphic Novels" }, query: "manga" },
+          { name: { pl: "Literatura faktu, biografie i historia", en: "Non-Fiction, Biographies & History", de: "Sachbücher, Biografien & Geschichte" }, query: "biografia" }
         ]
       }
     ],
     popularTags: {
       pl: ["Nowa Era", "Manga", "Stephen King", "Remigiusz Mróz", "Wiedźmin", "Podręczniki klasa 4", "Język niemiecki"],
-      en: ["Manga", "Stephen King", "Textbooks", "Harry Potter", "Fantasy Books", "Biographies"]
+      en: ["Manga", "Stephen King", "Textbooks", "Harry Potter", "Fantasy Books", "Biographies"],
+      de: ["Manga", "Stephen King", "Schulbücher", "Harry Potter", "Krimi", "Biografien"]
     }
   },
 
@@ -875,34 +896,35 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
     slug: "auto-parts",
     groups: [
       {
-        title: { pl: "Koła, felgi i opony", en: "Wheels, Tires & Rims", de: "Reifen & Felgen" },
+        title: { pl: "Koła, felgi i opony", en: "Wheels, Tires & Rims", de: "Räder, Reifen & Felgen" },
         items: [
-          { name: { pl: "Opony zimowe, letnie i całoroczne", en: "Tires (Winter/Summer)" }, query: "opony zimowe" },
-          { name: { pl: "Felgi aluminiowe (alufelgi) i stalowe", en: "Alloy & Steel Rims" }, query: "alufelgi" },
-          { name: { pl: "Koła kompletne z oponami", en: "Complete Wheel Sets" }, query: "koła" }
+          { name: { pl: "Opony zimowe, letnie i całoroczne", en: "Winter, Summer & All-Season Tires", de: "Winter-, Sommer- & Ganzjahresreifen" }, query: "opony zimowe" },
+          { name: { pl: "Felgi aluminiowe (alufelgi) i stalowe", en: "Alloy & Steel Rims", de: "Alufelgen & Stahlfelgen" }, query: "alufelgi" },
+          { name: { pl: "Koła kompletne z oponami", en: "Complete Wheel Sets", de: "Kompletträder" }, query: "koła" }
         ]
       },
       {
         title: { pl: "Karoseria i oświetlenie", en: "Body & Lighting", de: "Karosserie & Beleuchtung" },
         items: [
-          { name: { pl: "Reflektory LED, lampy i ksenony", en: "Headlights & Lamps" }, query: "reflektor" },
-          { name: { pl: "Zderzaki, maski, błotniki i drzwi", en: "Bumpers, Hoods & Doors" }, query: "zderzak" },
-          { name: { pl: "Lusterka, szyby i grille", en: "Mirrors & Windshields" }, query: "lusterko" }
+          { name: { pl: "Reflektory LED, lampy i ksenony", en: "LED Headlights & Xenon Lamps", de: "LED-Scheinwerfer & Xenon-Lampen" }, query: "reflektor" },
+          { name: { pl: "Zderzaki, maski, błotniki i drzwi", en: "Bumpers, Hoods, Fenders & Doors", de: "Stoßstangen, Hauben, Kotflügel & Türen" }, query: "zderzak" },
+          { name: { pl: "Lusterka, szyby i grille", en: "Mirrors, Windows & Grilles", de: "Spiegel, Scheiben & Kühlergrills" }, query: "lusterko" }
         ]
       },
       {
         title: { pl: "Mechanika i podzespoły", en: "Engine & Drivetrain", de: "Motor & Getriebe" },
         items: [
-          { name: { pl: "Silniki kompletne i słupki", en: "Complete Engines" }, query: "silnik" },
-          { name: { pl: "Skrzynie biegów manualne i automatyczne", en: "Gearboxes & Transmission" }, query: "skrzynia biegów" },
-          { name: { pl: "Turbosprężarki i wtryskiwacze", en: "Turbos & Injectors" }, query: "turbosprężarka" },
-          { name: { pl: "Zawieszenie, amortyzatory i hamulce", en: "Brakes & Suspension" }, query: "zacisk hamulcowy" }
+          { name: { pl: "Silniki kompletne i słupki", en: "Complete Engines & Engine Blocks", de: "Komplettmotoren & Motorblöcke" }, query: "silnik" },
+          { name: { pl: "Skrzynie biegów manualne i automatyczne", en: "Manual & Automatic Gearboxes", de: "Schalt- & Automatikgetriebe" }, query: "skrzynia biegów" },
+          { name: { pl: "Turbosprężarki i wtryskiwacze", en: "Turbochargers & Fuel Injectors", de: "Turbolader & Einspritzdüsen" }, query: "turbosprężarka" },
+          { name: { pl: "Zawieszenie, amortyzatory i hamulce", en: "Suspension, Shock Absorbers & Brakes", de: "Fahrwerk, Stoßdämpfer & Bremsen" }, query: "zacisk hamulcowy" }
         ]
       }
     ],
     popularTags: {
       pl: ["Alufelgi 17 18 19", "Opony 205/55R16", "Lampy LED", "Zderzak M Pakiet", "Turbina", "Hak holowniczy", "Skrzynia DSG"],
-      en: ["Alloy Rims", "Tires", "LED Headlights", "Bumper", "Turbocharger", "Brake Caliper"]
+      en: ["Alloy Rims", "Tires", "LED Headlights", "Bumper", "Turbocharger", "Brake Caliper"],
+      de: ["Alufelgen", "Reifen", "LED Scheinwerfer", "Stoßstange", "Turbolader", "Bremsen"]
     }
   },
 
@@ -910,25 +932,26 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
     slug: "machinery-parts",
     groups: [
       {
-        title: { pl: "Części do maszyn rolniczych", en: "Agricultural Parts", de: "Landmaschinenteile" },
+        title: { pl: "Części do maszyn rolniczych", en: "Agricultural Machinery Parts", de: "Landmaschinenteile" },
         items: [
-          { name: { pl: "Części do ciągników Ursus, Zetor, MTZ", en: "Tractor Spares" }, query: "części ursus" },
-          { name: { pl: "Lemiesze, dłuta i części do pługów", en: "Plow Blades & Spares" }, query: "lemiesz" },
-          { name: { pl: "Paski klinowe, łańcuchy i łożyska", en: "Belts, Chains & Bearings" }, query: "łożyska" }
+          { name: { pl: "Części do ciągników Ursus, Zetor, MTZ", en: "Tractor Spare Parts", de: "Traktoren-Ersatzteile" }, query: "części ursus" },
+          { name: { pl: "Lemiesze, dłuta i części do pługów", en: "Plow Blades & Spares", de: "Pflugschare & Verschleißteile" }, query: "lemiesz" },
+          { name: { pl: "Paski klinowe, łańcuchy i łożyska", en: "V-Belts, Chains & Bearings", de: "Keilriemen, Ketten & Lager" } }
         ]
       },
       {
-        title: { pl: "Części do maszyn budowlanych", en: "Construction Spares", de: "Baumaschinenteile" },
+        title: { pl: "Części do maszyn budowlanych", en: "Construction Machinery Spares", de: "Baumaschinenteile" },
         items: [
-          { name: { pl: "Gąsienice gumowe i rolki", en: "Rubber Tracks" }, query: "gąsienice" },
-          { name: { pl: "Łyżki do koparek i szybkozłącza", en: "Excavator Buckets" }, query: "łyżka do koparki" },
-          { name: { pl: "Pompy hydrauliczne i siłowniki", en: "Hydraulic Pumps & Cylinders" }, query: "siłownik hydrauliczny" }
+          { name: { pl: "Gąsienice gumowe i rolki", en: "Rubber Tracks & Rollers", de: "Gummiketten & Laufrollen" }, query: "gąsienice" },
+          { name: { pl: "Łyżki do koparek i szybkozłącza", en: "Excavator Buckets & Quick Couplers", de: "Baggerschaufeln & Schnellwechsler" }, query: "łyżka do koparki" },
+          { name: { pl: "Pompy hydrauliczne i siłowniki", en: "Hydraulic Pumps & Cylinders", de: "Hydraulikpumpen & Zylinder" }, query: "siłownik hydrauliczny" }
         ]
       }
     ],
     popularTags: {
       pl: ["Łyżka do minikoparki", "Gąsienice gumowe", "Rozdzielacz hydrauliczny", "Części C-360", "Siłownik"],
-      en: ["Excavator Bucket", "Rubber Tracks", "Hydraulic Cylinder", "Tractor Parts"]
+      en: ["Excavator Bucket", "Rubber Tracks", "Hydraulic Cylinder", "Tractor Parts"],
+      de: ["Baggerschaufel", "Gummiketten", "Hydraulikzylinder", "Traktorteile"]
     }
   },
 
@@ -938,15 +961,16 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Profile pracodawców", en: "Employer Profiles", de: "Arbeitgeberprofile" },
         items: [
-          { name: { pl: "Duże przedsiębiorstwa i korporacje", en: "Top Enterprises" }, query: "pracodawca" },
-          { name: { pl: "Agencje pracy i rekrutacji", en: "Employment Agencies" }, query: "agencja pracy" },
-          { name: { pl: "Firmy produkcyjne i logistyczne", en: "Manufacturing & Logistics" }, query: "produkcja" }
+          { name: { pl: "Duże przedsiębiorstwa i korporacje", en: "Large Enterprises & Corporations", de: "Großunternehmen & Konzerne" }, query: "pracodawca" },
+          { name: { pl: "Agencje pracy i rekrutacji", en: "Employment & Recruitment Agencies", de: "Personal- & Zeitarbeitsagenturen" }, query: "agencja pracy" },
+          { name: { pl: "Firmy produkcyjne i logistyczne", en: "Manufacturing & Logistics Companies", de: "Produktions- & Logistikunternehmen" }, query: "produkcja" }
         ]
       }
     ],
     popularTags: {
       pl: ["Praca od zaraz", "Umowa o pracę", "Benefity", "Stabilne zatrudnienie", "Darmowe zakwaterowanie"],
-      en: ["Full-Time", "Immediate Start", "Benefits", "Accommodation Included"]
+      en: ["Full-Time", "Immediate Start", "Benefits", "Accommodation Included"],
+      de: ["Sofortiger Beginn", "Festanstellung", "Vollzeit", "Unterkunft inklusive"]
     }
   },
 
@@ -956,16 +980,17 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetails> = {
       {
         title: { pl: "Wydarzenia motoryzacyjne", en: "Automotive Events", de: "Motorsport & Events" },
         items: [
-          { name: { pl: "Targi i wystawy samochodowe", en: "Car Shows & Expos" }, query: "targi motoryzacyjne" },
-          { name: { pl: "Zloty samochodów klasycznych i zabytkowych", en: "Classic Car Meets" }, query: "zlot klasyków" },
-          { name: { pl: "Zawody driftingowe, KJS i rajdy", en: "Drift & Rally Events" }, query: "rajd" },
-          { name: { pl: "Track day i imprezy torowe", en: "Track Days" }, query: "track day" }
+          { name: { pl: "Targi i wystawy samochodowe", en: "Car Shows & Automotive Expos", de: "Automessen & Ausstellungen" }, query: "targi motoryzacyjne" },
+          { name: { pl: "Zloty samochodów klasycznych i zabytkowych", en: "Classic & Vintage Car Meets", de: "Oldtimer- & Youngtimer-Treffen" }, query: "zlot klasyków" },
+          { name: { pl: "Zawody driftingowe, KJS i rajdy", en: "Drift, Rally & Racing Events", de: "Drift- & Rallye-Events" }, query: "rajd" },
+          { name: { pl: "Track day i imprezy torowe", en: "Track Days & Circuit Events", de: "Trackdays & Rennstrecken-Events" }, query: "track day" }
         ]
       }
     ],
     popularTags: {
       pl: ["Targi Poznań", "Zlot Youngtimer", "Drift Masters", "Bilety na targi", "Classic Auto"],
-      en: ["Car Expo", "Track Day", "Classic Car Meet", "Drift Event"]
+      en: ["Car Expo", "Track Day", "Classic Car Meet", "Drift Event"],
+      de: ["Automesse", "Trackday", "Oldtimertreffen", "Drift Event"]
     }
   }
 };
