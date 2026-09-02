@@ -779,7 +779,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const Icon(Icons.notifications_active_rounded, color: Color(0xFF0D9488)),
                             const SizedBox(width: 8),
                             Text(
-                              'Notifications',
+                              tr('notif_title'),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -814,7 +814,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _loadCounts();
                             },
                             icon: const Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
-                            label: const Text('Mark all read', style: TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
+                            label: Text(tr('notif_mark_all_read'), style: const TextStyle(color: Color(0xFF0D9488), fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
                       ],
                     ),
@@ -845,7 +845,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                'All (${items.length})',
+                                '${tr('notif_all')} (${items.length})',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: activeTab == 'all' ? FontWeight.bold : FontWeight.normal,
@@ -874,7 +874,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                'New (${unreadItems.length})',
+                                '${tr('notif_new')} (${unreadItems.length})',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: activeTab == 'unread' ? FontWeight.bold : FontWeight.normal,
@@ -903,7 +903,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                'Read (${readItems.length})',
+                                '${tr('notif_read')} (${readItems.length})',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: activeTab == 'read' ? FontWeight.bold : FontWeight.normal,
@@ -931,7 +931,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     const Icon(Icons.notifications_none, size: 48, color: Colors.grey),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'No notifications yet',
+                                      tr('notif_empty_all'),
                                       style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontWeight: FontWeight.w600),
                                     ),
                                   ],
@@ -946,12 +946,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             const Icon(Icons.check_circle_outline_rounded, size: 48, color: Color(0xFF0D9488)),
                                             const SizedBox(height: 12),
                                             Text(
-                                              'No new notifications',
+                                              tr('notif_empty_new'),
                                               style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              'You are all caught up!',
+                                              tr('notif_caught_up'),
                                               style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.grey, fontSize: 12),
                                             ),
                                           ],
@@ -972,7 +972,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 const Icon(Icons.inbox_rounded, size: 48, color: Colors.grey),
                                                 const SizedBox(height: 12),
                                                 Text(
-                                                  'No read notifications',
+                                                  tr('notif_empty_all'),
                                                   style: TextStyle(color: isDark ? Colors.white : const Color(0xFF002F34), fontWeight: FontWeight.bold, fontSize: 16),
                                                 ),
                                               ],
@@ -994,7 +994,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF0D9488), shape: BoxShape.circle)),
                                                 const SizedBox(width: 6),
                                                 Text(
-                                                  'NEW NOTIFICATIONS (${unreadItems.length})',
+                                                  '${tr('notif_new_section')} (${unreadItems.length})',
                                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D9488), letterSpacing: 0.5),
                                                 ),
                                               ],
@@ -1010,7 +1010,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   const Icon(Icons.done_all_rounded, size: 14, color: Colors.grey),
                                                   const SizedBox(width: 6),
                                                   Text(
-                                                    'EARLIER (${readItems.length})',
+                                                    '${tr('notif_earlier_section')} (${readItems.length})',
                                                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600, letterSpacing: 0.5),
                                                   ),
                                                 ],
