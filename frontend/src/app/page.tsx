@@ -192,6 +192,7 @@ export default function HomePage() {
 
   // Advertisements State
   const [ads, setAds] = useState<Advertisement[]>([]);
+  const [isLoadingAds, setIsLoadingAds] = useState(true);
   const [isAdsModalOpen, setIsAdsModalOpen] = useState(false);
   const [adsModalTab, setAdsModalTab] = useState<"my-ads" | "create">("my-ads");
   const [sortBy, setSortBy] = useState<"latest" | "price-asc" | "price-desc">("latest");
@@ -417,6 +418,7 @@ export default function HomePage() {
 
   // Fetch Public Advertisements
   const fetchAds = useCallback(() => {
+    setIsLoadingAds(true);
     const apiUrl = getApiUrl();
     let url = `${apiUrl}/api/ads`;
     const params = new URLSearchParams();
@@ -443,6 +445,9 @@ export default function HomePage() {
       })
       .catch((err) => {
         console.log("Could not fetch advertisements:", err.message);
+      })
+      .finally(() => {
+        setIsLoadingAds(false);
       });
   }, [activeCategory, searchQuery, location]);
 
@@ -1270,8 +1275,36 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Advertisements Grid */}
-          {sortedAds.length === 0 ? (
+          {/* Advertisements Grid / Skeletons / Empty State */}
+          {isLoadingAds ? (
+            <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white dark:bg-slate-800/90 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-xs flex flex-col animate-pulse"
+                >
+                  {/* Skeleton Image */}
+                  <div className="h-44 sm:h-48 bg-gray-200 dark:bg-slate-700" />
+
+                  {/* Skeleton Body */}
+                  <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded-md w-3/4 mb-2.5" />
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="h-3.5 bg-gray-100 dark:bg-slate-700/60 rounded-md w-16" />
+                        <div className="h-3.5 bg-gray-100 dark:bg-slate-700/60 rounded-md w-24" />
+                      </div>
+                    </div>
+
+                    <div className="pt-2.5 border-t border-gray-100 dark:border-slate-700/60 flex items-center justify-between">
+                      <div className="h-5 bg-gray-200 dark:bg-slate-700 rounded-md w-20" />
+                      <div className="h-3.5 bg-gray-100 dark:bg-slate-700/60 rounded-md w-14" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : sortedAds.length === 0 ? (
             <div className="p-8 sm:p-14 text-center bg-gray-50/70 dark:bg-slate-800/50 rounded-2xl border border-gray-200/60 dark:border-slate-700 max-w-lg mx-auto my-6">
               <ImageIcon className="w-12 h-12 text-gray-400 dark:text-slate-500 mx-auto mb-3" />
               <h3 className="text-base font-bold text-[#002f34] dark:text-white">{t("feed.noAdsTitle")}</h3>
