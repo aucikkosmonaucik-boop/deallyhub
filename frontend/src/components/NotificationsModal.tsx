@@ -30,6 +30,7 @@ interface NotificationsModalProps {
   unreadCount: number;
   onMarkAsRead: (id: number) => void;
   onMarkAllAsRead: () => void;
+  onDeleteNotification?: (id: number) => void;
 }
 
 type NotificationTab = "all" | "read";
@@ -40,7 +41,8 @@ export default function NotificationsModal({
   notifications,
   unreadCount,
   onMarkAsRead,
-  onMarkAllAsRead
+  onMarkAllAsRead,
+  onDeleteNotification
 }: NotificationsModalProps) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<NotificationTab>("all");
@@ -97,29 +99,32 @@ export default function NotificationsModal({
                 {n.title}
               </h4>
               <div className="flex items-center gap-1.5 shrink-0">
-                {!n.is_read ? (
-                  <>
-                    <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider bg-teal-100/80 dark:bg-teal-900/60 px-1.5 py-0.5 rounded-md">
-                      {t("notifications.tabUnread", "New")}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMarkAsRead(n.id);
-                      }}
-                      className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-                      title={t("notifications.markAsRead", "Mark as read (move to read)")}
-                      aria-label="Mark as read"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </>
-                ) : (
-                  <span className="text-[11px] text-gray-400 dark:text-slate-500">
+                {!n.is_read && (
+                  <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider bg-teal-100/80 dark:bg-teal-900/60 px-1.5 py-0.5 rounded-md">
+                    {t("notifications.tabUnread", "New")}
+                  </span>
+                )}
+                {n.is_read && (
+                  <span className="text-[11px] text-gray-400 dark:text-slate-500" title={t("notifications.tabRead", "Read")}>
                     <CheckCheck className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                   </span>
                 )}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!n.is_read) {
+                      onMarkAsRead(n.id);
+                    } else if (onDeleteNotification) {
+                      onDeleteNotification(n.id);
+                    }
+                  }}
+                  className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                  title={!n.is_read ? t("notifications.markAsRead", "Oznacz jako przeczytane (przenieś)") : t("common.delete", "Usuń")}
+                  aria-label="Remove notification"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
             <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed break-words whitespace-pre-line">

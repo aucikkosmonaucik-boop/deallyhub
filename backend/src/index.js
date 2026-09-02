@@ -35,6 +35,7 @@ import {
   getUserNotifications,
   markNotificationRead,
   markAllNotificationsRead,
+  deleteNotification,
   createNotification,
   getAdminStats,
   adminGetAllAds,
@@ -1178,6 +1179,16 @@ app.post("/api/notifications/read-all", authenticateToken, async (req, res) => {
     res.json({ success });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to mark all notifications as read." });
+  }
+});
+
+// 4. Delete single notification
+app.delete("/api/notifications/:id", authenticateToken, async (req, res) => {
+  try {
+    const success = await deleteNotification(req.user.userId, parseInt(req.params.id, 10));
+    res.json({ success });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to delete notification." });
   }
 });
 

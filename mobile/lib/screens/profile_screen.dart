@@ -734,10 +734,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (!isRead)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (!isRead) ...[
                               Container(
                                 margin: const EdgeInsets.only(left: 6),
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -748,33 +748,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                               ),
                               const SizedBox(width: 6),
-                              GestureDetector(
-                                onTap: () async {
-                                  if (n['id'] != null) {
+                            ] else ...[
+                              const Icon(Icons.done_all_rounded, size: 16, color: Colors.grey),
+                              const SizedBox(width: 6),
+                            ],
+                            GestureDetector(
+                              onTap: () async {
+                                if (n['id'] != null) {
+                                  if (!isRead) {
                                     setModalState(() {
                                       n['is_read'] = true;
                                     });
                                     await ApiService.markNotificationRead(n['id'] as int);
                                     _loadCounts();
+                                  } else {
+                                    setModalState(() {
+                                      items.removeWhere((it) => it['id'] == n['id']);
+                                    });
+                                    await ApiService.deleteNotification(n['id'] as int);
+                                    _loadCounts();
                                   }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.close_rounded,
-                                    size: 14,
-                                    color: isDark ? Colors.white70 : Colors.grey.shade700,
-                                  ),
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close_rounded,
+                                  size: 14,
+                                  color: isDark ? Colors.white70 : Colors.grey.shade700,
                                 ),
                               ),
-                            ],
-                          )
-                        else
-                          const Icon(Icons.done_all_rounded, size: 16, color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     subtitle: Padding(

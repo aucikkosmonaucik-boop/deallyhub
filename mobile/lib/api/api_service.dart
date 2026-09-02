@@ -600,6 +600,17 @@ class ApiService {
     } catch (_) {}
   }
 
+  static Future<void> deleteNotification(int id) async {
+    final token = await getToken();
+    if (token == null) return;
+    try {
+      await http.delete(
+        Uri.parse('$baseUrl/api/notifications/$id'),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 8));
+    } catch (_) {}
+  }
+
   // ================= ACCOUNT SETTINGS API ================= //
 
   static Future<Map<String, dynamic>> updateProfile(String name) async {

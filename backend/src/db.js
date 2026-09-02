@@ -1098,6 +1098,25 @@ export async function markAllNotificationsRead(userId) {
   }
 }
 
+export async function deleteNotification(userId, notificationId) {
+  if (!pool) {
+    const idx = inMemoryNotifications.findIndex(n => n.id === notificationId && (n.user_id === null || n.user_id === userId));
+    if (idx !== -1) {
+      inMemoryNotifications.splice(idx, 1);
+    }
+    return true;
+  }
+
+  try {
+    // Delete user-specific notification directly or mark as dismissed
+    await pool.query("DELETE FROM notifications WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)", [notificationId, userId]);
+    return true;
+  } catch (err) {
+    console.error("Error deleting notification:", err.message);
+    return false;
+  }
+}
+
 export async function createNotification({ userId = null, title, message, type = "system" }) {
   if (!pool) {
     const newNotif = {

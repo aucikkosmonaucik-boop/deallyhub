@@ -619,6 +619,21 @@ export default function HomePage() {
     }
   };
 
+  const handleDeleteNotification = async (id: number) => {
+    if (!token) return;
+    try {
+      const apiUrl = getApiUrl();
+      await fetch(`${apiUrl}/api/notifications/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error("Failed to delete notification:", err);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    }
+  };
+
   const handleStartChat = async (adId: number) => {
     if (!token) {
       setIsAuthOpen(true);
@@ -1656,6 +1671,7 @@ export default function HomePage() {
         unreadCount={unreadNotificationsCount}
         onMarkAsRead={handleMarkNotificationRead}
         onMarkAllAsRead={handleMarkAllNotificationsRead}
+        onDeleteNotification={handleDeleteNotification}
       />
 
       {/* Admin Panel Modal (Panel Administratora dla Właściciela Portalu) */}
