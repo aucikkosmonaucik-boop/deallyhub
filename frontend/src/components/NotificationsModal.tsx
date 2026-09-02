@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   X,
   Bell,
@@ -7,7 +7,9 @@ import {
   Sparkles,
   Info,
   Shield,
-  Clock
+  Clock,
+  Inbox,
+  CheckCircle2
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -30,6 +32,8 @@ interface NotificationsModalProps {
   onMarkAllAsRead: () => void;
 }
 
+type NotificationTab = "all" | "unread" | "read";
+
 export default function NotificationsModal({
   isOpen,
   onClose,
@@ -39,32 +43,83 @@ export default function NotificationsModal({
   onMarkAllAsRead
 }: NotificationsModalProps) {
   const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState<NotificationTab>("all");
+
   if (!isOpen) return null;
+
+  const unreadItems = notifications.filter((n) => !n.is_read);
+  const readItems = notifications.filter((n) => n.is_read);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "alert":
-        return <AlertTriangle className="w-5 h-5 text-amber-600" />;
+        return <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />;
       case "promotion":
-        return <Sparkles className="w-5 h-5 text-purple-600" />;
+        return <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
       case "system":
-        return <Shield className="w-5 h-5 text-teal-600" />;
+        return <Shield className="w-5 h-5 text-teal-600 dark:text-teal-400" />;
       default:
-        return <Info className="w-5 h-5 text-blue-600" />;
+        return <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
     }
   };
 
-  const getTypeBg = (type: string) => {
+  const getTypeBg = (type: string, isRead: boolean) => {
+    if (isRead) {
+      return "bg-white dark:bg-slate-800/60 border-gray-200/80 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700 opacity-85";
+    }
     switch (type) {
       case "alert":
-        return "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60";
+        return "bg-amber-50/90 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/80 shadow-xs";
       case "promotion":
-        return "bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800/60";
+        return "bg-purple-50/90 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800/80 shadow-xs";
       case "system":
-        return "bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800/60";
+        return "bg-teal-50/90 dark:bg-teal-950/40 border-teal-300 dark:border-teal-800/80 shadow-xs";
       default:
-        return "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/60";
+        return "bg-blue-50/90 dark:bg-blue-950/40 border-blue-300 dark:border-blue-800/80 shadow-xs";
     }
+  };
+
+  const renderNotificationCard = (n: NotificationItem) => {
+    const bgClass = getTypeBg(n.type, n.is_read);
+    return (
+      <div
+        key={n.id}
+        onClick={() => !n.is_read && onMarkAsRead(n.id)}
+        className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer relative group ${bgClass}`}
+      >
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-lg bg-white/90 dark:bg-slate-800 shrink-0 border border-gray-100 dark:border-slate-700 shadow-2xs">
+            {getTypeIcon(n.type)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h4 className="font-bold text-sm text-[#002f34] dark:text-white truncate">
+                {n.title}
+              </h4>
+              {!n.is_read ? (
+                <span className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider bg-teal-100/80 dark:bg-teal-900/60 px-1.5 py-0.5 rounded-md">
+                    {t("notifications.tabUnread", "New")}
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 animate-pulse" />
+                </span>
+              ) : (
+                <span className="text-[11px] text-gray-400 dark:text-slate-500 shrink-0">
+                  <CheckCheck className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed break-words whitespace-pre-line">
+              {n.message}
+            </p>
+            <div className="flex items-center gap-1 mt-2.5 text-[11px] text-gray-400 dark:text-slate-500">
+              <Clock className="w-3 h-3" />
+              <span>{new Date(n.created_at).toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -81,14 +136,18 @@ export default function NotificationsModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base sm:text-lg text-[#002f34] dark:text-white">{t("notifications.title")}</h3>
+                <h3 className="font-bold text-base sm:text-lg text-[#002f34] dark:text-white">
+                  {t("notifications.title")}
+                </h3>
                 {unreadCount > 0 && (
                   <span className="bg-red-500 text-white text-[10px] sm:text-xs font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full">
                     {unreadCount}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400">{t("notifications.subtitle")}</p>
+              <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400">
+                {t("notifications.subtitle")}
+              </p>
             </div>
           </div>
 
@@ -97,6 +156,7 @@ export default function NotificationsModal({
               <button
                 onClick={onMarkAllAsRead}
                 className="text-xs font-semibold text-teal-700 dark:text-teal-300 hover:text-teal-900 dark:hover:text-white bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900 px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer active:scale-95 border border-transparent dark:border-teal-800/60"
+                title={t("notifications.markAllRead")}
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{t("notifications.markAllRead")}</span>
@@ -112,56 +172,147 @@ export default function NotificationsModal({
           </div>
         </div>
 
-        {/* Notifications List */}
-        <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
+        {/* Segmented Filter Tabs: Wszystkie / Nowe / Przeczytane */}
+        <div className="px-4 pt-3 pb-2 bg-gray-50/70 dark:bg-slate-900/90 border-b border-gray-100 dark:border-slate-800 shrink-0">
+          <div className="flex bg-gray-200/70 dark:bg-slate-800 p-1 rounded-xl gap-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("all")}
+              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeTab === "all"
+                  ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white shadow-xs"
+                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <span>{t("notifications.tabAll", "All")}</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold">
+                {notifications.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("unread")}
+              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeTab === "unread"
+                  ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white shadow-xs"
+                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <span>{t("notifications.tabUnread", "New")}</span>
+              {unreadItems.length > 0 ? (
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-teal-600 text-white font-bold">
+                  {unreadItems.length}
+                </span>
+              ) : (
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 font-semibold">
+                  0
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("read")}
+              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeTab === "read"
+                  ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white shadow-xs"
+                  : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
+              }`}
+            >
+              <span>{t("notifications.tabRead", "Read")}</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold">
+                {readItems.length}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Notifications Content */}
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-3">
           {notifications.length === 0 ? (
             <div className="py-12 text-center">
               <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3 text-gray-300 dark:text-slate-600">
                 <Bell className="w-8 h-8" />
               </div>
-              <p className="font-bold text-[#002f34] dark:text-white text-base">{t("notifications.empty")}</p>
-              <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 max-w-xs mx-auto">
+              <p className="font-bold text-[#002f34] dark:text-white text-base">
+                {t("notifications.empty")}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
                 {t("notifications.emptyDesc")}
               </p>
             </div>
+          ) : activeTab === "unread" ? (
+            unreadItems.length === 0 ? (
+              <div className="py-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center mx-auto mb-3 text-teal-600 dark:text-teal-400">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <p className="font-bold text-[#002f34] dark:text-white text-base">
+                  {t("notifications.emptyUnread", "No new notifications")}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                  {t("notifications.emptyUnreadDesc", "You're all caught up! All notifications have been read.")}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {unreadItems.map((n) => renderNotificationCard(n))}
+              </div>
+            )
+          ) : activeTab === "read" ? (
+            readItems.length === 0 ? (
+              <div className="py-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3 text-gray-300 dark:text-slate-600">
+                  <Inbox className="w-8 h-8" />
+                </div>
+                <p className="font-bold text-[#002f34] dark:text-white text-base">
+                  {t("notifications.emptyRead", "No read notifications")}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                  {t("notifications.emptyReadDesc", "Your read notifications history will appear here.")}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {readItems.map((n) => renderNotificationCard(n))}
+              </div>
+            )
           ) : (
-            notifications.map((n) => {
-              const bgClass = getTypeBg(n.type);
-              return (
-                <div
-                  key={n.id}
-                  onClick={() => !n.is_read && onMarkAsRead(n.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer relative ${
-                    n.is_read
-                      ? "bg-white dark:bg-slate-800/60 border-gray-200 dark:border-slate-800 opacity-80"
-                      : `${bgClass} shadow-xs`
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-white/80 dark:bg-slate-800 shrink-0 border border-gray-100 dark:border-slate-700 shadow-2xs">
-                      {getTypeIcon(n.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <h4 className="font-bold text-sm text-[#002f34] dark:text-white truncate">
-                          {n.title}
-                        </h4>
-                        {!n.is_read && (
-                          <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed break-words whitespace-pre-line">
-                        {n.message}
-                      </p>
-                      <div className="flex items-center gap-1 mt-2.5 text-[11px] text-gray-400 dark:text-slate-500">
-                        <Clock className="w-3 h-3" />
-                        <span>{new Date(n.created_at).toLocaleString()}</span>
-                      </div>
-                    </div>
+            /* activeTab === "all" */
+            <div className="space-y-4">
+              {/* Section: Nowe powiadomienia (if any exist) */}
+              {unreadItems.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400" />
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-teal-800 dark:text-teal-300">
+                      {t("notifications.sectionNew", "New notifications")} ({unreadItems.length})
+                    </h4>
+                  </div>
+                  <div className="space-y-2.5">
+                    {unreadItems.map((n) => renderNotificationCard(n))}
                   </div>
                 </div>
-              );
-            })
+              )}
+
+              {/* Section: Przeczytane / Wcześniejsze (if any exist) */}
+              {readItems.length > 0 && (
+                <div>
+                  {unreadItems.length > 0 && (
+                    <div className="flex items-center gap-2 mb-2 mt-4 px-1 pt-2 border-t border-gray-100 dark:border-slate-800">
+                      <CheckCheck className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                        {t("notifications.sectionRead", "Earlier notifications")} ({readItems.length})
+                      </h4>
+                    </div>
+                  )}
+                  <div className="space-y-2.5">
+                    {readItems.map((n) => renderNotificationCard(n))}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
