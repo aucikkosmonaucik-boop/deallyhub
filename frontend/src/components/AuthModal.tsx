@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Send } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
@@ -78,6 +78,8 @@ export default function AuthModal({
     }
   };
 
+  const lastRenderedLangRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!isOpen || (mode !== "login" && mode !== "register")) return;
 
@@ -89,8 +91,11 @@ export default function AuthModal({
       const container = document.getElementById("google-signin-btn-container");
       if (!container) return;
 
-      // If Google button iframe is already inside, do NOT wipe and re-render!
-      if (container.querySelector("iframe")) return;
+      const hasIframe = !!container.querySelector("iframe");
+      const langChanged = lastRenderedLangRef.current !== language;
+
+      // If Google button iframe is already inside and language hasn't changed, keep it without re-rendering!
+      if (hasIframe && !langChanged) return;
 
       if (typeof window !== "undefined" && (window as any).google?.accounts?.id) {
         try {
@@ -105,22 +110,25 @@ export default function AuthModal({
             theme: "outline",
             size: "large",
             width: btnWidth,
-            text: mode === "register" ? "signup_with" : "signin_with",
+            text: "continue_with",
             shape: "rectangular",
             logo_alignment: "left",
             locale: language
           });
+          lastRenderedLangRef.current = language;
         } catch (err) {
           console.warn("Failed to initialize Google Sign-In:", err);
         }
       } else {
-        timer = setTimeout(initGoogle, 300);
+        timer = setTimeout(initGoogle, 150);
       }
     };
 
-    // Clean container on mode change
+    // Only clear container if language actually changed
     const container = document.getElementById("google-signin-btn-container");
-    if (container) container.innerHTML = "";
+    if (container && lastRenderedLangRef.current && lastRenderedLangRef.current !== language) {
+      container.innerHTML = "";
+    }
 
     initGoogle();
 
@@ -128,7 +136,7 @@ export default function AuthModal({
       isMounted = false;
       if (timer) clearTimeout(timer);
     };
-  }, [isOpen, mode]);
+  }, [isOpen, mode, language]);
 
   const FB_APP_ID = "1983054212398881";
 

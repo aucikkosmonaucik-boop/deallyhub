@@ -22,26 +22,30 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const STORAGE_KEY = "deallyhub_language";
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<SupportedLanguage>("en");
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    try {
-      const savedLang = localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
-      if (savedLang && SUPPORTED_LANGUAGES.some((l) => l.code === savedLang)) {
-        setLanguageState(savedLang);
-      } else if (typeof navigator !== "undefined" && navigator.language) {
-        const browserCode = navigator.language.slice(0, 2).toLowerCase() as SupportedLanguage;
-        if (SUPPORTED_LANGUAGES.some((l) => l.code === browserCode)) {
-          setLanguageState(browserCode);
+  const [language, setLanguageState] = useState<SupportedLanguage>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedLang = localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
+        if (savedLang && SUPPORTED_LANGUAGES.some((l) => l.code === savedLang)) {
+          return savedLang;
         }
+        if (navigator.language) {
+          const browserCode = navigator.language.slice(0, 2).toLowerCase() as SupportedLanguage;
+          if (SUPPORTED_LANGUAGES.some((l) => l.code === browserCode)) {
+            return browserCode;
+          }
+        }
+      } catch {
+        // Ignore error
       }
-    } catch {
-      // Ignore localStorage errors (e.g. incognito/sandboxed)
-    } finally {
-      setIsInitialized(true);
     }
-  }, []);
+    return "en";
+  });
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = language;
+    }
+  }, [language]);
 
   const setLanguage = useCallback((newLang: SupportedLanguage) => {
     setLanguageState(newLang);
