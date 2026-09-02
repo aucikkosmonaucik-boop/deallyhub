@@ -189,6 +189,8 @@ export async function sendVerificationEmail({ email, name, token, clientOrigin }
   const backendBase = (process.env.BACKEND_PUBLIC_URL || "https://deallyhub-production.up.railway.app").replace(/\/+$/, "");
   const verifyUrl = `${backendBase}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
 
+  console.log(`[VERIFY EMAIL] Generated verifyUrl for ${email}: ${verifyUrl}`);
+
   const title = "Verify your Deallyhub Account";
   const subtitle = "Confirm your email address";
   const messageText = "Thank you for registering on Deallyhub! Please click the button below to verify your email address and activate your advertiser profile.";
