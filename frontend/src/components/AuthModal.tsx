@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Send } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useLanguage } from "@/context/LanguageContext";
@@ -54,89 +54,68 @@ export default function AuthModal({
 
   const GOOGLE_CLIENT_ID = "1073600566504-rmbe5e4na60o18ehark84qv74d2v57ku.apps.googleusercontent.com";
 
-  const handleGoogleCallback = async (response: any) => {
-    if (!response?.credential) return;
+  const handleGoogleLogin = () => {
     setLoading(true);
     setError(null);
-    try {
-      const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/api/auth/google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: response.credential }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Google authentication failed.");
-      }
-      onAuthSuccess(data.user, data.token);
-      onClose();
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const lastRenderedLangRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!isOpen || (mode !== "login" && mode !== "register")) return;
-
-    let isMounted = true;
-    let timer: NodeJS.Timeout | null = null;
-
-    const initGoogle = () => {
-      if (!isMounted) return;
-      const container = document.getElementById("google-signin-btn-container");
-      if (!container) return;
-
-      const hasIframe = !!container.querySelector("iframe");
-      const langChanged = lastRenderedLangRef.current !== language;
-
-      // If Google button iframe is already inside and language hasn't changed, keep it without re-rendering!
-      if (hasIframe && !langChanged) return;
-
-      if (typeof window !== "undefined" && (window as any).google?.accounts?.id) {
-        try {
-          (window as any).google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCallback,
-          });
-
-          const btnWidth = Math.max(240, Math.min(320, window.innerWidth - 64));
-          container.innerHTML = "";
-          (window as any).google.accounts.id.renderButton(container, {
-            theme: "outline",
-            size: "large",
-            width: btnWidth,
-            text: "continue_with",
-            shape: "rectangular",
-            logo_alignment: "left",
-            locale: language
-          });
-          lastRenderedLangRef.current = language;
-        } catch (err) {
-          console.warn("Failed to initialize Google Sign-In:", err);
+    const onTokenReceived = async (accessToken: string) => {
+      try {
+        const apiUrl = getApiUrl();
+        const res = await fetch(`${apiUrl}/api/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accessToken }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || "Google authentication failed.");
         }
-      } else {
-        timer = setTimeout(initGoogle, 150);
+        onAuthSuccess(data.user, data.token);
+        onClose();
+      } catch (err: any) {
+        setError(err.message || "Failed to sign in with Google.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Only clear container if language actually changed
-    const container = document.getElementById("google-signin-btn-container");
-    if (container && lastRenderedLangRef.current && lastRenderedLangRef.current !== language) {
-      container.innerHTML = "";
+    if (typeof window !== "undefined" && (window as any).google?.accounts?.oauth2) {
+      try {
+        const client = (window as any).google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: "email profile openid",
+          callback: (response: any) => {
+            if (response?.access_token) {
+              onTokenReceived(response.access_token);
+            } else if (response?.error) {
+              setLoading(false);
+              if (response.error !== "access_denied") {
+                setError(response.error_description || "Google sign-in was cancelled or failed.");
+              }
+            } else {
+              setLoading(false);
+            }
+          },
+          error_callback: (err: any) => {
+            setLoading(false);
+            if (err?.type !== "popup_closed") {
+              setError("Google sign-in popup was closed or blocked.");
+            }
+          },
+        });
+        client.requestAccessToken();
+        return;
+      } catch (err) {
+        console.warn("initTokenClient failed, using popup fallback:", err);
+      }
     }
 
-    initGoogle();
-
-    return () => {
-      isMounted = false;
-      if (timer) clearTimeout(timer);
-    };
-  }, [isOpen, mode, language]);
+    // Direct OAuth popup fallback
+    const redirectUri = encodeURIComponent(window.location.origin);
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile%20openid`;
+    window.open(googleAuthUrl, "_blank", "width=600,height=700");
+    setLoading(false);
+  };
 
   const FB_APP_ID = "1983054212398881";
 
@@ -698,7 +677,20 @@ export default function AuthModal({
                     </div>
                   </div>
 
-                  <div id="google-signin-btn-container" className="w-full flex justify-center h-[40px] min-h-[40px] overflow-hidden"></div>
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={loading}
+                    className="w-full max-w-[320px] h-[40px] px-4 rounded-[4px] bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/60 text-[#3c4043] dark:text-slate-100 text-[13px] font-semibold flex items-center justify-center gap-2.5 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>{mode === "register" ? t("auth.googleRegister") : t("auth.googleLogin")}</span>
+                  </button>
 
                   <button
                     type="button"

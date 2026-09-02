@@ -459,6 +459,8 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.verified": "Verified",
     "auth.facebookRegister": "Sign up with Facebook",
     "auth.facebookLogin": "Continue with Facebook",
+    "auth.googleRegister": "Sign up with Google",
+    "auth.googleLogin": "Continue with Google",
   },
   de: {
     "common.save": "Speichern",
@@ -821,6 +823,8 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.verified": "Verifiziert",
     "auth.facebookRegister": "Mit Facebook registrieren",
     "auth.facebookLogin": "Weiter mit Facebook",
+    "auth.googleRegister": "Mit Google registrieren",
+    "auth.googleLogin": "Weiter mit Google",
   },
   pl: {
     "common.save": "Zapisz",
@@ -1183,5 +1187,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "common.verified": "Zweryfikowany",
     "auth.facebookRegister": "Zarejestruj się przez Facebook",
     "auth.facebookLogin": "Kontynuuj przez Facebook",
+    "auth.googleRegister": "Zarejestruj się przez Google",
+    "auth.googleLogin": "Kontynuuj przez Google",
   }
 };
