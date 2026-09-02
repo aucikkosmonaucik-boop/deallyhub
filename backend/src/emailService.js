@@ -186,8 +186,8 @@ function resolveClientOrigin(clientOrigin) {
 }
 
 export async function sendVerificationEmail({ email, name, token, clientOrigin }) {
-  const origin = resolveClientOrigin(clientOrigin);
-  const verifyUrl = `${origin}/?verify_email=${encodeURIComponent(token)}`;
+  const backendBase = (process.env.BACKEND_PUBLIC_URL || "https://deallyhub-production.up.railway.app").replace(/\/+$/, "");
+  const verifyUrl = `${backendBase}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
 
   const title = "Verify your Deallyhub Account";
   const subtitle = "Confirm your email address";
