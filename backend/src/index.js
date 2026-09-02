@@ -429,7 +429,7 @@ app.all("/api/auth/verify-email", async (req, res) => {
     );
 
     if (req.method === "GET") {
-      return res.redirect(`https://deallyhub.com/?verify_email=${encodeURIComponent(token)}`);
+      return res.redirect(`https://deallyhub.com/?verified=true&token=${encodeURIComponent(authToken)}&user_id=${user.id}&user_name=${encodeURIComponent(user.name)}&user_email=${encodeURIComponent(user.email)}`);
     }
 
     res.json({

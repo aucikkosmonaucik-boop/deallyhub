@@ -366,6 +366,20 @@ export default function HomePage() {
           setGlobalBanner({ text: "Failed to verify email. Please try again.", type: "error" });
         });
     } else if (isVerified === "true") {
+      const incomingToken = urlParams.get("token") || urlParams.get("auth_token");
+      const incomingName = urlParams.get("user_name") || urlParams.get("name");
+      const incomingEmail = urlParams.get("user_email") || urlParams.get("email");
+      const incomingId = urlParams.get("user_id") || urlParams.get("id");
+
+      if (incomingToken && incomingEmail) {
+        const u = {
+          id: incomingId ? parseInt(incomingId, 10) : 0,
+          name: incomingName ? decodeURIComponent(incomingName) : "User",
+          email: decodeURIComponent(incomingEmail)
+        };
+        handleAuthSuccess(u, incomingToken);
+      }
+
       setGlobalBanner({ text: "Email address verified successfully! 🎉 Welcome to your profile.", type: "success" });
       setIsSettingsModalOpen(true);
       if (typeof window !== "undefined") {
