@@ -428,16 +428,6 @@ export default function AdsManagerModal({
     return all;
   }, [subcategoryGroups, selectedGroupIndex, getTranslatedText]);
 
-  const categoryPopularTags = useMemo(() => {
-    if (!currentCategoryDetails?.popularTags) return [];
-    return (
-      currentCategoryDetails.popularTags[language] ||
-      currentCategoryDetails.popularTags.pl ||
-      currentCategoryDetails.popularTags.en ||
-      []
-    );
-  }, [currentCategoryDetails, language]);
-
   const handleSelectSubcategory = (subName: string) => {
     if (selectedSubcategory === subName) {
       setSelectedSubcategory(null);
@@ -447,14 +437,6 @@ export default function AdsManagerModal({
     // Autofill title if empty
     if (!title.trim()) {
       setTitle(subName);
-    }
-  };
-
-  const handleAddTagToTitle = (tag: string) => {
-    if (!title.trim()) {
-      setTitle(tag);
-    } else if (!title.toLowerCase().includes(tag.toLowerCase())) {
-      setTitle(`${title.trim()} ${tag}`);
     }
   };
 
@@ -744,14 +726,14 @@ export default function AdsManagerModal({
                   </div>
                 </div>
 
-                {/* Subcategories Bar (Responsive for WWW & Android Mobile Browsers) */}
+                {/* 2 Rozwijane paski subkategorii (Responsive for WWW & Android Mobile Browsers) */}
                 {currentCategoryDetails && (
                   <div className="p-3 sm:p-3.5 bg-gradient-to-b from-gray-50 to-gray-100/70 dark:from-slate-800/80 dark:to-slate-900/80 rounded-2xl border border-gray-200/90 dark:border-slate-700/80 space-y-2.5 transition-all">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <Layers className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
                         <span className="text-xs font-bold text-[#002f34] dark:text-slate-200 truncate">
-                          {t("adsManager.subcategoriesLabel", "Pasek podkategorii")}
+                          {t("adsManager.subcategoriesLabel", "Rozwijany pasek subkategorii")}
                         </span>
                         {selectedSubcategory && (
                           <span className="text-[11px] font-bold text-teal-700 dark:text-teal-300 bg-teal-100/90 dark:bg-teal-950/80 px-2 py-0.5 rounded-md border border-teal-200 dark:border-teal-800/80 truncate max-w-[140px] sm:max-w-none">
@@ -771,108 +753,70 @@ export default function AdsManagerModal({
                       )}
                     </div>
 
-                    {/* Group Filter Tabs (if category has multiple groups) */}
-                    {subcategoryGroups.length > 1 && (
-                      <div
-                        className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1"
-                        style={{
-                          WebkitOverflowScrolling: "touch",
-                          scrollbarWidth: "none",
-                          msOverflowStyle: "none"
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setSelectedGroupIndex(null)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border shrink-0 select-none ${
-                            selectedGroupIndex === null
-                              ? "bg-[#002f34] text-white border-[#002f34] dark:bg-teal-600 dark:border-teal-500 shadow-2xs"
-                              : "bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-400 border-gray-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-600"
-                          }`}
-                        >
-                          {t("adsManager.allSubcategories", "Wszystkie")}
-                        </button>
-                        {subcategoryGroups.map((group, gIdx) => {
-                          const groupTitle = getTranslatedText(group.title, "Group");
-                          const isSelected = selectedGroupIndex === gIdx;
-                          return (
-                            <button
-                              key={gIdx}
-                              type="button"
-                              onClick={() => setSelectedGroupIndex(isSelected ? null : gIdx)}
-                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border shrink-0 select-none ${
-                                isSelected
-                                  ? "bg-[#002f34] text-white border-[#002f34] dark:bg-teal-600 dark:border-teal-500 shadow-2xs"
-                                  : "bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-400 border-gray-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-600"
-                              }`}
+                    {/* 2 Rozwijane paski: Pasek 1 (Grupa/Dział) + Pasek 2 (Podkategoria) */}
+                    <div className={`grid gap-2.5 ${subcategoryGroups.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+                      {/* Pasek 1: Rozwijany Dział / Grupa */}
+                      {subcategoryGroups.length > 1 && (
+                        <div>
+                          <label className="block text-[11px] font-semibold text-gray-600 dark:text-slate-400 mb-1">
+                            {t("adsManager.groupSelect", "1. Grupa / Dział")}
+                          </label>
+                          <div className="relative">
+                            <select
+                              value={selectedGroupIndex === null ? "" : selectedGroupIndex.toString()}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedGroupIndex(val === "" ? null : parseInt(val, 10));
+                              }}
+                              className="w-full pl-3 pr-8 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-medium text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 transition-all appearance-none cursor-pointer"
                             >
-                              {groupTitle}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
+                              <option value="" className="dark:bg-slate-900">
+                                {t("adsManager.allGroups", "Wszystkie grupy / działy")}
+                              </option>
+                              {subcategoryGroups.map((group, gIdx) => (
+                                <option key={gIdx} value={gIdx.toString()} className="dark:bg-slate-900">
+                                  {getTranslatedText(group.title, "Group")}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          </div>
+                        </div>
+                      )}
 
-                    {/* Subcategories Scrollable Pill List */}
-                    <div
-                      className="flex items-center gap-1.5 overflow-x-auto py-1 -mx-1 px-1"
-                      style={{
-                        WebkitOverflowScrolling: "touch",
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none"
-                      }}
-                    >
-                      {visibleSubcategories.map((sub, sIdx) => {
-                        const isSelected = selectedSubcategory === sub.name;
-                        return (
-                          <button
-                            key={sIdx}
-                            type="button"
-                            onClick={() => handleSelectSubcategory(sub.name)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer select-none shrink-0 active:scale-95 border ${
-                              isSelected
-                                ? "bg-teal-600 text-white border-teal-600 shadow-xs font-bold ring-2 ring-teal-300 dark:ring-teal-800"
-                                : "bg-white dark:bg-slate-800/90 border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700 hover:text-teal-900 dark:hover:text-teal-300 hover:border-teal-300"
-                            }`}
+                      {/* Pasek 2: Rozwijana Podkategoria */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-600 dark:text-slate-400 mb-1">
+                          {subcategoryGroups.length > 1
+                            ? t("adsManager.subcategorySelect", "2. Wybierz podkategorię")
+                            : t("adsManager.subcategorySelect", "Wybierz podkategorię")}
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={selectedSubcategory || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val) {
+                                handleSelectSubcategory(val);
+                              } else {
+                                setSelectedSubcategory(null);
+                              }
+                            }}
+                            className="w-full pl-3 pr-8 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-medium text-[#002f34] dark:text-slate-100 focus:ring-2 focus:ring-teal-500 transition-all appearance-none cursor-pointer"
                           >
-                            {isSelected ? (
-                              <Check className="w-3.5 h-3.5 stroke-[3]" />
-                            ) : (
-                              <span className="text-teal-600 dark:text-teal-400 font-bold">›</span>
-                            )}
-                            <span>{sub.name}</span>
-                          </button>
-                        );
-                      })}
+                            <option value="" className="dark:bg-slate-900">
+                              {t("adsManager.chooseSubcategory", "-- Wybierz podkategorię --")}
+                            </option>
+                            {visibleSubcategories.map((sub, sIdx) => (
+                              <option key={sIdx} value={sub.name} className="dark:bg-slate-900">
+                                {sub.name}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
+                      </div>
                     </div>
-
-                    {/* Popular Tags & Keywords Row */}
-                    {categoryPopularTags.length > 0 && (
-                      <div
-                        className="flex items-center gap-1.5 overflow-x-auto pt-1.5 border-t border-gray-200/60 dark:border-slate-700/60 -mx-1 px-1"
-                        style={{
-                          WebkitOverflowScrolling: "touch",
-                          scrollbarWidth: "none",
-                          msOverflowStyle: "none"
-                        }}
-                      >
-                        <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-0.5">
-                          <Tag className="w-3 h-3 text-teal-600 dark:text-teal-400" />
-                          <span>{t("adsManager.popularTagsLabel", "Popularne:")}</span>
-                        </span>
-                        {categoryPopularTags.map((tag, tIdx) => (
-                          <button
-                            key={tIdx}
-                            type="button"
-                            onClick={() => handleAddTagToTitle(tag)}
-                            className="px-2.5 py-0.5 rounded-lg text-[11px] font-semibold whitespace-nowrap bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700 hover:text-teal-800 dark:hover:text-teal-300 border border-gray-200 dark:border-slate-700 transition-colors cursor-pointer active:scale-95 shrink-0"
-                            title={t("adsManager.applyToTitle", "Kliknij, aby dodać do tytułu")}
-                          >
-                            +{tag}
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 )}
               </div>

@@ -113,17 +113,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
     });
   }
 
-  void _handleAddTag(String tag) {
-    setState(() {
-      final currentText = _titleController.text.trim();
-      if (currentText.isEmpty) {
-        _titleController.text = tag;
-      } else if (!currentText.toLowerCase().contains(tag.toLowerCase())) {
-        _titleController.text = '$currentText $tag';
-      }
-    });
-  }
-
   void _addImageUrl() {
     final url = _imgUrlController.text.trim();
     if (url.isNotEmpty && !_images.contains(url)) {
@@ -431,7 +420,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                     },
                   ),
 
-                  // Subcategories & Tags Bar
+                  // 2 Rozwijane paski subkategorii
                   Builder(
                     builder: (context) {
                       final langCode = LanguageController.instance.languageCode;
@@ -439,7 +428,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       if (detail == null) return const SizedBox.shrink();
 
                       final groups = detail.groups;
-                      final popularTags = detail.getPopularTags(langCode);
 
                       List<SubcategoryItem> visibleItems = [];
                       if (_selectedGroupIndex != null && _selectedGroupIndex! < groups.length) {
@@ -530,179 +518,95 @@ class _PostAdScreenState extends State<PostAdScreen> {
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 10),
 
-                            // Group Filter Tabs (if multiple groups)
+                            // Pasek 1: Rozwijany Dział / Grupa (jeśli jest więcej niż 1 grupa)
                             if (groups.length > 1) ...[
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                child: Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => setState(() => _selectedGroupIndex = null),
-                                      child: Container(
-                                        margin: const EdgeInsets.only(right: 6),
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: _selectedGroupIndex == null
-                                              ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
-                                              : (isDark ? const Color(0xFF0F172A) : Colors.white),
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: _selectedGroupIndex == null
-                                                ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
-                                                : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          tr('post_all_subcategories'),
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            color: _selectedGroupIndex == null
-                                                ? Colors.white
-                                                : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    ...groups.asMap().entries.map((entry) {
-                                      final gIdx = entry.key;
-                                      final group = entry.value;
-                                      final isSelected = _selectedGroupIndex == gIdx;
-                                      return GestureDetector(
-                                        onTap: () => setState(() => _selectedGroupIndex = isSelected ? null : gIdx),
-                                        child: Container(
-                                          margin: const EdgeInsets.only(right: 6),
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: isSelected
-                                                ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
-                                                : (isDark ? const Color(0xFF0F172A) : Colors.white),
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                              color: isSelected
-                                                  ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
-                                                  : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            group.getTitle(langCode),
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: isSelected
-                                                  ? Colors.white
-                                                  : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                  ],
+                              Text(
+                                tr('post_group_select'),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                                 ),
+                              ),
+                              const SizedBox(height: 4),
+                              DropdownButtonFormField<int?>(
+                                initialValue: _selectedGroupIndex,
+                                dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  filled: true,
+                                  fillColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1))),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1))),
+                                ),
+                                items: [
+                                  DropdownMenuItem<int?>(
+                                    value: null,
+                                    child: Text(tr('post_all_groups'), style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface)),
+                                  ),
+                                  ...groups.asMap().entries.map((entry) {
+                                    return DropdownMenuItem<int?>(
+                                      value: entry.key,
+                                      child: Text(entry.value.getTitle(langCode), style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface)),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (val) {
+                                  setState(() {
+                                    _selectedGroupIndex = val;
+                                  });
+                                },
                               ),
                               const SizedBox(height: 8),
                             ],
 
-                            // Subcategories Chips Row (Horizontal Scrollable)
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              physics: const BouncingScrollPhysics(),
-                              child: Row(
-                                children: visibleItems.map((item) {
-                                  final itemName = item.getName(langCode);
-                                  final isSelected = _selectedSubcategory == itemName;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 6),
-                                    child: ActionChip(
-                                      onPressed: () => _handleSelectSubcategory(itemName),
-                                      avatar: isSelected
-                                          ? const Icon(Icons.check_circle_rounded, size: 15, color: Colors.white)
-                                          : const Text('›', style: TextStyle(color: Color(0xFF0D9488), fontWeight: FontWeight.bold, fontSize: 15)),
-                                      label: Text(
-                                        itemName,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : (isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B)),
-                                        ),
-                                      ),
-                                      backgroundColor: isSelected
-                                          ? const Color(0xFF0D9488)
-                                          : (isDark ? const Color(0xFF0F172A) : Colors.white),
-                                      side: BorderSide(
-                                        color: isSelected
-                                            ? const Color(0xFF0D9488)
-                                            : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
-                                      ),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                    ),
-                                  );
-                                }).toList(),
+                            // Pasek 2: Rozwijana Podkategoria
+                            Text(
+                              groups.length > 1 ? tr('post_subcategory_select') : tr('post_subcategories'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                               ),
                             ),
-
-                            // Popular Tags Row
-                            if (popularTags.isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Divider(height: 12, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 6),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.local_offer_outlined, size: 12, color: Color(0xFF0D9488)),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            '${tr("post_popular_tags")}:',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    ...popularTags.map((tag) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(right: 6),
-                                        child: GestureDetector(
-                                          onTap: () => _handleAddTag(tag),
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                            decoration: BoxDecoration(
-                                              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                                              borderRadius: BorderRadius.circular(6),
-                                              border: Border.all(
-                                                color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                                              ),
-                                            ),
-                                            child: Text(
-                                              '+$tag',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w600,
-                                                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                  ],
-                                ),
+                            const SizedBox(height: 4),
+                            DropdownButtonFormField<String?>(
+                              initialValue: visibleItems.any((it) => it.getName(langCode) == _selectedSubcategory)
+                                  ? _selectedSubcategory
+                                  : null,
+                              dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                filled: true,
+                                fillColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1))),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1))),
                               ),
-                            ],
+                              items: [
+                                DropdownMenuItem<String?>(
+                                  value: null,
+                                  child: Text(tr('post_choose_subcategory'), style: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : Colors.grey.shade600)),
+                                ),
+                                ...visibleItems.map((it) {
+                                  final name = it.getName(langCode);
+                                  return DropdownMenuItem<String?>(
+                                    value: name,
+                                    child: Text(name, style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface)),
+                                  );
+                                }),
+                              ],
+                              onChanged: (val) {
+                                if (val != null && val.isNotEmpty) {
+                                  _handleSelectSubcategory(val);
+                                } else {
+                                  setState(() => _selectedSubcategory = null);
+                                }
+                              },
+                            ),
                           ],
                         ),
                       );
