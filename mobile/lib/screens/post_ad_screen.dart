@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../api/api_service.dart';
+import '../data/category_data.dart';
 import '../l10n/language_controller.dart';
 import '../widgets/app_image.dart';
 import '../utils/content_filter.dart';
@@ -38,6 +39,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   String _currency = 'USD';
   String _categorySlug = 'antiques-collectibles';
+  String? _selectedSubcategory;
+  int? _selectedGroupIndex;
   bool _isFree = false;
   bool _isPromo = false;
 
@@ -89,10 +92,36 @@ class _PostAdScreenState extends State<PostAdScreen> {
         _categories = cats;
         if (cats.isNotEmpty) {
           _categorySlug = cats[0]['slug'] ?? 'antiques-collectibles';
+          _selectedSubcategory = null;
+          _selectedGroupIndex = null;
         }
         _loadingCategories = false;
       });
     }
+  }
+
+  void _handleSelectSubcategory(String name) {
+    setState(() {
+      if (_selectedSubcategory == name) {
+        _selectedSubcategory = null;
+      } else {
+        _selectedSubcategory = name;
+        if (_titleController.text.trim().isEmpty) {
+          _titleController.text = name;
+        }
+      }
+    });
+  }
+
+  void _handleAddTag(String tag) {
+    setState(() {
+      final currentText = _titleController.text.trim();
+      if (currentText.isEmpty) {
+        _titleController.text = tag;
+      } else if (!currentText.toLowerCase().contains(tag.toLowerCase())) {
+        _titleController.text = '$currentText $tag';
+      }
+    });
   }
 
   void _addImageUrl() {
@@ -213,6 +242,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
           _images.clear();
           _isFree = false;
           _isPromo = false;
+          _selectedSubcategory = null;
+          _selectedGroupIndex = null;
         });
       } else {
         if (!mounted) return;
@@ -390,7 +421,291 @@ class _PostAdScreenState extends State<PostAdScreen> {
                       );
                     }).toList(),
                     onChanged: (val) {
-                      if (val != null) setState(() => _categorySlug = val);
+                      if (val != null) {
+                        setState(() {
+                          _categorySlug = val;
+                          _selectedSubcategory = null;
+                          _selectedGroupIndex = null;
+                        });
+                      }
+                    },
+                  ),
+
+                  // Subcategories & Tags Bar
+                  Builder(
+                    builder: (context) {
+                      final langCode = LanguageController.instance.languageCode;
+                      final detail = CategoryData.getDetails(_categorySlug);
+                      if (detail == null) return const SizedBox.shrink();
+
+                      final groups = detail.groups;
+                      final popularTags = detail.getPopularTags(langCode);
+
+                      List<SubcategoryItem> visibleItems = [];
+                      if (_selectedGroupIndex != null && _selectedGroupIndex! < groups.length) {
+                        visibleItems = groups[_selectedGroupIndex!].items;
+                      } else {
+                        for (final g in groups) {
+                          visibleItems.addAll(g.items);
+                        }
+                      }
+
+                      return Container(
+                        margin: const EdgeInsets.only(top: 8, bottom: 4),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.layers_rounded, size: 16, color: Color(0xFF0D9488)),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        tr('post_subcategories'),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                      if (_selectedSubcategory != null) ...[
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF0D9488).withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(color: const Color(0xFF0D9488).withValues(alpha: 0.4)),
+                                            ),
+                                            child: Text(
+                                              _selectedSubcategory!,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF0D9488),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                if (_selectedSubcategory != null)
+                                  GestureDetector(
+                                    onTap: () => setState(() => _selectedSubcategory = null),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 6),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            tr('post_clear_subcategory'),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.redAccent,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          const Icon(Icons.close_rounded, size: 13, color: Colors.redAccent),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Group Filter Tabs (if multiple groups)
+                            if (groups.length > 1) ...[
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                child: Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => setState(() => _selectedGroupIndex = null),
+                                      child: Container(
+                                        margin: const EdgeInsets.only(right: 6),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: _selectedGroupIndex == null
+                                              ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
+                                              : (isDark ? const Color(0xFF0F172A) : Colors.white),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: _selectedGroupIndex == null
+                                                ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
+                                                : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          tr('post_all_subcategories'),
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: _selectedGroupIndex == null
+                                                ? Colors.white
+                                                : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    ...groups.asMap().entries.map((entry) {
+                                      final gIdx = entry.key;
+                                      final group = entry.value;
+                                      final isSelected = _selectedGroupIndex == gIdx;
+                                      return GestureDetector(
+                                        onTap: () => setState(() => _selectedGroupIndex = isSelected ? null : gIdx),
+                                        child: Container(
+                                          margin: const EdgeInsets.only(right: 6),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                                ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
+                                                : (isDark ? const Color(0xFF0F172A) : Colors.white),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: isSelected
+                                                  ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
+                                                  : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            group.getTitle(langCode),
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+
+                            // Subcategories Chips Row (Horizontal Scrollable)
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                children: visibleItems.map((item) {
+                                  final itemName = item.getName(langCode);
+                                  final isSelected = _selectedSubcategory == itemName;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: ActionChip(
+                                      onPressed: () => _handleSelectSubcategory(itemName),
+                                      avatar: isSelected
+                                          ? const Icon(Icons.check_circle_rounded, size: 15, color: Colors.white)
+                                          : const Text('›', style: TextStyle(color: Color(0xFF0D9488), fontWeight: FontWeight.bold, fontSize: 15)),
+                                      label: Text(
+                                        itemName,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : (isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B)),
+                                        ),
+                                      ),
+                                      backgroundColor: isSelected
+                                          ? const Color(0xFF0D9488)
+                                          : (isDark ? const Color(0xFF0F172A) : Colors.white),
+                                      side: BorderSide(
+                                        color: isSelected
+                                            ? const Color(0xFF0D9488)
+                                            : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                                      ),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+
+                            // Popular Tags Row
+                            if (popularTags.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Divider(height: 12, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 6),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.local_offer_outlined, size: 12, color: Color(0xFF0D9488)),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${tr("post_popular_tags")}:',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    ...popularTags.map((tag) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(right: 6),
+                                        child: GestureDetector(
+                                          onTap: () => _handleAddTag(tag),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              '+$tag',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
                     },
                   ),
                   const SizedBox(height: 16),
