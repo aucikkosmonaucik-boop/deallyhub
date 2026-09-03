@@ -247,6 +247,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
         />
+      </head>
+      <body className={`${geistSans.className} min-h-full flex flex-col font-sans antialiased text-[#002f34] dark:text-slate-100 bg-white dark:bg-[#0b1120] transition-colors duration-150`}>
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
         <Script src="https://connect.facebook.net/en_US/sdk.js" strategy="lazyOnload" />
         {/* Google Consent Mode v2 Default Settings */}
@@ -287,8 +289,6 @@ export default function RootLayout({
             });
           `}
         </Script>
-      </head>
-      <body className={`${geistSans.className} min-h-full flex flex-col font-sans antialiased text-[#002f34] dark:text-slate-100 bg-white dark:bg-[#0b1120] transition-colors duration-150`}>
         <ThemeProvider>
           <LanguageProvider>
             {children}
