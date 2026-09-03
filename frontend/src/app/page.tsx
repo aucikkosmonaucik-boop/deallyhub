@@ -1554,6 +1554,19 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-1.5">
           <p className="font-semibold text-[#002f34] dark:text-slate-200">{t("footer.tagline")}</p>
           <p className="text-gray-400 dark:text-slate-500">Deallyhub Marketplace &copy; 2026 &bull; {t("footer.allRights")}</p>
+          <div className="pt-2 flex items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("deallyhub:openCookieSettings"));
+                }
+              }}
+              className="hover:underline hover:text-teal-700 dark:hover:text-teal-400 cursor-pointer transition"
+            >
+              {t("cookie.customize", "Cookie Preferences")}
+            </button>
+          </div>
         </div>
       </footer>
 
