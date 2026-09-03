@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -55,10 +57,68 @@ const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
 const JWT_SECRET = process.env.JWT_SECRET || "deallyhub_jwt_super_secret_key_2026";
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+if (!process.env.JWT_SECRET) {
+  console.warn("⚠️ [SECURITY WARNING] JWT_SECRET is not set in environment variables! Using fallback key. Configure JWT_SECRET in production.");
+}
+
+// 1. HTTP Security Headers (Helmet)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// 2. CORS configuration with trusted origins
+const allowedOrigins = [
+  "https://deallyhub.com",
+  "https://www.deallyhub.com",
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3000"
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (such as mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app") || origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+    return callback(new Error("CORS policy: Not allowed by CORS origin restriction."));
+  },
+  credentials: true
+}));
+
+// 3. Rate Limiters (Brute-Force & DoS protection)
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // limit each IP to 15 auth requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Too many authentication requests from this IP. Please try again after 15 minutes."
+  }
+});
+
+const generalApiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 600, // limit each IP to 600 requests per 15 minutes (~40 req/min)
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Too many requests from this IP. Please slow down and try again shortly."
+  }
+});
+
+app.use("/api/", generalApiLimiter);
+app.use("/api/auth/login", authRateLimiter);
+app.use("/api/auth/register", authRateLimiter);
+app.use("/api/auth/forgot-password", authRateLimiter);
+app.use("/api/auth/resend-verification", authRateLimiter);
+
+// 4. Request Body Parsers (25MB limit for image attachments)
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 
 // Auth middleware
 function authenticateToken(req, res, next) {
@@ -77,12 +137,12 @@ function authenticateToken(req, res, next) {
   }
 }
 
-// Admin authorization middleware
+// Admin authorization middleware (strictly checks database role)
 async function requireAdmin(req, res, next) {
   authenticateToken(req, res, async () => {
     try {
       const user = await findUserById(req.user.userId);
-      const isAdm = user && (user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin"));
+      const isAdm = user && user.role === "admin";
       if (!isAdm) {
         return res.status(403).json({
           success: false,
@@ -286,8 +346,8 @@ app.post("/api/auth/google", async (req, res) => {
       avatar: picture
     });
 
-    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
-    const role = isAdm ? "admin" : (user.role || "user");
+    const isAdm = user.role === "admin";
+    const role = isAdm ? "admin" : "user";
 
     const authToken = jwt.sign(
       { userId: user.id, email: user.email, role },
@@ -363,8 +423,8 @@ app.post("/api/auth/facebook", async (req, res) => {
       avatar: avatarUrl
     });
 
-    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
-    const role = isAdm ? "admin" : (user.role || "user");
+    const isAdm = user.role === "admin";
+    const role = isAdm ? "admin" : "user";
 
     const authToken = jwt.sign(
       { userId: user.id, email: user.email, role },
@@ -420,8 +480,8 @@ app.all("/api/auth/verify-email", async (req, res) => {
       type: "system"
     });
 
-    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
-    const role = isAdm ? "admin" : (user.role || "user");
+    const isAdm = user.role === "admin";
+    const role = isAdm ? "admin" : "user";
 
     const authToken = jwt.sign(
       { userId: user.id, email: user.email, role },
@@ -594,7 +654,7 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
+    const isAdm = user.role === "admin";
 
     // Strictly require email verification before allowing login (admins exempt)
     if (!user.is_verified && !isAdm) {
@@ -643,7 +703,7 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found." });
     }
 
-    const isAdm = user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin");
+    const isAdm = user.role === "admin";
     const role = isAdm ? "admin" : "user";
 
     res.json({
@@ -946,7 +1006,7 @@ app.put("/api/ads/:id", authenticateToken, async (req, res) => {
     }
 
     const user = await findUserById(req.user.userId);
-    const isAdm = user && (user.role === "admin" || user.email.startsWith("jannowak") || user.email.startsWith("admin"));
+    const isAdm = user && user.role === "admin";
 
     const updatedAd = await updateAd({
       adId,

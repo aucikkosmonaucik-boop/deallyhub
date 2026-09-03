@@ -182,7 +182,7 @@ export async function initDb() {
         ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP;
       `);
       await client.query(`
-        UPDATE users SET role = 'admin' WHERE email = 'jannowak@example.com' OR email = 'jannowaktester1@gmail.com' OR email LIKE 'jannowak%' OR email LIKE 'admin%' OR id = 1;
+        UPDATE users SET role = 'admin' WHERE email IN ('admin@deallyhub.com', 'jannowaktester1@gmail.com') OR id = 1;
       `);
       await client.query(`
         UPDATE users SET is_verified = TRUE WHERE is_verified IS NULL;
@@ -264,21 +264,18 @@ export async function findUserByEmail(email) {
   if (!pool) {
     const u = inMemoryUsers.find(user => user.email === normalizedEmail);
     if (!u) return null;
-    const isAdm = u.role === "admin" || u.email.startsWith("jannowak") || u.email.startsWith("admin");
-    return { ...u, role: isAdm ? "admin" : (u.role || "user") };
+    return { ...u, role: u.role || "user" };
   }
 
   try {
     const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [normalizedEmail]);
     if (!rows[0]) return null;
     const u = rows[0];
-    const isAdm = u.role === "admin" || u.email.startsWith("jannowak") || u.email.startsWith("admin");
-    return { ...u, role: isAdm ? "admin" : (u.role || "user") };
+    return { ...u, role: u.role || "user" };
   } catch (err) {
     const u = inMemoryUsers.find(user => user.email === normalizedEmail);
     if (!u) return null;
-    const isAdm = u.role === "admin" || u.email.startsWith("jannowak") || u.email.startsWith("admin");
-    return { ...u, role: isAdm ? "admin" : (u.role || "user") };
+    return { ...u, role: u.role || "user" };
   }
 }
 
@@ -286,27 +283,24 @@ export async function findUserById(id) {
   if (!pool) {
     const u = inMemoryUsers.find(user => user.id === id);
     if (!u) return null;
-    const isAdm = u.role === "admin" || u.email.startsWith("jannowak") || u.email.startsWith("admin");
-    return { id: u.id, name: u.name, email: u.email, role: isAdm ? "admin" : (u.role || "user"), created_at: u.created_at };
+    return { id: u.id, name: u.name, email: u.email, role: u.role || "user", created_at: u.created_at };
   }
 
   try {
     const { rows } = await pool.query("SELECT id, name, email, COALESCE(role, 'user') as role, created_at FROM users WHERE id = $1", [id]);
     if (!rows[0]) return null;
     const u = rows[0];
-    const isAdm = u.role === "admin" || u.email.startsWith("jannowak") || u.email.startsWith("admin");
-    return { ...u, role: isAdm ? "admin" : u.role };
+    return { ...u, role: u.role || "user" };
   } catch (err) {
     const u = inMemoryUsers.find(user => user.id === id);
     if (!u) return null;
-    const isAdm = u.role === "admin" || u.email.startsWith("jannowak") || u.email.startsWith("admin");
-    return { id: u.id, name: u.name, email: u.email, role: isAdm ? "admin" : (u.role || "user"), created_at: u.created_at };
+    return { id: u.id, name: u.name, email: u.email, role: u.role || "user", created_at: u.created_at };
   }
 }
 
 export async function createUser({ name, email, passwordHash }) {
   const normalizedEmail = email.trim().toLowerCase();
-  const initialRole = normalizedEmail === "jannowak@example.com" ? "admin" : "user";
+  const initialRole = "user";
 
   if (!pool) {
     const newUser = {
@@ -336,15 +330,14 @@ export async function createUser({ name, email, passwordHash }) {
 
 export async function findOrCreateGoogleUser({ email, name, avatar }) {
   const normalizedEmail = email.trim().toLowerCase();
-  const isAdm = normalizedEmail.startsWith("jannowak") || normalizedEmail.startsWith("admin");
-  const role = isAdm ? "admin" : "user";
+  const initialRole = normalizedEmail === "admin@deallyhub.com" ? "admin" : "user";
 
   if (!pool) {
     let u = inMemoryUsers.find(user => user.email === normalizedEmail);
     if (u) {
       u.is_verified = true;
       if (!u.name && name) u.name = name.trim();
-      return { id: u.id, name: u.name, email: u.email, role: isAdm ? "admin" : (u.role || "user"), is_verified: true };
+      return { id: u.id, name: u.name, email: u.email, role: u.role || "user", is_verified: true };
     }
     const dummyPass = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
     const newUser = {
@@ -352,7 +345,7 @@ export async function findOrCreateGoogleUser({ email, name, avatar }) {
       name: name?.trim() || normalizedEmail.split("@")[0],
       email: normalizedEmail,
       password_hash: dummyPass,
-      role,
+      role: initialRole,
       is_verified: true,
       created_at: new Date().toISOString()
     };
@@ -367,15 +360,14 @@ export async function findOrCreateGoogleUser({ email, name, avatar }) {
       if (!u.is_verified) {
         await pool.query("UPDATE users SET is_verified = TRUE WHERE id = $1", [u.id]);
       }
-      const finalRole = isAdm ? "admin" : (u.role || "user");
-      return { id: u.id, name: u.name, email: u.email, role: finalRole, is_verified: true, created_at: u.created_at };
+      return { id: u.id, name: u.name, email: u.email, role: u.role || "user", is_verified: true, created_at: u.created_at };
     }
 
     const dummyPass = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
     const userName = name?.trim() || normalizedEmail.split("@")[0];
     const insertRes = await pool.query(
       "INSERT INTO users (name, email, password_hash, role, is_verified) VALUES ($1, $2, $3, $4, TRUE) RETURNING id, name, email, role, is_verified, created_at",
-      [userName, normalizedEmail, dummyPass, role]
+      [userName, normalizedEmail, dummyPass, initialRole]
     );
     return insertRes.rows[0];
   } catch (err) {
@@ -386,15 +378,14 @@ export async function findOrCreateGoogleUser({ email, name, avatar }) {
 
 export async function findOrCreateFacebookUser({ email, name, avatar, facebookId }) {
   const normalizedEmail = email ? email.trim().toLowerCase() : `fb_${facebookId}@deallyhub.com`;
-  const isAdm = normalizedEmail.startsWith("jannowak") || normalizedEmail.startsWith("admin");
-  const role = isAdm ? "admin" : "user";
+  const initialRole = normalizedEmail === "admin@deallyhub.com" ? "admin" : "user";
 
   if (!pool) {
     let u = inMemoryUsers.find(user => user.email === normalizedEmail);
     if (u) {
       u.is_verified = true;
       if (!u.name && name) u.name = name.trim();
-      return { id: u.id, name: u.name, email: u.email, role: isAdm ? "admin" : (u.role || "user"), is_verified: true };
+      return { id: u.id, name: u.name, email: u.email, role: u.role || "user", is_verified: true };
     }
     const dummyPass = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
     const newUser = {
@@ -402,7 +393,7 @@ export async function findOrCreateFacebookUser({ email, name, avatar, facebookId
       name: name?.trim() || `User_${facebookId || Date.now()}`,
       email: normalizedEmail,
       password_hash: dummyPass,
-      role,
+      role: initialRole,
       is_verified: true,
       created_at: new Date().toISOString()
     };
@@ -417,15 +408,14 @@ export async function findOrCreateFacebookUser({ email, name, avatar, facebookId
       if (!u.is_verified) {
         await pool.query("UPDATE users SET is_verified = TRUE WHERE id = $1", [u.id]);
       }
-      const finalRole = isAdm ? "admin" : (u.role || "user");
-      return { id: u.id, name: u.name, email: u.email, role: finalRole, is_verified: true, created_at: u.created_at };
+      return { id: u.id, name: u.name, email: u.email, role: u.role || "user", is_verified: true, created_at: u.created_at };
     }
 
     const dummyPass = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
     const userName = name?.trim() || `User_${facebookId || Date.now()}`;
     const insertRes = await pool.query(
       "INSERT INTO users (name, email, password_hash, role, is_verified) VALUES ($1, $2, $3, $4, TRUE) RETURNING id, name, email, role, is_verified, created_at",
-      [userName, normalizedEmail, dummyPass, role]
+      [userName, normalizedEmail, dummyPass, initialRole]
     );
     return insertRes.rows[0];
   } catch (err) {
