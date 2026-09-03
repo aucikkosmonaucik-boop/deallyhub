@@ -12,6 +12,8 @@ class MessagesScreen extends StatefulWidget {
 }
 
 class _MessagesScreenState extends State<MessagesScreen> {
+  static List<dynamic> _cachedConversations = [];
+
   List<dynamic> _conversations = [];
   bool _loading = true;
   String? _error;
@@ -19,35 +21,49 @@ class _MessagesScreenState extends State<MessagesScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchConversations();
+    if (_cachedConversations.isNotEmpty) {
+      _conversations = _cachedConversations;
+      _loading = false;
+    }
+    _fetchConversations(silent: _conversations.isNotEmpty);
   }
 
-  Future<void> _fetchConversations() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  Future<void> _fetchConversations({bool silent = false}) async {
+    if (!silent && _conversations.isEmpty) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
 
     try {
       final token = await ApiService.getToken();
       if (token == null) {
-        setState(() {
-          _error = tr('post_req_auth');
-          _loading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _error = tr('post_req_auth');
+            _loading = false;
+          });
+        }
         return;
       }
 
       final convs = await ApiService.getConversations();
-      setState(() {
-        _conversations = convs;
-        _loading = false;
-      });
+      _cachedConversations = convs;
+      if (mounted) {
+        setState(() {
+          _conversations = convs;
+          _loading = false;
+          _error = null;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = 'Failed to load conversations.';
-        _loading = false;
-      });
+      if (mounted && _conversations.isEmpty) {
+        setState(() {
+          _error = 'Failed to load conversations.';
+          _loading = false;
+        });
+      }
     }
   }
 

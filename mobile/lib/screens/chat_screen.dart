@@ -23,6 +23,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  static final Map<int, List<dynamic>> _cachedMessages = {};
+
   final List<dynamic> _messages = [];
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -33,7 +35,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchMessages();
+    // Use cached messages immediately if available to eliminate spinner flicker
+    if (_cachedMessages.containsKey(widget.conversationId) &&
+        _cachedMessages[widget.conversationId]!.isNotEmpty) {
+      _messages.addAll(_cachedMessages[widget.conversationId]!);
+      _loading = false;
+    }
+    _fetchMessages(silent: _messages.isNotEmpty);
     _timer = Timer.periodic(const Duration(seconds: 4), (_) => _fetchMessages(silent: true));
   }
 
@@ -46,20 +54,24 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _fetchMessages({bool silent = false}) async {
-    if (!silent) setState(() => _loading = true);
+    if (!silent && _messages.isEmpty) {
+      setState(() => _loading = true);
+    }
     try {
       final msgs = await ApiService.getMessages(widget.conversationId);
       if (!mounted) return;
+
+      _cachedMessages[widget.conversationId] = msgs;
 
       // Only update state and scroll if messages have actually changed
       final hasChanged = _messages.length != msgs.length ||
           (_messages.isNotEmpty && msgs.isNotEmpty && _messages.last['id'] != msgs.last['id']);
 
-      if (hasChanged || !silent) {
+      if (hasChanged || (!silent && _loading)) {
         setState(() {
           _messages.clear();
           _messages.addAll(msgs);
-          if (!silent) _loading = false;
+          _loading = false;
         });
 
         if (hasChanged) {
@@ -67,7 +79,9 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     } catch (_) {
-      if (!silent && mounted) setState(() => _loading = false);
+      if (!silent && mounted && _messages.isEmpty) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -183,7 +197,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         )
                       : ListView.builder(
                           controller: _scrollController,
-                          physics: const ClampingScrollPhysics(),
+                          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           itemCount: _messages.length,
                           itemBuilder: (ctx, idx) {
@@ -191,40 +206,43 @@ class _ChatScreenState extends State<ChatScreen> {
                             final isMine = m['is_mine'] == true;
                             final content = AppContentFilter.censorProfanity(m['content']?.toString() ?? '');
 
-                            return Align(
-                              alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                constraints: BoxConstraints(
-                                  maxWidth: MediaQuery.of(context).size.width * 0.75,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isMine
-                                      ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
-                                      : (isDark ? const Color(0xFF1E293B) : Colors.white),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: const Radius.circular(16),
-                                    topRight: const Radius.circular(16),
-                                    bottomLeft: Radius.circular(isMine ? 16 : 4),
-                                    bottomRight: Radius.circular(isMine ? 4 : 16),
+                            return RepaintBoundary(
+                              key: ValueKey(m['id'] ?? idx),
+                              child: Align(
+                                alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  constraints: BoxConstraints(
+                                    maxWidth: MediaQuery.of(context).size.width * 0.75,
                                   ),
-                                  border: isMine
-                                      ? null
-                                      : Border.all(
-                                          color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
-                                        ),
-                                  boxShadow: const [
-                                    BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
-                                  ],
-                                ),
-                                child: Text(
-                                  content,
-                                  style: TextStyle(
+                                  decoration: BoxDecoration(
                                     color: isMine
-                                        ? Colors.white
-                                        : (isDark ? Colors.white : const Color(0xFF002F34)),
-                                    fontSize: 14,
+                                        ? (isDark ? const Color(0xFF0D9488) : const Color(0xFF002F34))
+                                        : (isDark ? const Color(0xFF1E293B) : Colors.white),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: const Radius.circular(16),
+                                      topRight: const Radius.circular(16),
+                                      bottomLeft: Radius.circular(isMine ? 16 : 4),
+                                      bottomRight: Radius.circular(isMine ? 4 : 16),
+                                    ),
+                                    border: isMine
+                                        ? null
+                                        : Border.all(
+                                            color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+                                          ),
+                                    boxShadow: const [
+                                      BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    content,
+                                    style: TextStyle(
+                                      color: isMine
+                                          ? Colors.white
+                                          : (isDark ? Colors.white : const Color(0xFF002F34)),
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
                               ),

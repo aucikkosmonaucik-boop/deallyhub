@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import {
   X,
   MessageSquare,
   Send,
   Image as ImageIcon,
-  User,
   Loader2,
   Search,
   ArrowLeft,
@@ -39,6 +38,7 @@ interface Message {
   content: string;
   created_at: string;
   is_mine: boolean;
+  sending?: boolean;
 }
 
 interface MessagesModalProps {
@@ -47,6 +47,136 @@ interface MessagesModalProps {
   token: string | null;
   initialConversationId?: number | null;
 }
+
+// Deep/shallow equality helpers to prevent unnecessary React re-renders on polling
+function areMessagesEqual(a: Message[], b: Message[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  if (a.length === 0) return true;
+  const lastA = a[a.length - 1];
+  const lastB = b[b.length - 1];
+  if (lastA.id !== lastB.id || lastA.content !== lastB.content || lastA.sending !== lastB.sending) {
+    return false;
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].id !== b[i].id || a[i].content !== b[i].content || a[i].sending !== b[i].sending) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function areConversationsEqual(a: Conversation[], b: Conversation[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const itemA = a[i];
+    const itemB = b[i];
+    if (
+      itemA.id !== itemB.id ||
+      itemA.last_message !== itemB.last_message ||
+      itemA.last_message_at !== itemB.last_message_at ||
+      itemA.ad_title !== itemB.ad_title ||
+      itemA.ad_price !== itemB.ad_price ||
+      itemA.ad_image !== itemB.ad_image
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Memoized single message bubble for 60fps typing & zero lag
+const MessageBubble = memo(function MessageBubble({ message }: { message: Message }) {
+  return (
+    <div
+      className={`flex flex-col ${
+        message.is_mine ? "items-end" : "items-start"
+      }`}
+    >
+      <div
+        className={`max-w-[85%] sm:max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs break-words transition-opacity duration-150 ${
+          message.is_mine
+            ? "bg-[#002f34] dark:bg-teal-600 text-white rounded-br-xs"
+            : "bg-white dark:bg-slate-800 text-[#002f34] dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-bl-xs"
+        } ${message.sending ? "opacity-70" : "opacity-100"}`}
+      >
+        {censorProfanity(message.content)}
+      </div>
+      <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1 px-1 flex items-center gap-1 select-none">
+        {new Date(message.created_at).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit"
+        })}
+        {message.is_mine && (
+          message.sending ? (
+            <Loader2 className="w-3 h-3 animate-spin text-teal-500" />
+          ) : (
+            <CheckCheck className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+          )
+        )}
+      </span>
+    </div>
+  );
+});
+
+// Memoized single conversation item in sidebar
+const ConversationItem = memo(function ConversationItem({
+  conversation,
+  isSelected,
+  onSelect
+}: {
+  conversation: Conversation;
+  isSelected: boolean;
+  onSelect: (id: number) => void;
+}) {
+  return (
+    <button
+      onClick={() => onSelect(conversation.id)}
+      className={`w-full text-left p-3.5 flex items-start gap-3 transition-colors cursor-pointer ${
+        isSelected
+          ? "bg-teal-50/80 dark:bg-teal-950/50 border-l-4 border-teal-600 dark:border-teal-400"
+          : "hover:bg-gray-100/70 dark:hover:bg-slate-800/70"
+      }`}
+    >
+      {/* Thumbnail of Ad */}
+      <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-slate-800 overflow-hidden shrink-0 relative flex items-center justify-center border border-gray-200 dark:border-slate-700">
+        {conversation.ad_image ? (
+          <img
+            src={conversation.ad_image}
+            alt={conversation.ad_title}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <ImageIcon className="w-5 h-5 text-gray-400 dark:text-slate-500" />
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-baseline mb-0.5">
+          <h4 className="text-xs font-bold text-[#002f34] dark:text-white truncate">
+            {conversation.other_user_name}
+          </h4>
+          <span className="text-[10px] text-gray-400 dark:text-slate-500 shrink-0 ml-1">
+            {new Date(conversation.last_message_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </span>
+        </div>
+        <p className="text-[11px] font-semibold text-teal-700 dark:text-teal-400 truncate mb-1">
+          {conversation.ad_title} &bull; {conversation.ad_price} {conversation.ad_currency}
+        </p>
+        <p className="text-xs text-gray-500 dark:text-slate-400 truncate">
+          {conversation.last_message}
+        </p>
+      </div>
+    </button>
+  );
+});
 
 export default function MessagesModal({
   isOpen,
@@ -64,60 +194,69 @@ export default function MessagesModal({
   const [sending, setSending] = useState(false);
   const [filterQuery, setFilterQuery] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  // Mobile visual viewport and keyboard tracking
-  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
-  const [viewportOffsetTop, setViewportOffsetTop] = useState<number>(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
+  // In-memory cache for loaded conversation messages to avoid spinner flashes on switch
+  const messagesCacheRef = useRef<Record<number, Message[]>>({});
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
+  const activeConvIdRef = useRef<number | null>(selectedConvId);
 
-  // Body scroll lock & visualViewport tracking on mobile browsers
+  useEffect(() => {
+    activeConvIdRef.current = selectedConvId;
+  }, [selectedConvId]);
+
+  // Lock body scroll while open without modifying documentElement (which causes jumping on mobile)
   useEffect(() => {
     if (!isOpen) return;
 
     const originalBodyOverflow = document.body.style.overflow;
-    const originalHtmlOverflow = document.documentElement.style.overflow;
     const originalOverscroll = document.body.style.overscrollBehavior;
 
     document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
     document.body.style.overscrollBehavior = "none";
 
-    const updateViewport = () => {
+    // Track visual viewport resize solely for mobile virtual keyboard padding
+    const handleResize = () => {
       if (typeof window !== "undefined" && window.visualViewport) {
-        const vv = window.visualViewport;
-        setViewportHeight(vv.height);
-        setViewportOffsetTop(vv.offsetTop);
-
-        // Detect if keyboard is open on mobile
-        const isKeyboard = window.innerHeight - vv.height > 100;
+        const isKeyboard = window.innerHeight - window.visualViewport.height > 120;
         setIsKeyboardVisible(isKeyboard);
       }
     };
 
-    updateViewport();
-
     const vv = typeof window !== "undefined" ? window.visualViewport : null;
     if (vv) {
-      vv.addEventListener("resize", updateViewport);
-      vv.addEventListener("scroll", updateViewport);
+      vv.addEventListener("resize", handleResize);
     }
-    window.addEventListener("resize", updateViewport);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       document.body.style.overflow = originalBodyOverflow;
-      document.documentElement.style.overflow = originalHtmlOverflow;
       document.body.style.overscrollBehavior = originalOverscroll;
-
       if (vv) {
-        vv.removeEventListener("resize", updateViewport);
-        vv.removeEventListener("scroll", updateViewport);
+        vv.removeEventListener("resize", handleResize);
       }
-      window.removeEventListener("resize", updateViewport);
+      window.removeEventListener("resize", handleResize);
     };
   }, [isOpen]);
+
+  // Handle mobile Android hardware back button (returns to conversation list instead of exiting modal)
+  useEffect(() => {
+    if (!isOpen || !selectedConvId) return;
+
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      window.history.pushState({ deallyChatConv: selectedConvId }, "");
+
+      const handlePopState = () => {
+        setSelectedConvId(null);
+      };
+
+      window.addEventListener("popstate", handlePopState);
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+      };
+    }
+  }, [isOpen, selectedConvId]);
 
   // Scroll strictly inside the message container without moving window/ancestors
   const scrollToBottom = useCallback((smooth = false) => {
@@ -138,16 +277,7 @@ export default function MessagesModal({
     }
   };
 
-  // Auto-scroll when messages change if user was near bottom
-  useEffect(() => {
-    if (isNearBottomRef.current) {
-      requestAnimationFrame(() => {
-        scrollToBottom(false);
-      });
-    }
-  }, [messages, scrollToBottom]);
-
-  // Fetch all conversations
+  // Fetch all conversations with shallow comparison
   const fetchConversations = useCallback(async () => {
     if (!token) return;
     const apiUrl = getApiUrl();
@@ -157,19 +287,22 @@ export default function MessagesModal({
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.conversations)) {
-        setConversations(data.conversations);
-        if (!selectedConvId && data.conversations.length > 0 && !initialConversationId) {
-          setSelectedConvId(data.conversations[0].id);
+        setConversations((prev) => (areConversationsEqual(prev, data.conversations) ? prev : data.conversations));
+
+        // Auto-select first conversation on initial load if none selected
+        if (!activeConvIdRef.current && data.conversations.length > 0 && !initialConversationId) {
+          const firstId = data.conversations[0].id;
+          setSelectedConvId(firstId);
         }
       }
     } catch (err) {
       console.warn("Failed to fetch conversations:", err);
     }
-  }, [token, selectedConvId, initialConversationId]);
+  }, [token, initialConversationId]);
 
-  // Fetch messages for selected conversation
+  // Fetch messages for selected conversation with caching and zero unnecessary re-renders
   const fetchMessages = useCallback(
-    async (convId: number) => {
+    async (convId: number, isInitial = false) => {
       if (!token) return;
       const apiUrl = getApiUrl();
       try {
@@ -178,16 +311,45 @@ export default function MessagesModal({
         });
         const data = await res.json();
         if (data.success && Array.isArray(data.messages)) {
-          setMessages(data.messages);
+          // If user switched away while network request was in flight, ignore
+          if (activeConvIdRef.current !== convId) return;
+
+          messagesCacheRef.current[convId] = data.messages;
+
+          let hasNewItems = false;
+          setMessages((prev) => {
+            if (areMessagesEqual(prev, data.messages)) {
+              return prev;
+            }
+            if (data.messages.length > prev.length) {
+              hasNewItems = true;
+            }
+            return data.messages;
+          });
+
+          // Scroll if initial open or if new message arrived while near bottom
+          if (isInitial) {
+            requestAnimationFrame(() => {
+              scrollToBottom(false);
+            });
+          } else if (hasNewItems && isNearBottomRef.current) {
+            requestAnimationFrame(() => {
+              scrollToBottom(true);
+            });
+          }
         }
       } catch (err) {
         console.warn("Failed to fetch messages:", err);
+      } finally {
+        if (activeConvIdRef.current === convId) {
+          setLoadingMsgs(false);
+        }
       }
     },
-    [token]
+    [token, scrollToBottom]
   );
 
-  // Initial load
+  // Initial load of conversations
   useEffect(() => {
     if (isOpen && token) {
       setLoadingConvs(true);
@@ -198,21 +360,53 @@ export default function MessagesModal({
     }
   }, [isOpen, token, initialConversationId, fetchConversations]);
 
-  // When conversation changes, load its messages
-  useEffect(() => {
-    if (selectedConvId && token && isOpen) {
-      setLoadingMsgs(true);
+  // Handler for selecting a conversation: uses cache immediately for 0ms transition
+  const handleSelectConversation = useCallback(
+    (convId: number) => {
+      setSelectedConvId(convId);
+      setErrorMsg(null);
       isNearBottomRef.current = true;
-      fetchMessages(selectedConvId).finally(() => {
+
+      const cached = messagesCacheRef.current[convId];
+      if (cached && cached.length > 0) {
+        setMessages(cached);
         setLoadingMsgs(false);
         requestAnimationFrame(() => {
           scrollToBottom(false);
         });
-      });
+        // Refresh silently in background
+        fetchMessages(convId, false);
+      } else {
+        setMessages([]);
+        setLoadingMsgs(true);
+        fetchMessages(convId, true);
+      }
+    },
+    [fetchMessages, scrollToBottom]
+  );
 
-      // Polling for live updates every 3.5 seconds
+  // Sync initial conversation change
+  useEffect(() => {
+    if (selectedConvId && token && isOpen) {
+      const cached = messagesCacheRef.current[selectedConvId];
+      if (cached && cached.length > 0) {
+        setMessages(cached);
+        setLoadingMsgs(false);
+        requestAnimationFrame(() => {
+          scrollToBottom(false);
+        });
+        fetchMessages(selectedConvId, false);
+      } else {
+        setLoadingMsgs(true);
+        fetchMessages(selectedConvId, true);
+      }
+
+      // Live polling every 3.5 seconds (only when tab is active)
       const interval = setInterval(() => {
-        fetchMessages(selectedConvId);
+        if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+          return;
+        }
+        fetchMessages(selectedConvId, false);
         fetchConversations();
       }, 3500);
 
@@ -220,7 +414,7 @@ export default function MessagesModal({
     }
   }, [selectedConvId, token, isOpen, fetchMessages, fetchConversations, scrollToBottom]);
 
-  // Send message
+  // Send message with instant Optimistic UI
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() || !selectedConvId || !token || sending) return;
@@ -234,6 +428,33 @@ export default function MessagesModal({
       setErrorMsg(t("errors.profanityMessage"));
       return;
     }
+
+    // Instant optimistic message
+    const tempId = -Date.now();
+    const optimisticMsg: Message = {
+      id: tempId,
+      conversation_id: selectedConvId,
+      sender_id: 0,
+      sender_name: "Me",
+      content,
+      created_at: new Date().toISOString(),
+      is_mine: true,
+      sending: true
+    };
+
+    setInputText("");
+    setMessages((prev) => {
+      const updated = [...prev, optimisticMsg];
+      if (selectedConvId) {
+        messagesCacheRef.current[selectedConvId] = updated;
+      }
+      return updated;
+    });
+
+    isNearBottomRef.current = true;
+    requestAnimationFrame(() => {
+      scrollToBottom(true);
+    });
 
     setSending(true);
     const apiUrl = getApiUrl();
@@ -249,14 +470,18 @@ export default function MessagesModal({
       });
       const data = await res.json();
       if (data.success && data.message) {
-        setInputText("");
-        setMessages((prev) => [...prev, data.message]);
-        isNearBottomRef.current = true;
-        requestAnimationFrame(() => {
-          scrollToBottom(false);
+        setMessages((prev) => {
+          const replaced = prev.map((m) => (m.id === tempId ? data.message : m));
+          if (selectedConvId) {
+            messagesCacheRef.current[selectedConvId] = replaced;
+          }
+          return replaced;
         });
-        fetchConversations(); // Update snippet in thread list
+        fetchConversations(); // Update snippet in sidebar list
       } else {
+        // Rollback optimistic message
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setInputText(content); // Restore user text so it is not lost
         const errText = data.error || "";
         if (
           errText.toLowerCase().includes("prohibited") ||
@@ -271,6 +496,9 @@ export default function MessagesModal({
       }
     } catch (err) {
       console.error("Failed to send message:", err);
+      // Rollback optimistic message
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setInputText(content); // Restore user text
       setErrorMsg(t("common.error"));
     } finally {
       setSending(false);
@@ -288,17 +516,10 @@ export default function MessagesModal({
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-hidden animate-in fade-in duration-150"
-      style={
-        viewportHeight && typeof window !== "undefined" && window.innerWidth < 640
-          ? { height: `${viewportHeight}px`, top: `${viewportOffsetTop}px` }
-          : undefined
-      }
-    >
-      <div className="bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-slate-800 w-full max-w-4xl h-full sm:h-[88vh] flex flex-col overflow-hidden relative sm:my-auto text-[#002f34] dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 overflow-hidden animate-in fade-in duration-150">
+      <div className="bg-white dark:bg-slate-900 rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-slate-800 w-full max-w-4xl h-[100dvh] sm:h-[88vh] max-h-[100dvh] sm:max-h-[88vh] flex flex-col overflow-hidden relative sm:my-auto text-[#002f34] dark:text-slate-100">
         {/* Top Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4 select-none">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
               <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -311,7 +532,7 @@ export default function MessagesModal({
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-[#002f34] dark:hover:text-white p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="text-gray-400 hover:text-[#002f34] dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -329,18 +550,18 @@ export default function MessagesModal({
             {/* Search Threads */}
             <div className="p-3 border-b border-gray-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
               <div className="relative">
-                <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder={t("common.search")}
-                  className="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-base sm:text-xs text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 outline-none"
+                  className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 outline-none"
                 />
               </div>
             </div>
 
-            {/* List */}
+            {/* Threads List */}
             <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-800 overscroll-contain">
               {loadingConvs ? (
                 <div className="py-12 text-center text-gray-400 dark:text-slate-500">
@@ -356,54 +577,14 @@ export default function MessagesModal({
                   </p>
                 </div>
               ) : (
-                filteredConversations.map((c) => {
-                  const isSelected = selectedConvId === c.id;
-                  return (
-                    <button
-                      key={c.id}
-                      onClick={() => setSelectedConvId(c.id)}
-                      className={`w-full text-left p-3.5 flex items-start gap-3 transition-colors cursor-pointer ${
-                        isSelected
-                          ? "bg-teal-50/80 dark:bg-teal-950/50 border-l-4 border-teal-600 dark:border-teal-400"
-                          : "hover:bg-gray-100/70 dark:hover:bg-slate-800/70"
-                      }`}
-                    >
-                      {/* Thumbnail of Ad */}
-                      <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-slate-800 overflow-hidden shrink-0 relative flex items-center justify-center border border-gray-200 dark:border-slate-700">
-                        {c.ad_image ? (
-                          <img
-                            src={c.ad_image}
-                            alt={c.ad_title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <ImageIcon className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-baseline mb-0.5">
-                          <h4 className="text-xs font-bold text-[#002f34] dark:text-white truncate">
-                            {c.other_user_name}
-                          </h4>
-                          <span className="text-[10px] text-gray-400 dark:text-slate-500 shrink-0 ml-1">
-                            {new Date(c.last_message_at).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit"
-                            })}
-                          </span>
-                        </div>
-                        <p className="text-[11px] font-semibold text-teal-700 dark:text-teal-400 truncate mb-1">
-                          {c.ad_title} &bull; {c.ad_price} {c.ad_currency}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-slate-400 truncate">
-                          {c.last_message}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })
+                filteredConversations.map((c) => (
+                  <ConversationItem
+                    key={c.id}
+                    conversation={c}
+                    isSelected={selectedConvId === c.id}
+                    onSelect={handleSelectConversation}
+                  />
+                ))
               )}
             </div>
           </div>
@@ -421,14 +602,14 @@ export default function MessagesModal({
                   <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     <button
                       onClick={() => setSelectedConvId(null)}
-                      className="md:hidden p-2 -ml-1 text-gray-600 dark:text-slate-300 hover:text-[#002f34] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg shrink-0 transition-colors"
+                      className="md:hidden p-2 -ml-1 text-gray-600 dark:text-slate-300 hover:text-[#002f34] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg shrink-0 transition-colors cursor-pointer"
                       title={t("common.back")}
                       aria-label={t("common.back")}
                     >
                       <ArrowLeft className="w-5 h-5" />
                     </button>
 
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-teal-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-teal-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs select-none">
                       {currentConv.other_user_name.charAt(0).toUpperCase()}
                     </div>
 
@@ -447,13 +628,18 @@ export default function MessagesModal({
                   </div>
                 </div>
 
-                {/* Messages Bubbles Stream */}
+                {/* Messages Stream */}
                 <div
                   ref={messagesContainerRef}
                   onScroll={handleScroll}
                   className="flex-1 min-h-0 p-3.5 sm:p-6 overflow-y-auto space-y-3 bg-[#f8f9fa] dark:bg-slate-950 overscroll-contain touch-pan-y"
+                  style={{
+                    overflowAnchor: "auto",
+                    WebkitOverflowScrolling: "touch",
+                    transform: "translateZ(0)"
+                  }}
                 >
-                  {loadingMsgs ? (
+                  {loadingMsgs && messages.length === 0 ? (
                     <div className="py-16 text-center text-gray-400 dark:text-slate-500">
                       <Loader2 className="w-6 h-6 animate-spin mx-auto text-teal-600 dark:text-teal-400 mb-2" />
                       <p className="text-xs">{t("common.loading")}</p>
@@ -469,29 +655,7 @@ export default function MessagesModal({
                     </div>
                   ) : (
                     messages.map((m) => (
-                      <div
-                        key={m.id}
-                        className={`flex flex-col ${
-                          m.is_mine ? "items-end" : "items-start"
-                        }`}
-                      >
-                        <div
-                          className={`max-w-[85%] sm:max-w-[78%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs ${
-                            m.is_mine
-                              ? "bg-[#002f34] dark:bg-teal-600 text-white rounded-br-xs"
-                              : "bg-white dark:bg-slate-800 text-[#002f34] dark:text-slate-100 border border-gray-200 dark:border-slate-700 rounded-bl-xs"
-                          }`}
-                        >
-                          {censorProfanity(m.content)}
-                        </div>
-                        <span className="text-[10px] text-gray-400 dark:text-slate-500 mt-1 px-1 flex items-center gap-1">
-                          {new Date(m.created_at).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                          {m.is_mine && <CheckCheck className="w-3 h-3 text-teal-600 dark:text-teal-400" />}
-                        </span>
-                      </div>
+                      <MessageBubble key={m.id} message={m} />
                     ))
                   )}
                 </div>
@@ -514,7 +678,7 @@ export default function MessagesModal({
                   </div>
                 )}
 
-                {/* Message Input Box - Fixed and anchored at bottom */}
+                {/* Message Input Box */}
                 <form
                   onSubmit={handleSendMessage}
                   className={`p-2.5 sm:p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2 shrink-0 z-20 shadow-xs sm:shadow-none ${
@@ -535,7 +699,7 @@ export default function MessagesModal({
                       }, 100);
                     }}
                     placeholder={t("messages.placeholder")}
-                    className="flex-1 px-4 py-2.5 sm:py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-base sm:text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 outline-none font-normal min-w-0 transition-colors"
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-base sm:text-sm text-[#002f34] dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-slate-800 outline-none font-normal min-w-0 transition-colors"
                   />
                   <button
                     type="submit"
@@ -553,7 +717,7 @@ export default function MessagesModal({
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 p-8">
+              <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 p-8 select-none">
                 <MessageSquare className="w-12 h-12 text-gray-300 dark:text-slate-600 mb-3" />
                 <p className="text-sm font-bold text-[#002f34] dark:text-white">{t("messages.selectChat")}</p>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
