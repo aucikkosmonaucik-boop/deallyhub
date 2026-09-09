@@ -4,11 +4,14 @@ import 'l10n/language_controller.dart';
 import 'theme/theme_controller.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_navigation.dart';
+import 'services/push_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LanguageController.instance.init();
   await ThemeController.instance.init();
+  // Initialize Push Notifications (FCM + Local notifications)
+  PushNotificationService.initialize();
   runApp(const DeallyhubApp());
 }
 

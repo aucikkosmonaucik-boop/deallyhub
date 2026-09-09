@@ -13,6 +13,7 @@ class ApiService {
 
   // Reactive notifier for real-time badge updates across the entire app
   static final ValueNotifier<int> savedCountNotifier = ValueNotifier<int>(0);
+  static final ValueNotifier<int> notificationsCountNotifier = ValueNotifier<int>(0);
 
   static Future<void> initSavedCount() async {
     try {
@@ -562,20 +563,62 @@ class ApiService {
 
   static Future<List<dynamic>> getNotifications() async {
     final token = await getToken();
-    if (token == null) return [];
+    final headers = <String, String>{};
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
     try {
       final res = await http.get(
         Uri.parse('$baseUrl/api/notifications'),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: headers,
       ).timeout(const Duration(seconds: 12));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['success'] == true && data['notifications'] is List) {
-          return data['notifications'] as List<dynamic>;
+          final list = data['notifications'] as List<dynamic>;
+          final unread = list.where((n) => n['is_read'] != true).length;
+          notificationsCountNotifier.value = unread;
+          return list;
         }
       }
     } catch (_) {}
     return [];
+  }
+
+  static Future<int> refreshNotificationCount() async {
+    try {
+      final notifs = await getNotifications();
+      final unread = notifs.where((n) => n['is_read'] != true).length;
+      notificationsCountNotifier.value = unread;
+      return unread;
+    } catch (_) {
+      return notificationsCountNotifier.value;
+    }
+  }
+
+  static Future<bool> registerDeviceToken(String fcmToken, {String platform = 'android'}) async {
+    try {
+      final token = await getToken();
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+      final res = await http.post(
+        Uri.parse('$baseUrl/api/notifications/register-device'),
+        headers: headers,
+        body: jsonEncode({
+          'fcmToken': fcmToken,
+          'platform': platform,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        return data['success'] == true;
+      }
+    } catch (_) {}
+    return false;
   }
 
   static Future<void> markNotificationRead(int id) async {
@@ -586,6 +629,7 @@ class ApiService {
         Uri.parse('$baseUrl/api/notifications/$id/read'),
         headers: {'Authorization': 'Bearer $token'},
       ).timeout(const Duration(seconds: 8));
+      refreshNotificationCount();
     } catch (_) {}
   }
 
@@ -597,6 +641,8 @@ class ApiService {
         Uri.parse('$baseUrl/api/notifications/read-all'),
         headers: {'Authorization': 'Bearer $token'},
       ).timeout(const Duration(seconds: 8));
+      notificationsCountNotifier.value = 0;
+      refreshNotificationCount();
     } catch (_) {}
   }
 
@@ -608,6 +654,7 @@ class ApiService {
         Uri.parse('$baseUrl/api/notifications/$id'),
         headers: {'Authorization': 'Bearer $token'},
       ).timeout(const Duration(seconds: 8));
+      refreshNotificationCount();
     } catch (_) {}
   }
 
@@ -737,6 +784,7 @@ class ApiService {
     if (token == null) return {'success': false, 'error': 'Not logged in'};
     try {
       final payload = <String, dynamic>{
+        'target': targetUserId != null ? 'specific' : 'all',
         'title': title,
         'message': message,
       };

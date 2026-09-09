@@ -4,6 +4,7 @@ import '../l10n/language_controller.dart';
 import '../theme/theme_controller.dart';
 import '../widgets/app_image.dart';
 import '../widgets/language_picker_dialog.dart';
+import '../widgets/notifications_sheet.dart';
 import 'ad_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -62,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _savedAdIds = results[2] as Set<int>;
         });
       }
+      ApiService.refreshNotificationCount();
     } catch (e) {
       debugPrint('Error loading initial data: $e');
     } finally {
@@ -320,6 +322,38 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
+              // Notification Bell with Real-Time Badge
+              ValueListenableBuilder<int>(
+                valueListenable: ApiService.notificationsCountNotifier,
+                builder: (context, unreadCount, _) {
+                  return IconButton(
+                    icon: Badge(
+                      isLabelVisible: unreadCount > 0,
+                      label: Text(
+                        '$unreadCount',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: Colors.redAccent,
+                      child: Icon(
+                        unreadCount > 0
+                            ? Icons.notifications_active_rounded
+                            : Icons.notifications_outlined,
+                        color: unreadCount > 0
+                            ? const Color(0xFF0D9488)
+                            : Theme.of(context).colorScheme.onSurface,
+                        size: 22,
+                      ),
+                    ),
+                    tooltip: tr('notif_title'),
+                    onPressed: () => NotificationsSheet.show(context),
+                  );
+                },
+              ),
+
               // Theme Toggle Button (Light / Dark mode)
               IconButton(
                 icon: Icon(

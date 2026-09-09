@@ -56,6 +56,8 @@ let nextMsgId = 1;
 const inMemoryNotifications = [];
 let nextNotifId = 1;
 const inMemoryNotificationReads = [];
+const inMemoryUserDevices = [];
+let nextDeviceId = 1;
 
 let pool = null;
 
@@ -216,6 +218,18 @@ export async function initDb() {
           notification_id INTEGER REFERENCES notifications(id) ON DELETE CASCADE,
           read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(user_id, notification_id)
+        );
+      `);
+
+      // 10. User Devices Table (FCM device tokens for push notifications)
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS user_devices (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          fcm_token TEXT NOT NULL UNIQUE,
+          platform VARCHAR(20) DEFAULT 'android',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
       `);
 
@@ -1008,16 +1022,35 @@ export async function sendMessage(conversationId, senderId, content) {
 // NOTIFICATIONS API
 // ==========================================
 
-export async function getUserNotifications(userId) {
+export async function getUserNotifications(userId = null) {
   if (!pool) {
-    const list = inMemoryNotifications.filter(n => n.user_id === null || n.user_id === userId);
+    const list = inMemoryNotifications.filter(n => userId ? (n.user_id === null || n.user_id === userId) : n.user_id === null);
     return list.map(n => {
-      const isRead = inMemoryNotificationReads.some(r => r.user_id === userId && r.notification_id === n.id);
+      const isRead = userId ? inMemoryNotificationReads.some(r => r.user_id === userId && r.notification_id === n.id) : false;
       return { ...n, is_read: isRead };
     }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
   try {
+    if (!userId) {
+      const query = `
+        SELECT 
+          n.id,
+          n.user_id,
+          n.title,
+          n.message,
+          n.type,
+          n.created_at,
+          false AS is_read
+        FROM notifications n
+        WHERE n.user_id IS NULL
+        ORDER BY n.created_at DESC
+        LIMIT 50;
+      `;
+      const { rows } = await pool.query(query);
+      return rows;
+    }
+
     const query = `
       SELECT 
         n.id,
@@ -1130,6 +1163,89 @@ export async function createNotification({ userId = null, title, message, type =
   } catch (err) {
     console.error("Error creating notification:", err.message);
     throw err;
+  }
+}
+
+export async function registerDeviceToken({ userId = null, fcmToken, platform = "android" }) {
+  if (!fcmToken || !fcmToken.trim()) return null;
+  const token = fcmToken.trim();
+  const plat = (platform || "android").toLowerCase();
+
+  if (!pool) {
+    const existing = inMemoryUserDevices.find(d => d.fcm_token === token);
+    if (existing) {
+      existing.user_id = userId;
+      existing.platform = plat;
+      existing.updated_at = new Date().toISOString();
+      return existing;
+    }
+    const newDevice = {
+      id: nextDeviceId++,
+      user_id: userId,
+      fcm_token: token,
+      platform: plat,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    inMemoryUserDevices.push(newDevice);
+    return newDevice;
+  }
+
+  try {
+    const query = `
+      INSERT INTO user_devices (user_id, fcm_token, platform, updated_at)
+      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+      ON CONFLICT (fcm_token) 
+      DO UPDATE SET user_id = $1, platform = $3, updated_at = CURRENT_TIMESTAMP
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [userId, token, plat]);
+    return rows[0];
+  } catch (err) {
+    console.error("Error registering device token:", err.message);
+    return null;
+  }
+}
+
+export async function removeDeviceToken(fcmToken) {
+  if (!fcmToken) return false;
+  if (!pool) {
+    const idx = inMemoryUserDevices.findIndex(d => d.fcm_token === fcmToken);
+    if (idx !== -1) inMemoryUserDevices.splice(idx, 1);
+    return true;
+  }
+  try {
+    await pool.query("DELETE FROM user_devices WHERE fcm_token = $1", [fcmToken]);
+    return true;
+  } catch (err) {
+    console.error("Error removing device token:", err.message);
+    return false;
+  }
+}
+
+export async function getActiveDeviceTokens(userId = null) {
+  if (!pool) {
+    if (userId) {
+      return inMemoryUserDevices
+        .filter(d => d.user_id === userId)
+        .map(d => d.fcm_token);
+    }
+    return inMemoryUserDevices.map(d => d.fcm_token);
+  }
+
+  try {
+    if (userId) {
+      const { rows } = await pool.query(
+        "SELECT DISTINCT fcm_token FROM user_devices WHERE user_id = $1",
+        [userId]
+      );
+      return rows.map(r => r.fcm_token);
+    }
+    const { rows } = await pool.query("SELECT DISTINCT fcm_token FROM user_devices");
+    return rows.map(r => r.fcm_token);
+  } catch (err) {
+    console.error("Error fetching device tokens:", err.message);
+    return [];
   }
 }
 

@@ -24,6 +24,7 @@ class _MainNavigationState extends State<MainNavigation> {
     super.initState();
     ApiService.initSavedCount();
     ApiService.getSavedAdIds();
+    ApiService.refreshNotificationCount();
   }
 
   void _onAuthChanged() {
@@ -31,9 +32,12 @@ class _MainNavigationState extends State<MainNavigation> {
       _authVersion++;
       _savedVersion++;
     });
+    ApiService.refreshNotificationCount();
   }
 
   Future<void> _handleTabTapped(int idx) async {
+    ApiService.refreshNotificationCount();
+
     // Restrict "Post Ad" tab (index 2) strictly to registered/logged in users
     if (idx == 2) {
       final token = await ApiService.getToken();
@@ -172,8 +176,42 @@ class _MainNavigationState extends State<MainNavigation> {
                 label: tr('nav_messages'),
               ),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.person_outline),
-                activeIcon: const Icon(Icons.person),
+                icon: ValueListenableBuilder<int>(
+                  valueListenable: ApiService.notificationsCountNotifier,
+                  builder: (context, count, child) {
+                    return Badge(
+                      isLabelVisible: count > 0,
+                      label: Text(
+                        '$count',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: Colors.redAccent,
+                      child: const Icon(Icons.person_outline),
+                    );
+                  },
+                ),
+                activeIcon: ValueListenableBuilder<int>(
+                  valueListenable: ApiService.notificationsCountNotifier,
+                  builder: (context, count, child) {
+                    return Badge(
+                      isLabelVisible: count > 0,
+                      label: Text(
+                        '$count',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: Colors.redAccent,
+                      child: const Icon(Icons.person),
+                    );
+                  },
+                ),
                 label: tr('nav_account'),
               ),
             ],

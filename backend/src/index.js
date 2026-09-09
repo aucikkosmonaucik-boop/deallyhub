@@ -39,6 +39,9 @@ import {
   markAllNotificationsRead,
   deleteNotification,
   createNotification,
+  registerDeviceToken,
+  removeDeviceToken,
+  getActiveDeviceTokens,
   getAdminStats,
   adminGetAllAds,
   adminDeleteAd,
@@ -51,6 +54,7 @@ import {
   findOrCreateGoogleUser,
   findOrCreateFacebookUser
 } from "./db.js";
+import { sendPushToDevices, isFirebaseReady } from "./pushService.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -135,6 +139,21 @@ function authenticateToken(req, res, next) {
   } catch (err) {
     return res.status(401).json({ success: false, error: "Invalid or expired session token." });
   }
+}
+
+// Optional Auth middleware (populates req.user if token is present, continues otherwise)
+function authenticateTokenOptional(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      req.user = decoded;
+    } catch (_) {
+      // ignore invalid token for optional auth
+    }
+  }
+  next();
 }
 
 // Admin authorization middleware (strictly checks database role)
@@ -1207,10 +1226,11 @@ app.post("/api/conversations/:id/messages", authenticateToken, async (req, res) 
 // NOTIFICATIONS API
 // ==========================================
 
-// 1. Get Notifications for current user (includes unread count)
-app.get("/api/notifications", authenticateToken, async (req, res) => {
+// 1. Get Notifications for current user (includes unread count; supports guest users)
+app.get("/api/notifications", authenticateTokenOptional, async (req, res) => {
   try {
-    const notifications = await getUserNotifications(req.user.userId);
+    const userId = req.user ? req.user.userId : null;
+    const notifications = await getUserNotifications(userId);
     const unreadCount = notifications.filter(n => !n.is_read).length;
     res.json({
       success: true,
@@ -1219,6 +1239,29 @@ app.get("/api/notifications", authenticateToken, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to fetch notifications." });
+  }
+});
+
+// 1b. Register Device FCM Token for push notifications
+app.post("/api/notifications/register-device", authenticateTokenOptional, async (req, res) => {
+  try {
+    const { fcmToken, platform } = req.body;
+    if (!fcmToken || !fcmToken.trim()) {
+      return res.status(400).json({ success: false, error: "fcmToken is required." });
+    }
+    const userId = req.user ? req.user.userId : null;
+    const device = await registerDeviceToken({
+      userId,
+      fcmToken: fcmToken.trim(),
+      platform: platform || "android"
+    });
+    res.json({
+      success: true,
+      message: "Device registered for push notifications.",
+      device
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to register device: " + err.message });
   }
 });
 
@@ -1306,7 +1349,7 @@ app.post("/api/admin/notifications", requireAdmin, async (req, res) => {
     }
 
     let finalUserId = null;
-    if (target === "specific") {
+    if (target === "specific" || targetUserId || (targetEmail && targetEmail.trim())) {
       if (targetUserId) {
         finalUserId = parseInt(targetUserId, 10);
       } else if (targetEmail && targetEmail.trim()) {
@@ -1325,10 +1368,34 @@ app.post("/api/admin/notifications", requireAdmin, async (req, res) => {
       type
     });
 
+    // Send push notification via Firebase Cloud Messaging if configured
+    let pushResult = { success: false, reason: "skipped" };
+    try {
+      const tokens = await getActiveDeviceTokens(finalUserId);
+      if (tokens && tokens.length > 0) {
+        pushResult = await sendPushToDevices({
+          tokens,
+          title: title.trim(),
+          body: message.trim(),
+          data: {
+            type: type || "system",
+            notificationId: created.id,
+            targetUserId: finalUserId ? String(finalUserId) : ""
+          }
+        });
+      } else {
+        pushResult = { success: true, reason: "no_registered_device_tokens", count: 0 };
+      }
+    } catch (pushErr) {
+      console.warn("[Admin Notification] Push send error:", pushErr.message);
+      pushResult = { success: false, error: pushErr.message };
+    }
+
     res.status(201).json({
       success: true,
       message: finalUserId ? "Direct notification sent successfully." : "Broadcast notification sent to all users.",
-      notification: created
+      notification: created,
+      pushResult
     });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to send notification: " + err.message });

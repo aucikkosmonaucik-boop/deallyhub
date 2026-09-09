@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "934312344171",
+    "project_id": "deallyhub-2e480",
+    "storage_bucket": "deallyhub-2e480.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934312344171:android:954503aa9161f4210b8f2e",
+        "android_client_info": {
+          "package_name": "com.deallyhub.deallyhub_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgB4jvn0evKW1SLVzoEvNz-ugRmO-AtE0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
