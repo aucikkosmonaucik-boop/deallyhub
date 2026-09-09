@@ -56,6 +56,7 @@ let nextMsgId = 1;
 const inMemoryNotifications = [];
 let nextNotifId = 1;
 const inMemoryNotificationReads = [];
+const inMemoryNotificationDismissals = [];
 const inMemoryUserDevices = [];
 let nextDeviceId = 1;
 
@@ -217,6 +218,17 @@ export async function initDb() {
           user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
           notification_id INTEGER REFERENCES notifications(id) ON DELETE CASCADE,
           read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, notification_id)
+        );
+      `);
+
+      // 9b. Notification Dismissals Table (tracks dismissed/hidden notifications per user)
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS notification_dismissals (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          notification_id INTEGER REFERENCES notifications(id) ON DELETE CASCADE,
+          dismissed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(user_id, notification_id)
         );
       `);
@@ -1024,7 +1036,15 @@ export async function sendMessage(conversationId, senderId, content) {
 
 export async function getUserNotifications(userId = null) {
   if (!pool) {
-    const list = inMemoryNotifications.filter(n => userId ? (n.user_id === null || n.user_id === userId) : n.user_id === null);
+    const list = inMemoryNotifications.filter(n => {
+      if (userId) {
+        if (inMemoryNotificationDismissals.some(d => d.user_id === userId && d.notification_id === n.id)) {
+          return false;
+        }
+        return n.user_id === null || n.user_id === userId;
+      }
+      return n.user_id === null;
+    });
     return list.map(n => {
       const isRead = userId ? inMemoryNotificationReads.some(r => r.user_id === userId && r.notification_id === n.id) : false;
       return { ...n, is_read: isRead };
@@ -1063,7 +1083,11 @@ export async function getUserNotifications(userId = null) {
       FROM notifications n
       LEFT JOIN notification_reads nr 
         ON nr.notification_id = n.id AND nr.user_id = $1
-      WHERE n.user_id IS NULL OR n.user_id = $1
+      WHERE (n.user_id IS NULL OR n.user_id = $1)
+        AND NOT EXISTS (
+          SELECT 1 FROM notification_dismissals nd 
+          WHERE nd.notification_id = n.id AND nd.user_id = $1
+        )
       ORDER BY n.created_at DESC
       LIMIT 50;
     `;
@@ -1123,19 +1147,87 @@ export async function markAllNotificationsRead(userId) {
 
 export async function deleteNotification(userId, notificationId) {
   if (!pool) {
-    const idx = inMemoryNotifications.findIndex(n => n.id === notificationId && (n.user_id === null || n.user_id === userId));
-    if (idx !== -1) {
-      inMemoryNotifications.splice(idx, 1);
+    const notif = inMemoryNotifications.find(n => n.id === notificationId);
+    if (!notif) return true;
+    if (notif.user_id === userId) {
+      const idx = inMemoryNotifications.findIndex(n => n.id === notificationId);
+      if (idx !== -1) inMemoryNotifications.splice(idx, 1);
+    } else if (notif.user_id === null) {
+      if (userId && !inMemoryNotificationDismissals.some(d => d.user_id === userId && d.notification_id === notificationId)) {
+        inMemoryNotificationDismissals.push({
+          user_id: userId,
+          notification_id: notificationId,
+          dismissed_at: new Date().toISOString()
+        });
+      }
     }
     return true;
   }
 
   try {
-    // Delete user-specific notification directly or mark as dismissed
-    await pool.query("DELETE FROM notifications WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)", [notificationId, userId]);
+    const { rows } = await pool.query("SELECT id, user_id FROM notifications WHERE id = $1", [notificationId]);
+    if (rows.length === 0) return true;
+    const notif = rows[0];
+
+    if (notif.user_id === userId) {
+      // User-specific notification: permanently delete for this user
+      await pool.query("DELETE FROM notifications WHERE id = $1 AND user_id = $2", [notificationId, userId]);
+    } else if (notif.user_id === null) {
+      // Broadcast notification: record in dismissals table so it only hides for this user
+      if (userId) {
+        await pool.query(`
+          INSERT INTO notification_dismissals (user_id, notification_id)
+          VALUES ($1, $2)
+          ON CONFLICT (user_id, notification_id) DO NOTHING
+        `, [userId, notificationId]);
+      }
+    }
     return true;
   } catch (err) {
     console.error("Error deleting notification:", err.message);
+    return false;
+  }
+}
+
+export async function adminGetNotifications() {
+  if (!pool) {
+    return inMemoryNotifications.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+  try {
+    const query = `
+      SELECT 
+        n.id,
+        n.user_id,
+        u.email AS target_email,
+        u.name AS target_name,
+        n.title,
+        n.message,
+        n.type,
+        n.created_at
+      FROM notifications n
+      LEFT JOIN users u ON u.id = n.user_id
+      ORDER BY n.created_at DESC
+      LIMIT 100;
+    `;
+    const { rows } = await pool.query(query);
+    return rows;
+  } catch (err) {
+    console.error("Error fetching admin notifications:", err.message);
+    return [];
+  }
+}
+
+export async function adminDeleteNotification(notificationId) {
+  if (!pool) {
+    const idx = inMemoryNotifications.findIndex(n => n.id === notificationId);
+    if (idx !== -1) inMemoryNotifications.splice(idx, 1);
+    return true;
+  }
+  try {
+    await pool.query("DELETE FROM notifications WHERE id = $1", [notificationId]);
+    return true;
+  } catch (err) {
+    console.error("Error deleting notification as admin:", err.message);
     return false;
   }
 }

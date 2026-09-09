@@ -563,18 +563,52 @@ export default function HomePage() {
     }
   };
 
+  // Guest notification storage helpers
+  const getGuestReadIds = (): number[] => {
+    try {
+      const val = typeof window !== "undefined" ? localStorage.getItem("deallyhub_guest_read_notifs") : null;
+      return val ? JSON.parse(val) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getGuestDismissedIds = (): number[] => {
+    try {
+      const val = typeof window !== "undefined" ? localStorage.getItem("deallyhub_guest_dismissed_notifs") : null;
+      return val ? JSON.parse(val) : [];
+    } catch {
+      return [];
+    }
+  };
+
   // Notifications fetch & polling
   const fetchNotifications = useCallback(async () => {
-    if (!token) return;
     try {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/api/notifications`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      const res = await fetch(`${apiUrl}/api/notifications`, { headers });
       const data = await res.json();
-      if (data.success) {
-        setNotifications(data.notifications || []);
-        setUnreadNotificationsCount(data.unreadCount || 0);
+      if (data.success && Array.isArray(data.notifications)) {
+        let items: NotificationItem[] = data.notifications;
+        if (!token) {
+          const dismissed = getGuestDismissedIds();
+          const readIds = getGuestReadIds();
+          items = items
+            .filter((n) => !dismissed.includes(n.id))
+            .map((n) => ({
+              ...n,
+              is_read: readIds.includes(n.id) || n.is_read
+            }));
+          setNotifications(items);
+          setUnreadNotificationsCount(items.filter((n) => !n.is_read).length);
+        } else {
+          setNotifications(items);
+          setUnreadNotificationsCount(data.unreadCount || 0);
+        }
       }
     } catch (err) {
       console.warn("Failed to fetch notifications:", err);
@@ -582,55 +616,81 @@ export default function HomePage() {
   }, [token]);
 
   useEffect(() => {
-    if (token) {
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 25000);
-      return () => clearInterval(interval);
-    } else {
-      setNotifications([]);
-      setUnreadNotificationsCount(0);
-    }
-  }, [token, fetchNotifications]);
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 25000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
   const handleMarkNotificationRead = async (id: number) => {
-    if (!token) return;
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+    );
+    setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
+
+    if (!token) {
+      try {
+        const readIds = getGuestReadIds();
+        if (!readIds.includes(id)) {
+          readIds.push(id);
+          localStorage.setItem("deallyhub_guest_read_notifs", JSON.stringify(readIds));
+        }
+      } catch {}
+      return;
+    }
+
     try {
       const apiUrl = getApiUrl();
       await fetch(`${apiUrl}/api/notifications/${id}/read`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-      );
-      setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
     }
   };
 
   const handleMarkAllNotificationsRead = async () => {
-    if (!token) return;
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    setUnreadNotificationsCount(0);
+
+    if (!token) {
+      try {
+        const allIds = notifications.map((n) => n.id);
+        const readIds = Array.from(new Set([...getGuestReadIds(), ...allIds]));
+        localStorage.setItem("deallyhub_guest_read_notifs", JSON.stringify(readIds));
+      } catch {}
+      return;
+    }
+
     try {
       const apiUrl = getApiUrl();
       await fetch(`${apiUrl}/api/notifications/read-all`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      setUnreadNotificationsCount(0);
     } catch (err) {
       console.error("Failed to mark all notifications read:", err);
     }
   };
 
   const handleDeleteNotification = async (id: number) => {
-    if (!token) return;
     const itemToDelete = notifications.find((n) => n.id === id);
     if (itemToDelete && !itemToDelete.is_read) {
       setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
     }
     setNotifications((prev) => prev.filter((n) => n.id !== id));
+
+    if (!token) {
+      try {
+        const dismissed = getGuestDismissedIds();
+        if (!dismissed.includes(id)) {
+          dismissed.push(id);
+          localStorage.setItem("deallyhub_guest_dismissed_notifs", JSON.stringify(dismissed));
+        }
+      } catch {}
+      return;
+    }
+
     try {
       const apiUrl = getApiUrl();
       await fetch(`${apiUrl}/api/notifications/${id}`, {
@@ -737,20 +797,18 @@ export default function HomePage() {
             </button>
 
             {/* Notification Bell Nav Button */}
-            {currentUser && (
-              <button
-                onClick={() => setIsNotificationsOpen(true)}
-                className="relative p-2 text-[#002f34] dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer active:scale-95"
-                title={t("nav.notifications")}
-              >
-                <Bell className="w-5 h-5" />
-                {unreadNotificationsCount > 0 && (
-                  <span className="absolute top-0 right-0 min-w-[17px] h-[17px] bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-xs">
-                    {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
-                  </span>
-                )}
-              </button>
-            )}
+            <button
+              onClick={() => setIsNotificationsOpen(true)}
+              className="relative p-2 text-[#002f34] dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer active:scale-95"
+              title={t("nav.notifications")}
+            >
+              <Bell className="w-5 h-5" />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-0 right-0 min-w-[17px] h-[17px] bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-xs">
+                  {unreadNotificationsCount > 9 ? "9+" : unreadNotificationsCount}
+                </span>
+              )}
+            </button>
 
             {/* My Profile Button / Dropdown */}
             <div className="relative">

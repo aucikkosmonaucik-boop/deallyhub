@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import '../l10n/language_controller.dart';
@@ -18,6 +19,7 @@ class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
   int _authVersion = 0;
   int _savedVersion = 0;
+  Timer? _notifTimer;
 
   @override
   void initState() {
@@ -25,6 +27,15 @@ class _MainNavigationState extends State<MainNavigation> {
     ApiService.initSavedCount();
     ApiService.getSavedAdIds();
     ApiService.refreshNotificationCount();
+    _notifTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      ApiService.refreshNotificationCount();
+    });
+  }
+
+  @override
+  void dispose() {
+    _notifTimer?.cancel();
+    super.dispose();
   }
 
   void _onAuthChanged() {

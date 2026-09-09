@@ -54,6 +54,9 @@ export default function AdminPanelModal({
   const [sendingNotif, setSendingNotif] = useState(false);
   const [notifSuccess, setNotifSuccess] = useState<string | null>(null);
   const [notifError, setNotifError] = useState<string | null>(null);
+  const [sentNotifs, setSentNotifs] = useState<any[]>([]);
+  const [loadingSentNotifs, setLoadingSentNotifs] = useState(false);
+  const [deletingNotifId, setDeletingNotifId] = useState<number | null>(null);
 
   // Ads Moderation state
   const [ads, setAds] = useState<any[]>([]);
@@ -144,13 +147,56 @@ export default function AdminPanelModal({
     }
   }, [token]);
 
+  const fetchSentNotifications = useCallback(async () => {
+    if (!token) return;
+    setLoadingSentNotifs(true);
+    try {
+      const res = await fetch(`${getApiUrl()}/api/admin/notifications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSentNotifs(data.notifications || []);
+      }
+    } catch (e) {
+      console.error("Failed to load sent notifications:", e);
+    } finally {
+      setLoadingSentNotifs(false);
+    }
+  }, [token]);
+
+  const handleDeleteSentNotification = async (id: number) => {
+    if (!confirm(t("admin.deleteNotifConfirm", "Are you sure you want to permanently delete/revoke this notification from the portal?"))) {
+      return;
+    }
+    setDeletingNotifId(id);
+    try {
+      const res = await fetch(`${getApiUrl()}/api/admin/notifications/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSentNotifs((prev) => prev.filter((n) => n.id !== id));
+        fetchStats();
+      } else {
+        alert(data.error || "Failed to delete notification.");
+      }
+    } catch (err: any) {
+      alert("Error deleting notification: " + err.message);
+    } finally {
+      setDeletingNotifId(null);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       fetchStats();
+      if (activeTab === "notify") fetchSentNotifications();
       if (activeTab === "ads") fetchAds();
       if (activeTab === "users") fetchUsers();
     }
-  }, [isOpen, activeTab, fetchStats, fetchAds, fetchUsers]);
+  }, [isOpen, activeTab, fetchStats, fetchSentNotifications, fetchAds, fetchUsers]);
 
   // Debounced auto-search when typing
   useEffect(() => {
@@ -198,6 +244,7 @@ export default function AdminPanelModal({
         setNotifMessage("");
         setTargetEmail("");
         fetchStats();
+        fetchSentNotifications();
       } else {
         setNotifError(data.error || "Failed to send notification.");
       }
@@ -612,6 +659,80 @@ export default function AdminPanelModal({
                   <span>{sendingNotif ? t("admin.sendingBtn") : t("admin.sendNowBtn")}</span>
                 </button>
               </form>
+
+              {/* Sent Notifications History */}
+              <div className="pt-6 border-t border-gray-200 dark:border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h5 className="font-bold text-sm text-[#002f34] dark:text-white flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <span>{t("admin.sentNotifsTitle", "Sent Announcements & Notifications")}</span>
+                    {sentNotifs.length > 0 && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 font-bold border border-teal-200 dark:border-teal-800">
+                        {sentNotifs.length}
+                      </span>
+                    )}
+                  </h5>
+                  <button
+                    type="button"
+                    onClick={fetchSentNotifications}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    title={t("common.refresh", "Refresh")}
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingSentNotifs ? "animate-spin" : ""}`} />
+                  </button>
+                </div>
+
+                {loadingSentNotifs && sentNotifs.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-gray-400">{t("common.loading", "Loading...")}</div>
+                ) : sentNotifs.length === 0 ? (
+                  <div className="py-6 text-center text-xs text-gray-400 dark:text-slate-500 bg-gray-50/50 dark:bg-slate-800/40 rounded-xl border border-dashed border-gray-200 dark:border-slate-800">
+                    {t("admin.noSentNotifs", "No notifications sent yet.")}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 dark:divide-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
+                    {sentNotifs.map((sn) => {
+                      const isBroadcast = sn.user_id === null;
+                      const isDeleting = deletingNotifId === sn.id;
+                      return (
+                        <div key={sn.id} className="p-3.5 bg-white dark:bg-slate-900 hover:bg-gray-50/70 dark:hover:bg-slate-800/50 transition-colors flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded ${
+                                isBroadcast
+                                  ? "bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300"
+                                  : "bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300"
+                              }`}>
+                                {isBroadcast ? "Broadcast (All)" : `Direct: ${sn.target_email || sn.user_id}`}
+                              </span>
+                              <span className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase">
+                                {sn.type || "system"}
+                              </span>
+                              <span className="text-[10px] text-gray-400 dark:text-slate-500">
+                                {new Date(sn.created_at).toLocaleString()}
+                              </span>
+                            </div>
+                            <h6 className="font-bold text-xs text-[#002f34] dark:text-white truncate">
+                              {sn.title}
+                            </h6>
+                            <p className="text-xs text-gray-600 dark:text-slate-300 line-clamp-2 mt-0.5">
+                              {sn.message}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSentNotification(sn.id)}
+                            disabled={isDeleting}
+                            className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 transition-colors cursor-pointer shrink-0"
+                            title={t("admin.deleteNotifBtn", "Permanently delete/revoke")}
+                          >
+                            <Trash2 className={`w-3.5 h-3.5 ${isDeleting ? "animate-spin" : ""}`} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

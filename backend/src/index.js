@@ -47,6 +47,8 @@ import {
   adminDeleteAd,
   adminGetAllUsers,
   adminDeleteUser,
+  adminGetNotifications,
+  adminDeleteNotification,
   setUserVerificationToken,
   verifyUserByToken,
   setUserResetToken,
@@ -1286,9 +1288,14 @@ app.post("/api/notifications/read-all", authenticateToken, async (req, res) => {
 });
 
 // 4. Delete single notification
-app.delete("/api/notifications/:id", authenticateToken, async (req, res) => {
+app.delete("/api/notifications/:id", authenticateTokenOptional, async (req, res) => {
   try {
-    const success = await deleteNotification(req.user.userId, parseInt(req.params.id, 10));
+    const notifId = parseInt(req.params.id, 10);
+    if (isNaN(notifId)) {
+      return res.status(400).json({ success: false, error: "Invalid notification ID." });
+    }
+    const userId = req.user ? req.user.userId : null;
+    const success = await deleteNotification(userId, notifId);
     res.json({ success });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to delete notification." });
@@ -1399,6 +1406,30 @@ app.post("/api/admin/notifications", requireAdmin, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to send notification: " + err.message });
+  }
+});
+
+// 4b. Get Sent Notifications for Admin Portal
+app.get("/api/admin/notifications", requireAdmin, async (req, res) => {
+  try {
+    const notifications = await adminGetNotifications();
+    res.json({ success: true, count: notifications.length, notifications });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to retrieve notifications: " + err.message });
+  }
+});
+
+// 4c. Delete Sent Notification as Admin (Moderation / Revoke)
+app.delete("/api/admin/notifications/:id", requireAdmin, async (req, res) => {
+  try {
+    const targetNotifId = parseInt(req.params.id, 10);
+    if (isNaN(targetNotifId)) {
+      return res.status(400).json({ success: false, error: "Invalid notification ID." });
+    }
+    const success = await adminDeleteNotification(targetNotifId);
+    res.json({ success, message: `Notification #${targetNotifId} deleted permanently from portal.` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to delete notification: " + err.message });
   }
 });
 
