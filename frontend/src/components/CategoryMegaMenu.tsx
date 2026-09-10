@@ -37,6 +37,7 @@ import {
   Check
 } from "lucide-react";
 import { CATEGORY_DETAILS } from "@/data/categoryData";
+import { getCategoryVisual } from "@/data/categoryVisuals";
 
 export interface Category {
   id: number;
@@ -341,8 +342,9 @@ function CategoryMegaMenuComponent({
 
             {/* List of 25 DB Categories */}
             <div className="divide-y divide-gray-100 dark:divide-slate-800/80 py-1 flex-1">
-              {filteredCategories.map((cat) => {
-                const IconComponent = ICON_MAP[cat.icon] || Sparkles;
+              {filteredCategories.map((cat, idx) => {
+                const visual = getCategoryVisual(cat.slug, idx);
+                const IconComponent = ICON_MAP[visual.fallbackIcon] || ICON_MAP[cat.icon] || Sparkles;
                 const isSelected = selectedSlug === cat.slug;
                 const isCurrentActive = activeCategory === cat.slug;
 
@@ -358,7 +360,7 @@ function CategoryMegaMenuComponent({
                         setMobileView("subcategories");
                       }
                     }}
-                    className={`w-full text-left px-3.5 sm:px-4 py-3 sm:py-2.5 flex items-center justify-between text-[13px] sm:text-sm transition-colors cursor-pointer group active:bg-gray-200/80 dark:active:bg-slate-800 ${
+                    className={`w-full text-left px-3.5 sm:px-4 py-2.5 sm:py-2 flex items-center justify-between text-[13px] sm:text-sm transition-colors cursor-pointer group active:bg-gray-200/80 dark:active:bg-slate-800 ${
                       isSelected
                         ? "bg-white dark:bg-slate-900 text-teal-950 dark:text-teal-300 shadow-xs md:border-l-4 md:border-teal-600 font-extrabold"
                         : "text-gray-900 dark:text-slate-200 font-bold hover:bg-gray-100/90 dark:hover:bg-slate-800/80 hover:text-teal-900 dark:hover:text-teal-300"
@@ -366,15 +368,24 @@ function CategoryMegaMenuComponent({
                   >
                     <div className="flex items-center gap-3 min-w-0 pr-2">
                       <div
-                        className={`w-8 h-8 sm:w-7 sm:h-7 rounded-xl sm:rounded-lg flex items-center justify-center shrink-0 transition-transform duration-150 ${
-                          isSelected
-                            ? "bg-teal-600 text-white scale-105 shadow-xs"
-                            : isCurrentActive
-                            ? "bg-teal-100 dark:bg-teal-950/80 text-teal-900 dark:text-teal-300 font-black"
-                            : "bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 group-hover:bg-teal-100 dark:group-hover:bg-slate-700 group-hover:text-teal-800 dark:group-hover:text-teal-300"
+                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden shadow-2xs transition-transform duration-150 ${
+                          isSelected ? "scale-110 ring-2 ring-teal-500" : ""
                         }`}
+                        style={{ backgroundColor: visual.bgColor }}
                       >
-                        <IconComponent className="w-4 h-4 stroke-[2.5]" />
+                        <img
+                          src={visual.image}
+                          alt=""
+                          className="w-6 h-6 object-contain pointer-events-none select-none"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                            const fb = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fb) fb.style.display = "flex";
+                          }}
+                        />
+                        <div className="hidden items-center justify-center w-full h-full text-gray-800">
+                          <IconComponent className="w-4 h-4 stroke-[2.5]" />
+                        </div>
                       </div>
                       <span className="truncate leading-tight tracking-tight">{getCategoryName(cat.slug, cat.name)}</span>
                     </div>
@@ -423,8 +434,25 @@ function CategoryMegaMenuComponent({
                 {/* Active Category Header Banner with "View all in category" CTA */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-gray-200 dark:border-slate-800 gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800 flex items-center justify-center shrink-0 shadow-2xs">
-                      <IconHeaderComp className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+                    <div
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 overflow-hidden shadow-2xs"
+                      style={{ backgroundColor: currentCategory ? getCategoryVisual(currentCategory.slug).bgColor : "#f0fdfa" }}
+                    >
+                      {currentCategory && (
+                        <img
+                          src={getCategoryVisual(currentCategory.slug).image}
+                          alt=""
+                          className="w-7 h-7 sm:w-9 sm:h-9 object-contain pointer-events-none select-none"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                            const fb = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fb) fb.style.display = "flex";
+                          }}
+                        />
+                      )}
+                      <div className="hidden items-center justify-center w-full h-full text-gray-800">
+                        <IconHeaderComp className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+                      </div>
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-base sm:text-xl font-black text-gray-950 dark:text-white tracking-tight truncate">

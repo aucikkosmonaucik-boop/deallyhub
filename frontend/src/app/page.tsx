@@ -64,6 +64,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import LocationPicker from "@/components/LocationPicker";
 import { useLanguage } from "@/context/LanguageContext";
 import { getApiUrl } from "@/lib/api";
+import { getCategoryVisual } from "@/data/categoryVisuals";
 
 // Icon mapping dictionary
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -1254,6 +1255,100 @@ export default function HomePage() {
                 </button>
               )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          Kategorie główne (Main Categories - OLX Style Round Icons Grid)
+      ========================================================================= */}
+      <section className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800/80 py-8 sm:py-12 select-none">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center mb-6 sm:mb-9 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#002f34] dark:text-white tracking-tight">
+              {t("hero.categoriesTitle", "Kategorie główne")}
+            </h2>
+            {activeCategory && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-semibold text-gray-500 dark:text-slate-400">
+                  {t("feed.activeFilter", "Wybrana kategoria:")}{" "}
+                  <span className="text-teal-700 dark:text-teal-400 font-extrabold">
+                    {getCategoryName(activeCategory)}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory(null)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors cursor-pointer active:scale-95"
+                >
+                  <span>✕</span>
+                  <span>{t("feed.clearCategory", "Wyczyść")}</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Round Icons Grid (OLX Style: flex wrap centered with responsive sizing) */}
+          <div className="flex flex-wrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-6 lg:gap-x-7 gap-y-6 sm:gap-y-8">
+            {categories.map((cat, idx) => {
+              const visual = getCategoryVisual(cat.slug, idx);
+              const isSelected = activeCategory === cat.slug;
+              const IconFallback = ICON_MAP[visual.fallbackIcon] || ICON_MAP[cat.icon] || Sparkles;
+
+              return (
+                <button
+                  key={cat.id || cat.slug}
+                  type="button"
+                  onClick={() => {
+                    if (isSelected) {
+                      setActiveCategory(null);
+                    } else {
+                      setActiveCategory(cat.slug);
+                      const el = document.getElementById("listings-section");
+                      if (el) el.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  className="group flex flex-col items-center text-center cursor-pointer select-none focus:outline-hidden"
+                  style={{ width: "96px" }}
+                >
+                  {/* Round Circle Badge */}
+                  <div
+                    className={`w-[72px] h-[72px] sm:w-[82px] sm:h-[82px] md:w-[88px] md:h-[88px] rounded-full flex items-center justify-center relative overflow-hidden transition-all duration-200 shrink-0 shadow-2xs group-hover:scale-105 group-hover:shadow-md ${
+                      isSelected
+                        ? "ring-4 ring-teal-500 ring-offset-3 dark:ring-offset-slate-900 scale-105 shadow-md"
+                        : "group-hover:ring-2 group-hover:ring-teal-400/50"
+                    }`}
+                    style={{ backgroundColor: visual.bgColor }}
+                  >
+                    <img
+                      src={visual.image}
+                      alt={getCategoryName(cat.slug, cat.name)}
+                      loading="lazy"
+                      className="w-13 h-13 sm:w-15 sm:h-15 md:w-[68px] md:h-[68px] object-contain pointer-events-none select-none drop-shadow-xs"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                        const fb = (e.currentTarget.nextElementSibling as HTMLElement);
+                        if (fb) fb.style.display = "flex";
+                      }}
+                    />
+                    <div className="hidden items-center justify-center w-full h-full text-gray-800">
+                      <IconFallback className="w-8 h-8 stroke-[2.2]" />
+                    </div>
+                  </div>
+
+                  {/* Category Title */}
+                  <span
+                    className={`mt-2 sm:mt-2.5 text-[11px] sm:text-xs md:text-[13px] leading-tight font-bold tracking-tight text-center line-clamp-2 max-w-[96px] transition-colors ${
+                      isSelected
+                        ? "text-teal-700 dark:text-teal-400 font-extrabold"
+                        : "text-[#002f34] dark:text-slate-200 group-hover:text-teal-600 dark:group-hover:text-teal-300"
+                    }`}
+                  >
+                    {getCategoryName(cat.slug, cat.name)}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
