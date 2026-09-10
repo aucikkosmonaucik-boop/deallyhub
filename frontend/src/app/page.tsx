@@ -1228,7 +1228,7 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          Kategorie główne (Main Categories - OLX Style Round Icons Grid)
+          Kategorie główne (Main Categories - Round Icon Badges Grid)
       ========================================================================= */}
       <section className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800/80 py-8 sm:py-12 select-none">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -1256,7 +1256,7 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Round Icons Grid (OLX Style: flex wrap centered with responsive sizing) */}
+          {/* Round Icons Grid: flex wrap centered with responsive sizing */}
           <div className="flex flex-wrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-6 lg:gap-x-7 gap-y-6 sm:gap-y-8">
             {categories.map((cat, idx) => {
               const visual = getCategoryVisual(cat.slug, idx);

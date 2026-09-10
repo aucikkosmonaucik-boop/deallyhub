@@ -888,7 +888,7 @@ class CategoryData {
         ),
       ],
       popularTags: {
-        'pl': ['Paczkomat', 'Wysyłka OLX/InPost', 'Darmowa dostawa', 'Kurier DPD', 'Wysyłka w 24h'],
+        'pl': ['Paczkomat', 'Przesyłka InPost', 'Darmowa dostawa', 'Kurier DPD', 'Wysyłka w 24h'],
         'en': ['Parcel Locker', 'Free Delivery', 'Express Shipping', 'Same-Day Dispatch'],
         'de': ['Kostenloser Versand', 'Expressversand', 'Paketstation', '24h Versand'],
       },
