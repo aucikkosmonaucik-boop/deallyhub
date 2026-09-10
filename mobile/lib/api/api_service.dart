@@ -10,6 +10,8 @@ class ApiService {
   static const String _userKey = 'deallyhub_user_profile';
   static const String _savedIdsKey = 'deallyhub_saved_ids';
   static const String _savedAdsCacheKey = 'deallyhub_saved_ads_cache';
+  static const String _guestDismissedNotifsKey = 'deallyhub_guest_dismissed_notifs';
+  static const String _guestReadNotifsKey = 'deallyhub_guest_read_notifs';
 
   // Reactive notifier for real-time badge updates across the entire app
   static final ValueNotifier<int> savedCountNotifier = ValueNotifier<int>(0);
@@ -73,6 +75,7 @@ class ApiService {
     await prefs.remove(_tokenKey);
     await prefs.remove(_userKey);
     savedCountNotifier.value = 0;
+    await refreshNotificationCount();
   }
 
   // ================= AUTH API ================= //
@@ -561,6 +564,84 @@ class ApiService {
 
   // ================= NOTIFICATIONS API ================= //
 
+  static Future<Set<int>> _getGuestDismissedIds() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_guestDismissedNotifsKey) ?? [];
+      return list.map((s) => int.tryParse(s) ?? 0).where((id) => id > 0).toSet();
+    } catch (_) {
+      return {};
+    }
+  }
+
+  static Future<Set<int>> _getUserDismissedIds(int userId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList('deallyhub_user_${userId}_dismissed_notifs') ?? [];
+      return list.map((s) => int.tryParse(s) ?? 0).where((id) => id > 0).toSet();
+    } catch (_) {
+      return {};
+    }
+  }
+
+  static Future<Set<int>> _getGuestReadIds() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_guestReadNotifsKey) ?? [];
+      return list.map((s) => int.tryParse(s) ?? 0).where((id) => id > 0).toSet();
+    } catch (_) {
+      return {};
+    }
+  }
+
+  static Future<void> _recordGuestDismissedId(int id) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final current = prefs.getStringList(_guestDismissedNotifsKey) ?? [];
+      final idStr = id.toString();
+      if (!current.contains(idStr)) {
+        current.add(idStr);
+        await prefs.setStringList(_guestDismissedNotifsKey, current);
+      }
+    } catch (_) {}
+  }
+
+  static Future<void> _recordUserDismissedId(int userId, int id) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'deallyhub_user_${userId}_dismissed_notifs';
+      final current = prefs.getStringList(key) ?? [];
+      final idStr = id.toString();
+      if (!current.contains(idStr)) {
+        current.add(idStr);
+        await prefs.setStringList(key, current);
+      }
+    } catch (_) {}
+  }
+
+  static Future<void> _recordGuestReadId(int id) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final current = prefs.getStringList(_guestReadNotifsKey) ?? [];
+      final idStr = id.toString();
+      if (!current.contains(idStr)) {
+        current.add(idStr);
+        await prefs.setStringList(_guestReadNotifsKey, current);
+      }
+    } catch (_) {}
+  }
+
+  static Future<void> _recordGuestAllReadIds(Iterable<int> ids) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final current = (prefs.getStringList(_guestReadNotifsKey) ?? []).toSet();
+      for (final id in ids) {
+        if (id > 0) current.add(id.toString());
+      }
+      await prefs.setStringList(_guestReadNotifsKey, current.toList());
+    } catch (_) {}
+  }
+
   static Future<List<dynamic>> getNotifications() async {
     final token = await getToken();
     final headers = <String, String>{};
@@ -575,10 +656,39 @@ class ApiService {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data['success'] == true && data['notifications'] is List) {
-          final list = data['notifications'] as List<dynamic>;
-          final unread = list.where((n) => n['is_read'] != true).length;
+          final rawList = data['notifications'] as List<dynamic>;
+
+          // Read dismissed sets for guest and logged-in user
+          final guestDismissed = await _getGuestDismissedIds();
+          Set<int> userDismissed = {};
+          final user = await getCurrentUser();
+          final userId = user != null ? (int.tryParse(user['id']?.toString() ?? '') ?? 0) : 0;
+          if (userId > 0) {
+            userDismissed = await _getUserDismissedIds(userId);
+          }
+          final allDismissed = {...guestDismissed, ...userDismissed};
+
+          final guestReadIds = token == null ? await _getGuestReadIds() : <int>{};
+
+          final List<dynamic> filtered = [];
+          for (final item in rawList) {
+            if (item is! Map<String, dynamic>) continue;
+            final notifId = int.tryParse(item['id']?.toString() ?? '') ?? 0;
+            if (notifId > 0 && allDismissed.contains(notifId)) {
+              continue; // Exclude dismissed notification
+            }
+
+            final itemCopy = Map<String, dynamic>.from(item);
+            if (token == null) {
+              final isReadLocally = guestReadIds.contains(notifId);
+              itemCopy['is_read'] = isReadLocally || (itemCopy['is_read'] == true);
+            }
+            filtered.add(itemCopy);
+          }
+
+          final unread = filtered.where((n) => n['is_read'] != true).length;
           notificationsCountNotifier.value = unread;
-          return list;
+          return filtered;
         }
       }
     } catch (_) {}
@@ -623,39 +733,68 @@ class ApiService {
 
   static Future<void> markNotificationRead(int id) async {
     final token = await getToken();
-    if (token == null) return;
+    if (token == null) {
+      await _recordGuestReadId(id);
+    }
+
     try {
+      final headers = <String, String>{};
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
       await http.post(
         Uri.parse('$baseUrl/api/notifications/$id/read'),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: headers,
       ).timeout(const Duration(seconds: 8));
-      refreshNotificationCount();
     } catch (_) {}
+
+    await refreshNotificationCount();
   }
 
-  static Future<void> markAllNotificationsRead() async {
+  static Future<void> markAllNotificationsRead([List<int>? currentIds]) async {
     final token = await getToken();
-    if (token == null) return;
+    if (token == null && currentIds != null && currentIds.isNotEmpty) {
+      await _recordGuestAllReadIds(currentIds);
+    }
+
     try {
+      final headers = <String, String>{};
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
       await http.post(
         Uri.parse('$baseUrl/api/notifications/read-all'),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: headers,
       ).timeout(const Duration(seconds: 8));
-      notificationsCountNotifier.value = 0;
-      refreshNotificationCount();
     } catch (_) {}
+
+    notificationsCountNotifier.value = 0;
+    await refreshNotificationCount();
   }
 
   static Future<void> deleteNotification(int id) async {
     final token = await getToken();
-    if (token == null) return;
+    final user = await getCurrentUser();
+    final userId = user != null ? (int.tryParse(user['id']?.toString() ?? '') ?? 0) : 0;
+
+    if (token == null) {
+      await _recordGuestDismissedId(id);
+    } else if (userId > 0) {
+      await _recordUserDismissedId(userId, id);
+    }
+
     try {
+      final headers = <String, String>{};
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
       await http.delete(
         Uri.parse('$baseUrl/api/notifications/$id'),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: headers,
       ).timeout(const Duration(seconds: 8));
-      refreshNotificationCount();
     } catch (_) {}
+
+    await refreshNotificationCount();
   }
 
   // ================= ACCOUNT SETTINGS API ================= //

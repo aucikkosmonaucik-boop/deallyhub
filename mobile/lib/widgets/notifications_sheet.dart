@@ -24,8 +24,8 @@ class NotificationsSheet {
             future: cachedNotifications != null
                 ? Future.value(cachedNotifications)
                 : ApiService.getNotifications().then((val) {
-                    cachedNotifications = val;
-                    return val;
+                    cachedNotifications = List<dynamic>.from(val);
+                    return cachedNotifications!;
                   }),
             builder: (ctx, snapshot) {
               final items = cachedNotifications ?? snapshot.data ?? [];
@@ -35,6 +35,18 @@ class NotificationsSheet {
               Widget buildNotificationTile(dynamic n) {
                 final isRead = n['is_read'] == true;
                 final type = n['type']?.toString() ?? 'system';
+                final notifId = int.tryParse(n['id']?.toString() ?? '') ?? 0;
+
+                String formattedTime = '';
+                if (n['created_at'] != null) {
+                  try {
+                    final dt = DateTime.tryParse(n['created_at'].toString())?.toLocal();
+                    if (dt != null) {
+                      formattedTime =
+                          '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+                    }
+                  } catch (_) {}
+                }
 
                 Color iconColor = const Color(0xFF0D9488);
                 IconData iconData = Icons.notifications_rounded;
@@ -69,11 +81,11 @@ class NotificationsSheet {
                   ),
                   child: ListTile(
                     onTap: () async {
-                      if (!isRead && n['id'] != null) {
+                      if (!isRead && notifId > 0) {
                         setModalState(() {
                           n['is_read'] = true;
                         });
-                        await ApiService.markNotificationRead(n['id'] as int);
+                        await ApiService.markNotificationRead(notifId);
                         onStateChanged?.call();
                       }
                     },
@@ -124,29 +136,70 @@ class NotificationsSheet {
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: () async {
+                                  if (notifId > 0) {
+                                    setModalState(() {
+                                      n['is_read'] = true;
+                                    });
+                                    await ApiService.markNotificationRead(notifId);
+                                    onStateChanged?.call();
+                                  }
+                                },
+                                child: Tooltip(
+                                  message: tr('notif_mark_read'),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? const Color(0xFF134E4A) : const Color(0xFFCCFBF1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.check_rounded,
+                                      size: 14,
+                                      color: Color(0xFF0D9488),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ] else ...[
+                              const Icon(
+                                Icons.done_all_rounded,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
                               const SizedBox(width: 6),
                             ],
                             GestureDetector(
                               onTap: () async {
-                                if (n['id'] != null) {
-                                  final notifId = n['id'] as int;
+                                if (notifId > 0) {
                                   setModalState(() {
-                                    items.removeWhere((it) => it['id'] == notifId);
+                                    items.removeWhere(
+                                        (it) => (int.tryParse(it['id']?.toString() ?? '') ?? 0) == notifId);
+                                    if (cachedNotifications != null) {
+                                      cachedNotifications!.removeWhere(
+                                          (it) => (int.tryParse(it['id']?.toString() ?? '') ?? 0) == notifId);
+                                    }
                                   });
                                   await ApiService.deleteNotification(notifId);
                                   onStateChanged?.call();
                                 }
                               },
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  size: 14,
-                                  color: isDark ? Colors.white70 : Colors.grey.shade700,
+                              child: Tooltip(
+                                message: tr('notif_delete'),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF334155) : Colors.grey.shade200,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.close_rounded,
+                                    size: 14,
+                                    color: isDark ? Colors.white70 : Colors.grey.shade700,
+                                  ),
                                 ),
                               ),
                             ),
@@ -156,13 +209,39 @@ class NotificationsSheet {
                     ),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        n['message'] ?? '',
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.35,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            n['message'] ?? '',
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.35,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                            ),
+                          ),
+                          if (formattedTime.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  size: 11,
+                                  color: isDark ? const Color(0xFF64748B) : Colors.grey.shade500,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  formattedTime,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark ? const Color(0xFF64748B) : Colors.grey.shade500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ),
@@ -229,27 +308,44 @@ class NotificationsSheet {
                             ],
                           ],
                         ),
-                        if (unreadItems.isNotEmpty)
-                          TextButton.icon(
-                            onPressed: () async {
-                              setModalState(() {
-                                for (var it in items) {
-                                  it['is_read'] = true;
-                                }
-                              });
-                              await ApiService.markAllNotificationsRead();
-                              onStateChanged?.call();
-                            },
-                            icon: const Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
-                            label: Text(
-                              tr('notif_mark_all_read'),
-                              style: const TextStyle(
-                                color: Color(0xFF0D9488),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (unreadItems.isNotEmpty)
+                              TextButton.icon(
+                                onPressed: () async {
+                                  final allIds = items
+                                      .map((it) => int.tryParse(it['id']?.toString() ?? '') ?? 0)
+                                      .where((id) => id > 0)
+                                      .toList();
+                                  setModalState(() {
+                                    for (var it in items) {
+                                      it['is_read'] = true;
+                                    }
+                                  });
+                                  await ApiService.markAllNotificationsRead(allIds);
+                                  onStateChanged?.call();
+                                },
+                                icon: const Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
+                                label: Text(
+                                  tr('notif_mark_all_read'),
+                                  style: const TextStyle(
+                                    color: Color(0xFF0D9488),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
+                            const SizedBox(width: 4),
+                            IconButton(
+                              icon: const Icon(Icons.close_rounded, size: 20),
+                              color: isDark ? Colors.white70 : Colors.grey.shade700,
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                              onPressed: () => Navigator.of(ctx).pop(),
                             ),
-                          ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
