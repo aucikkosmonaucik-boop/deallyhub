@@ -1,0 +1,40 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="metalCog1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#CBD5E1"/>
+      <stop offset="50%" stop-color="#64748B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="metalCog2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+    <filter id="dropMach" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropMach)">
+    <!-- Big Industrial Gear -->
+    <g transform="translate(18, 18)">
+      <circle cx="28" cy="28" r="22" fill="url(#metalCog1)"/>
+      <rect x="24" y="2" width="8" height="52" rx="2" fill="url(#metalCog1)"/>
+      <rect x="2" y="24" width="52" height="8" rx="2" fill="url(#metalCog1)"/>
+      <rect x="24" y="2" width="8" height="52" rx="2" fill="url(#metalCog1)" transform="rotate(45 28 28)"/>
+      <rect x="2" y="24" width="52" height="8" rx="2" fill="url(#metalCog1)" transform="rotate(45 28 28)"/>
+      <circle cx="28" cy="28" r="18" fill="url(#metalCog1)"/>
+      <circle cx="28" cy="28" r="10" fill="#0F172A"/>
+      <circle cx="28" cy="28" r="6" fill="#64748B"/>
+    </g>
+
+    <!-- Small Interlocking Gear -->
+    <g transform="translate(52, 48)">
+      <circle cx="18" cy="18" r="14" fill="url(#metalCog2)"/>
+      <rect x="15" y="2" width="6" height="32" rx="1.5" fill="url(#metalCog2)"/>
+      <rect x="2" y="15" width="32" height="6" rx="1.5" fill="url(#metalCog2)"/>
+      <rect x="15" y="2" width="6" height="32" rx="1.5" fill="url(#metalCog2)" transform="rotate(45 18 18)"/>
+      <rect x="2" y="15" width="32" height="6" rx="1.5" fill="url(#metalCog2)" transform="rotate(45 18 18)"/>
+      <circle cx="18" cy="18" r="11" fill="url(#metalCog2)"/>
+      <circle cx="18" cy="18" r="6" fill="#082F49"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,53 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="carBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
+    </linearGradient>
+    <linearGradient id="windshield" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="headlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <filter id="dropCar" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropCar)">
+    <!-- Shadow under car -->
+    <ellipse cx="50" cy="80" rx="36" ry="6" fill="#000000" opacity="0.3"/>
+    
+    <!-- Tires -->
+    <rect x="18" y="58" width="10" height="20" rx="4" fill="#0F172A"/>
+    <rect x="72" y="58" width="10" height="20" rx="4" fill="#0F172A"/>
+    
+    <!-- Car Cabin / Roof -->
+    <path d="M28 42 L34 26 C35 24 37 23 40 23 L60 23 C63 23 65 24 66 26 L72 42 Z" fill="url(#carBody)"/>
+    <path d="M30 41 L35 27 C36 26 37 25 39 25 L61 25 C63 25 64 26 65 27 L70 41 Z" fill="url(#windshield)"/>
+    <path d="M35 28 L40 40" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.35"/>
+    
+    <!-- Rearview Mirrors -->
+    <rect x="18" y="39" width="9" height="5" rx="2.5" fill="url(#carBody)"/>
+    <rect x="73" y="39" width="9" height="5" rx="2.5" fill="url(#carBody)"/>
+
+    <!-- Main Chassis / Hood -->
+    <path d="M19 46 C19 43 23 42 27 42 L73 42 C77 42 81 43 81 46 L83 62 C83 67 79 70 74 70 L26 70 C21 70 17 67 17 62 Z" fill="url(#carBody)"/>
+    
+    <!-- Modern LED Headlights -->
+    <path d="M21 47 L34 47 C33 52 26 53 22 51 Z" fill="url(#headlight)"/>
+    <path d="M79 47 L66 47 C67 52 74 53 78 51 Z" fill="url(#headlight)"/>
+    
+    <!-- Front Grille -->
+    <rect x="36" y="47" width="28" height="12" rx="3" fill="#0F172A"/>
+    <line x1="39" y1="51" x2="61" y2="51" stroke="#64748B" stroke-width="1.2"/>
+    <line x1="39" y1="55" x2="61" y2="55" stroke="#64748B" stroke-width="1.2"/>
+    
+    <!-- Bumper & Plate -->
+    <rect x="42" y="62" width="16" height="5" rx="1.5" fill="#FFFFFF"/>
+    <rect x="44" y="63.5" width="12" height="2" rx="0.5" fill="#1E293B"/>
+  </g>
+</svg>

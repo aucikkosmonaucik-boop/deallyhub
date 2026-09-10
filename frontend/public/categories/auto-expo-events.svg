@@ -1,0 +1,45 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="expoCar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444"/>
+      <stop offset="60%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#991B1B"/>
+    </linearGradient>
+    <linearGradient id="turntable" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <filter id="dropExpo" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropExpo)">
+    <!-- Spotlight Beams -->
+    <polygon points="20,10 38,72 16,72" fill="#FEF08A" opacity="0.25"/>
+    <polygon points="80,10 84,72 62,72" fill="#38BDF8" opacity="0.25"/>
+
+    <!-- Showroom Turntable Pedestal -->
+    <ellipse cx="50" cy="74" rx="42" ry="12" fill="url(#turntable)"/>
+    <ellipse cx="50" cy="72" rx="38" ry="10" fill="#1E293B"/>
+    <ellipse cx="50" cy="71" rx="36" ry="9" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="3 3" fill="none"/>
+
+    <!-- Sports Car Side / 3/4 Profile -->
+    <!-- Shadow under car -->
+    <ellipse cx="50" cy="68" rx="28" ry="4" fill="#000000" opacity="0.5"/>
+    
+    <!-- Wheels -->
+    <circle cx="32" cy="66" r="7" fill="#0F172A"/>
+    <circle cx="32" cy="66" r="4" fill="#CBD5E1"/>
+    <circle cx="68" cy="66" r="7" fill="#0F172A"/>
+    <circle cx="68" cy="66" r="4" fill="#CBD5E1"/>
+    
+    <!-- Car Body -->
+    <path d="M18 64 C20 58 26 56 34 56 L42 56 L50 44 L68 44 C74 44 80 50 82 56 L82 64 Z" fill="url(#expoCar)"/>
+    <!-- Glass Canopy -->
+    <path d="M44 54 L51 46 L67 46 L71 54 Z" fill="#0F172A"/>
+    <line x1="56" y1="46" x2="56" y2="54" stroke="#DC2626" stroke-width="1.5"/>
+
+    <!-- Headlight Beam Flare -->
+    <polygon points="82,60 94,56 94,66" fill="#FEF08A" opacity="0.6"/>
+  </g>
+</svg>

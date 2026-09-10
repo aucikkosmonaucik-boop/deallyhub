@@ -1,0 +1,42 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="perfumeGlass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE7F3"/>
+      <stop offset="50%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#DB2777"/>
+    </linearGradient>
+    <linearGradient id="goldCap" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </linearGradient>
+    <filter id="dropBeauty" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropBeauty)">
+    <!-- Spray Pump Bulb -->
+    <circle cx="28" cy="38" r="9" fill="#EC4899"/>
+    <path d="M34 35 Q44 33 46 36" stroke="#94A3B8" stroke-width="2.5" fill="none"/>
+    
+    <!-- Gold Cap & Nozzle -->
+    <rect x="44" y="32" width="12" height="8" rx="2" fill="url(#goldCap)"/>
+    <circle cx="50" cy="30" r="3" fill="url(#goldCap)"/>
+    
+    <!-- Perfume Crystal Bottle -->
+    <rect x="32" y="40" width="36" height="42" rx="8" fill="url(#perfumeGlass)" stroke="#FFFFFF" stroke-width="2"/>
+    
+    <!-- Inner Liquid Level -->
+    <rect x="36" y="52" width="28" height="26" rx="4" fill="#BE185D" opacity="0.6"/>
+    
+    <!-- Reflection / Shine -->
+    <path d="M36 44 L40 44 L40 76 L36 76 Z" fill="#FFFFFF" opacity="0.5"/>
+    
+    <!-- Sparkles -->
+    <g transform="translate(68, 26)">
+      <path d="M6 0 L8 4 L12 6 L8 8 L6 12 L4 8 L0 6 L4 4 Z" fill="#FACC15"/>
+    </g>
+    <g transform="translate(74, 46)">
+      <path d="M4 0 L5 3 L8 4 L5 5 L4 8 L3 5 L0 4 L3 3 Z" fill="#F472B6"/>
+    </g>
+  </g>
+</svg>

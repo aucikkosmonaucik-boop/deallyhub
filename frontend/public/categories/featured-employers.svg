@@ -1,0 +1,33 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="leadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#0369A1"/>
+    </linearGradient>
+    <filter id="dropEmp" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropEmp)">
+    <!-- Background Team Member Left -->
+    <circle cx="30" cy="40" r="10" fill="#94A3B8"/>
+    <path d="M16 68 C16 58 22 52 30 52 C38 52 44 58 44 68 Z" fill="#64748B"/>
+    
+    <!-- Background Team Member Right -->
+    <circle cx="70" cy="40" r="10" fill="#94A3B8"/>
+    <path d="M56 68 C56 58 62 52 70 52 C78 52 84 58 84 68 Z" fill="#64748B"/>
+
+    <!-- Center Leading Executive -->
+    <circle cx="50" cy="34" r="13" fill="#F87171"/>
+    <path d="M30 76 C30 62 38 54 50 54 C62 54 70 62 70 76 Z" fill="url(#leadGrad)"/>
+    <!-- Tie & Collar -->
+    <polygon points="50,54 44,60 56,60" fill="#FFFFFF"/>
+    <polygon points="48,60 52,60 51,74 49,74" fill="#E11D48"/>
+
+    <!-- Gold Verified Star Badge -->
+    <g transform="translate(62, 54)">
+      <circle cx="14" cy="14" r="12" fill="#FACC15" stroke="#FFFFFF" stroke-width="2"/>
+      <path d="M14 6 L16 11 L21 11.5 L17.5 15 L18.5 20 L14 17.5 L9.5 20 L10.5 15 L7 11.5 L12 11 Z" fill="#78350F"/>
+    </g>
+  </g>
+</svg>

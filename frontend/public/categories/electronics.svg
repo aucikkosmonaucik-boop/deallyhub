@@ -1,0 +1,39 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="phoneScreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E"/>
+      <stop offset="40%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="phoneFrame" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <filter id="dropElec" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropElec)">
+    <!-- Smartphone -->
+    <rect x="22" y="16" width="34" height="64" rx="7" fill="url(#phoneFrame)" stroke="#64748B" stroke-width="1.5"/>
+    <rect x="25" y="20" width="28" height="56" rx="4" fill="url(#phoneScreen)"/>
+    
+    <!-- Camera Notch / Island -->
+    <rect x="34" y="22" width="10" height="3" rx="1.5" fill="#0F172A"/>
+    
+    <!-- Screen Accent Waves -->
+    <path d="M25 56 C33 52 41 62 53 58 L53 76 L25 76 Z" fill="#FFFFFF" opacity="0.2"/>
+    <circle cx="39" cy="42" r="5" fill="#FFFFFF" opacity="0.4"/>
+
+    <!-- Wireless Earbuds & Case -->
+    <rect x="58" y="44" width="24" height="32" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+    <line x1="58" y1="56" x2="82" y2="56" stroke="#E2E8F0" stroke-width="1.5"/>
+    <circle cx="70" cy="62" r="1.5" fill="#22C55E"/>
+    
+    <!-- Single Earbud Floating Out -->
+    <g transform="translate(66, 24)">
+      <circle cx="8" cy="6" r="5" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+      <rect x="6" y="9" width="3" height="9" rx="1.5" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+    </g>
+  </g>
+</svg>

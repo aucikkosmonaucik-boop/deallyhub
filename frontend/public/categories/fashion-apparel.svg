@@ -1,0 +1,36 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hoodieGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="70%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="hangerWood" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#92400E"/>
+    </linearGradient>
+    <filter id="dropFash" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropFash)">
+    <!-- Wooden Hanger Hook -->
+    <path d="M50 14 C47 14 45 16 45 19 C45 22 49 23 50 25 L50 28" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M30 33 L50 26 L70 33 Z" fill="url(#hangerWood)"/>
+
+    <!-- Stylish Jacket / Hoodie -->
+    <path d="M34 30 L16 44 L25 54 L32 46 L32 78 C32 80 34 82 36 82 L64 82 C66 82 68 80 68 78 L68 46 L75 54 L84 44 L66 30 Z" fill="url(#hoodieGrad)"/>
+    
+    <!-- Collar & Zip -->
+    <path d="M42 30 L50 42 L58 30" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <line x1="50" y1="42" x2="50" y2="82" stroke="#60A5FA" stroke-width="2"/>
+    <rect x="49" y="46" width="2" height="4" rx="0.5" fill="#F8FAFC"/>
+    
+    <!-- Pockets -->
+    <path d="M36 62 L45 62 L43 72 L36 72 Z" fill="#1E40AF" opacity="0.6"/>
+    <path d="M64 62 L55 62 L57 72 L64 72 Z" fill="#1E40AF" opacity="0.6"/>
+    
+    <!-- Hem ribbing -->
+    <line x1="32" y1="78" x2="68" y2="78" stroke="#1E3A8A" stroke-width="1.5"/>
+  </g>
+</svg>

@@ -1,0 +1,49 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="goldGrad" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFF3B0"/>
+      <stop offset="35%" stop-color="#F5B738"/>
+      <stop offset="85%" stop-color="#B87314"/>
+      <stop offset="100%" stop-color="#7A4805"/>
+    </radialGradient>
+    <radialGradient id="dialGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFEFA"/>
+      <stop offset="80%" stop-color="#F2ECD9"/>
+      <stop offset="100%" stop-color="#D6C7A1"/>
+    </radialGradient>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE072"/>
+      <stop offset="100%" stop-color="#9C620C"/>
+    </linearGradient>
+    <filter id="drop" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#drop)">
+    <!-- Top Crown & Loop -->
+    <path d="M50 10 C46 10 43 13 43 17 C43 20 46 22 50 22 C54 22 57 20 57 17 C57 13 54 10 50 10 Z" fill="url(#goldGrad)"/>
+    <path d="M50 6 C43 6 38 11 38 18 C38 21 40 23 42 24 L42 21 C41 20 40 19 40 18 C40 13 44 9 50 9 C56 9 60 13 60 18 C60 19 59 20 58 21 L58 24 C60 23 62 21 62 18 C62 11 57 6 50 6 Z" fill="url(#ringGrad)"/>
+    <rect x="47" y="21" width="6" height="4" rx="1" fill="url(#goldGrad)"/>
+    
+    <!-- Watch Body Outer Ring -->
+    <circle cx="50" cy="58" r="34" fill="url(#goldGrad)"/>
+    <circle cx="50" cy="58" r="30" fill="#9C620C"/>
+    <circle cx="50" cy="58" r="28" fill="url(#dialGrad)"/>
+    
+    <!-- Dial Markings -->
+    <circle cx="50" cy="58" r="26" stroke="#9C7844" stroke-width="0.8" stroke-dasharray="1.5 2.5" fill="none"/>
+    <rect x="49" y="33" width="2" height="4" rx="0.5" fill="#593B12"/>
+    <rect x="49" y="79" width="2" height="4" rx="0.5" fill="#593B12"/>
+    <rect x="72" y="57" width="4" height="2" rx="0.5" fill="#593B12"/>
+    <rect x="24" y="57" width="4" height="2" rx="0.5" fill="#593B12"/>
+    
+    <!-- Hands -->
+    <path d="M50 58 L50 40" stroke="#3D2607" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M50 58 L62 52" stroke="#3D2607" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M50 58 L42 66" stroke="#C0392B" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="50" cy="58" r="2.5" fill="#F5B738" stroke="#3D2607" stroke-width="1"/>
+    
+    <!-- Glass Highlight -->
+    <path d="M28 46 C32 38 40 33 48 31 C40 34 33 41 30 50 Z" fill="#FFFFFF" opacity="0.6"/>
+  </g>
+</svg>

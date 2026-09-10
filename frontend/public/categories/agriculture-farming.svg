@@ -1,0 +1,52 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tractorBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+    <linearGradient id="tireGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <filter id="dropAgri" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropAgri)">
+    <!-- Cabin Frame -->
+    <rect x="22" y="32" width="24" height="26" rx="3" fill="#BAE6FD" stroke="#15803D" stroke-width="3"/>
+    <!-- Roof -->
+    <rect x="18" y="28" width="30" height="5" rx="2" fill="#FACC15"/>
+    
+    <!-- Hood / Engine -->
+    <path d="M46 44 L74 44 C76 44 78 46 78 49 L78 64 L46 64 Z" fill="url(#tractorBody)"/>
+    <rect x="74" y="47" width="4" height="12" rx="1" fill="#FACC15"/>
+    
+    <!-- Exhaust Pipe -->
+    <rect x="52" y="24" width="3" height="20" rx="1" fill="#64748B"/>
+    <path d="M52 24 L48 22" stroke="#64748B" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Big Rear Wheel -->
+    <circle cx="32" cy="68" r="16" fill="url(#tireGrad)"/>
+    <circle cx="32" cy="68" r="9" fill="#FACC15"/>
+    <circle cx="32" cy="68" r="4" fill="#0F172A"/>
+    <!-- Treads -->
+    <line x1="32" y1="52" x2="32" y2="56" stroke="#64748B" stroke-width="2.5"/>
+    <line x1="32" y1="80" x2="32" y2="84" stroke="#64748B" stroke-width="2.5"/>
+    <line x1="16" y1="68" x2="20" y2="68" stroke="#64748B" stroke-width="2.5"/>
+    <line x1="44" y1="68" x2="48" y2="68" stroke="#64748B" stroke-width="2.5"/>
+    
+    <!-- Front Small Wheel -->
+    <circle cx="70" cy="72" r="11" fill="url(#tireGrad)"/>
+    <circle cx="70" cy="72" r="6" fill="#FACC15"/>
+    <circle cx="70" cy="72" r="2.5" fill="#0F172A"/>
+
+    <!-- Wheat Spikes -->
+    <g transform="translate(80, 20)">
+      <path d="M2 30 Q8 16 12 4" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="6" cy="18" rx="2.5" ry="4" fill="#FBBF24" transform="rotate(-30 6 18)"/>
+      <ellipse cx="11" cy="14" rx="2.5" ry="4" fill="#FBBF24" transform="rotate(30 11 14)"/>
+      <ellipse cx="9" cy="8" rx="2.5" ry="4" fill="#FBBF24" transform="rotate(-20 9 8)"/>
+    </g>
+  </g>
+</svg>

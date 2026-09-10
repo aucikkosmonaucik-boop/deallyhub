@@ -1,0 +1,51 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brick1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A59"/>
+      <stop offset="100%" stop-color="#C83D1A"/>
+    </linearGradient>
+    <linearGradient id="brick2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2583E"/>
+      <stop offset="100%" stop-color="#A52A12"/>
+    </linearGradient>
+    <linearGradient id="steelBlade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#D0D7DE"/>
+      <stop offset="100%" stop-color="#8C959F"/>
+    </linearGradient>
+    <linearGradient id="handleWood" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F2A85B"/>
+      <stop offset="100%" stop-color="#8A4815"/>
+    </linearGradient>
+    <filter id="dropConst" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropConst)">
+    <!-- Brick Wall Base -->
+    <rect x="18" y="44" width="28" height="13" rx="2" fill="url(#brick1)"/>
+    <rect x="49" y="44" width="33" height="13" rx="2" fill="url(#brick2)"/>
+    <rect x="14" y="60" width="33" height="13" rx="2" fill="url(#brick2)"/>
+    <rect x="50" y="60" width="36" height="13" rx="2" fill="url(#brick1)"/>
+    <rect x="18" y="76" width="30" height="11" rx="2" fill="url(#brick1)"/>
+    <rect x="51" y="76" width="31" height="11" rx="2" fill="url(#brick2)"/>
+    
+    <!-- Mortar lines -->
+    <line x1="14" y1="58.5" x2="86" y2="58.5" stroke="#F1F5F9" stroke-width="2.5"/>
+    <line x1="14" y1="74.5" x2="86" y2="74.5" stroke="#F1F5F9" stroke-width="2.5"/>
+    <line x1="47.5" y1="44" x2="47.5" y2="58" stroke="#F1F5F9" stroke-width="2.5"/>
+    <line x1="48.5" y1="60" x2="48.5" y2="74" stroke="#F1F5F9" stroke-width="2.5"/>
+
+    <!-- Trowel Tool -->
+    <g transform="rotate(-25 60 40)">
+      <!-- Blade Triangle -->
+      <polygon points="62,18 78,42 46,42" fill="url(#steelBlade)"/>
+      <path d="M62 18 L78 42 L62 40 Z" fill="#6E7781" opacity="0.2"/>
+      <!-- Neck -->
+      <path d="M62 40 L62 48 L72 48" stroke="#57606A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Wood Handle -->
+      <rect x="71" y="45" width="16" height="6" rx="3" fill="url(#handleWood)" transform="rotate(15 71 45)"/>
+      <circle x="62" y="41" r="2" fill="#D0D7DE"/>
+    </g>
+  </g>
+</svg>

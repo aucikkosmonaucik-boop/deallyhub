@@ -1,0 +1,41 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="headboard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="duvet" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#0369A1"/>
+    </linearGradient>
+    <filter id="dropBed" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropBed)">
+    <!-- Bed Legs -->
+    <line x1="22" y1="70" x2="22" y2="82" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+    <line x1="78" y1="70" x2="78" y2="82" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Headboard -->
+    <rect x="20" y="30" width="60" height="34" rx="4" fill="url(#headboard)"/>
+    
+    <!-- Pillows -->
+    <rect x="26" y="44" width="20" height="12" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <rect x="54" y="44" width="20" height="12" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    
+    <!-- Mattress & White Sheet -->
+    <rect x="18" y="54" width="64" height="20" rx="3" fill="#F8FAFC"/>
+    
+    <!-- Blue Cozy Duvet / Blanket -->
+    <rect x="18" y="60" width="64" height="15" rx="3" fill="url(#duvet)"/>
+    <path d="M18 60 C32 62 48 62 82 60 L82 64 C60 66 36 66 18 64 Z" fill="#38BDF8"/>
+
+    <!-- Hotel Bedside Lamp -->
+    <g transform="translate(68, 14)">
+      <polygon points="12,10 22,10 25,20 9,20" fill="#FACC15" opacity="0.9"/>
+      <line x1="17" y1="20" x2="17" y2="30" stroke="#64748B" stroke-width="2"/>
+      <ellipse cx="17" cy="30" rx="4" ry="1.5" fill="#475569"/>
+    </g>
+  </g>
+</svg>
