@@ -875,95 +875,103 @@ export default function HomePage() {
 
                   {/* Logged-In User Dropdown Menu */}
                   {isProfileMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                      <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-800">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500 dark:text-slate-400">{t("nav.signedInAs")}</p>
+                    <>
+                      {/* Click outside backdrop */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        aria-hidden="true"
+                      />
+                      <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-100 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                        <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-800">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-500 dark:text-slate-400">{t("nav.signedInAs")}</p>
+                            {(currentUser.role === "admin" || currentUser.email.startsWith("jannowak") || currentUser.email.startsWith("admin")) && (
+                              <span className="bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
+                                {t("nav.ownerAdmin")}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-bold text-[#002f34] dark:text-white truncate">{currentUser.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-slate-400 truncate">{currentUser.email}</p>
+                        </div>
+
+                        <div className="py-1">
+                          <button
+                            onClick={() => {
+                              setIsProfileMenuOpen(false);
+                              setIsNotificationsOpen(true);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Bell className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                              <span>{t("nav.notifications")}</span>
+                            </div>
+                            {unreadNotificationsCount > 0 && (
+                              <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+                                {unreadNotificationsCount}
+                              </span>
+                            )}
+                          </button>
+
+                          <button
+                            onClick={handleOpenMessages}
+                            className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 transition-colors cursor-pointer"
+                          >
+                            <MessageSquare className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                            <span>{t("nav.messages")}</span>
+                          </button>
+                          <button
+                            onClick={handleOpenMyAds}
+                            className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer"
+                          >
+                            <FileText className="w-4 h-4 text-gray-400 dark:text-slate-400" />
+                            <span>{t("nav.myAdvertisements")}</span>
+                          </button>
+                          <button
+                            onClick={handleOpenSaved}
+                            className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer"
+                          >
+                            <Heart className="w-4 h-4 text-rose-500" />
+                            <span>{t("nav.savedItems")} ({savedAdIds.length})</span>
+                          </button>
+                          <button
+                            onClick={handleOpenSettings}
+                            className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer"
+                          >
+                            <Settings className="w-4 h-4 text-gray-400 dark:text-slate-400" />
+                            <span>{t("nav.accountSettings")}</span>
+                          </button>
+
+                          {/* Admin Portal Option for Deallyhub Owner */}
                           {(currentUser.role === "admin" || currentUser.email.startsWith("jannowak") || currentUser.email.startsWith("admin")) && (
-                            <span className="bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
-                              {t("nav.ownerAdmin")}
-                            </span>
+                            <div className="pt-1 mt-1 border-t border-gray-100 dark:border-slate-800">
+                              <button
+                                onClick={() => {
+                                  setIsProfileMenuOpen(false);
+                                  setIsAdminPanelOpen(true);
+                                }}
+                                className="w-full text-left px-4 py-2.5 text-sm font-bold text-teal-900 dark:text-teal-200 bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                              >
+                                <Shield className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+                                <span>{t("nav.adminPortal")}</span>
+                              </button>
+                            </div>
                           )}
                         </div>
-                        <p className="text-sm font-bold text-[#002f34] dark:text-white truncate">{currentUser.name}</p>
-                        <p className="text-xs text-gray-400 dark:text-slate-400 truncate">{currentUser.email}</p>
+
+                        <div className="border-t border-gray-100 dark:border-slate-800 pt-1">
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-rose-400 hover:bg-red-50 dark:hover:bg-slate-800 flex items-center gap-2.5 font-medium cursor-pointer"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>{t("nav.logout")}</span>
+                          </button>
+                        </div>
                       </div>
-
-                      <div className="py-1">
-                        <button
-                          onClick={() => {
-                            setIsProfileMenuOpen(false);
-                            setIsNotificationsOpen(true);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-between transition-colors cursor-pointer"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <Bell className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                            <span>{t("nav.notifications")}</span>
-                          </div>
-                          {unreadNotificationsCount > 0 && (
-                            <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
-                              {unreadNotificationsCount}
-                            </span>
-                          )}
-                        </button>
-
-                        <button
-                          onClick={handleOpenMessages}
-                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 transition-colors cursor-pointer"
-                        >
-                          <MessageSquare className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                          <span>{t("nav.messages")}</span>
-                        </button>
-                        <button
-                          onClick={handleOpenMyAds}
-                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer"
-                        >
-                          <FileText className="w-4 h-4 text-gray-400 dark:text-slate-400" />
-                          <span>{t("nav.myAdvertisements")}</span>
-                        </button>
-                        <button
-                          onClick={handleOpenSaved}
-                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer"
-                        >
-                          <Heart className="w-4 h-4 text-rose-500" />
-                          <span>{t("nav.savedItems")} ({savedAdIds.length})</span>
-                        </button>
-                        <button
-                          onClick={handleOpenSettings}
-                          className="w-full text-left px-4 py-2 text-sm text-[#002f34] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center gap-2.5 cursor-pointer"
-                        >
-                          <Settings className="w-4 h-4 text-gray-400 dark:text-slate-400" />
-                          <span>{t("nav.accountSettings")}</span>
-                        </button>
-
-                        {/* Admin Portal Option for Deallyhub Owner */}
-                        {(currentUser.role === "admin" || currentUser.email.startsWith("jannowak") || currentUser.email.startsWith("admin")) && (
-                          <div className="pt-1 mt-1 border-t border-gray-100 dark:border-slate-800">
-                            <button
-                              onClick={() => {
-                                setIsProfileMenuOpen(false);
-                                setIsAdminPanelOpen(true);
-                              }}
-                              className="w-full text-left px-4 py-2.5 text-sm font-bold text-teal-900 dark:text-teal-200 bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/50 flex items-center gap-2.5 cursor-pointer transition-colors"
-                            >
-                              <Shield className="w-4 h-4 text-teal-700 dark:text-teal-400" />
-                              <span>{t("nav.adminPortal")}</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="border-t border-gray-100 dark:border-slate-800 pt-1">
-                        <button
-                          onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-rose-400 hover:bg-red-50 dark:hover:bg-slate-800 flex items-center gap-2.5 font-medium cursor-pointer"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          <span>{t("nav.logout")}</span>
-                        </button>
-                      </div>
-                    </div>
+                    </>
                   )}
                 </div>
               ) : (
@@ -1257,7 +1265,7 @@ export default function HomePage() {
           </div>
 
           {/* Round Icons Grid: flex wrap centered with responsive sizing */}
-          <div className="flex flex-wrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-6 lg:gap-x-7 gap-y-6 sm:gap-y-8">
+          <div className="flex flex-wrap justify-center gap-x-2.5 sm:gap-x-4 md:gap-x-6 lg:gap-x-7 gap-y-4 sm:gap-y-6 md:gap-y-8">
             {categories.map((cat, idx) => {
               const visual = getCategoryVisual(cat.slug, idx);
               const isSelected = activeCategory === cat.slug;
@@ -1276,12 +1284,11 @@ export default function HomePage() {
                       if (el) el.scrollIntoView({ behavior: "smooth" });
                     }
                   }}
-                  className="group flex flex-col items-center text-center cursor-pointer select-none focus:outline-hidden"
-                  style={{ width: "96px" }}
+                  className="group flex flex-col items-center text-center cursor-pointer select-none focus:outline-hidden w-[74px] sm:w-[86px] md:w-[96px]"
                 >
                   {/* Round Circle Badge */}
                   <div
-                    className={`w-[72px] h-[72px] sm:w-[82px] sm:h-[82px] md:w-[88px] md:h-[88px] rounded-full flex items-center justify-center relative overflow-hidden transition-all duration-200 shrink-0 shadow-2xs group-hover:scale-105 group-hover:shadow-md ${
+                    className={`w-[62px] h-[62px] sm:w-[76px] sm:h-[76px] md:w-[88px] md:h-[88px] rounded-full flex items-center justify-center relative overflow-hidden transition-all duration-200 shrink-0 shadow-2xs group-hover:scale-105 group-hover:shadow-md ${
                       isSelected
                         ? "ring-4 ring-teal-500 ring-offset-3 dark:ring-offset-slate-900 scale-105 shadow-md"
                         : "group-hover:ring-2 group-hover:ring-teal-400/50"
@@ -1292,7 +1299,7 @@ export default function HomePage() {
                       src={visual.image}
                       alt={getCategoryName(cat.slug, cat.name)}
                       loading="lazy"
-                      className="w-13 h-13 sm:w-15 sm:h-15 md:w-[68px] md:h-[68px] object-contain pointer-events-none select-none drop-shadow-xs"
+                      className="w-11 h-11 sm:w-14 sm:h-14 md:w-[68px] md:h-[68px] object-contain pointer-events-none select-none drop-shadow-xs"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).style.display = "none";
                         const fb = (e.currentTarget.nextElementSibling as HTMLElement);
@@ -1300,13 +1307,13 @@ export default function HomePage() {
                       }}
                     />
                     <div className="hidden items-center justify-center w-full h-full text-gray-800">
-                      <IconFallback className="w-8 h-8 stroke-[2.2]" />
+                      <IconFallback className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
                     </div>
                   </div>
 
                   {/* Category Title */}
                   <span
-                    className={`mt-2 sm:mt-2.5 text-[11px] sm:text-xs md:text-[13px] leading-tight font-bold tracking-tight text-center line-clamp-2 max-w-[96px] transition-colors ${
+                    className={`mt-1.5 sm:mt-2 text-[11px] sm:text-xs md:text-[13px] leading-tight font-bold tracking-tight text-center line-clamp-2 max-w-[74px] sm:max-w-[86px] md:max-w-[96px] transition-colors ${
                       isSelected
                         ? "text-teal-700 dark:text-teal-400 font-extrabold"
                         : "text-[#002f34] dark:text-slate-200 group-hover:text-teal-600 dark:group-hover:text-teal-300"
@@ -1373,15 +1380,15 @@ export default function HomePage() {
             {/* Sorting & Filter Actions */}
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               {/* Sort Selector */}
-              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
-                <span className="text-gray-400 dark:text-slate-400 pl-2 pr-1 hidden sm:inline-flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold max-w-full overflow-x-auto no-scrollbar shrink-0">
+                <span className="text-gray-400 dark:text-slate-400 pl-2 pr-1 hidden sm:inline-flex items-center gap-1 shrink-0">
                   <ArrowUpDown className="w-3.5 h-3.5" />
                   <span>{t("feed.sortBy", "Sortuj")}:</span>
                 </span>
                 <button
                   type="button"
                   onClick={() => setSortBy("latest")}
-                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer shrink-0 ${
                     sortBy === "latest"
                       ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white font-bold shadow-xs"
                       : "text-gray-600 dark:text-slate-400 hover:text-[#002f34] dark:hover:text-white"
@@ -1392,7 +1399,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setSortBy("price-asc")}
-                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer shrink-0 ${
                     sortBy === "price-asc"
                       ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white font-bold shadow-xs"
                       : "text-gray-600 dark:text-slate-400 hover:text-[#002f34] dark:hover:text-white"
@@ -1403,7 +1410,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setSortBy("price-desc")}
-                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer shrink-0 ${
                     sortBy === "price-desc"
                       ? "bg-white dark:bg-slate-700 text-[#002f34] dark:text-white font-bold shadow-xs"
                       : "text-gray-600 dark:text-slate-400 hover:text-[#002f34] dark:hover:text-white"
@@ -1593,38 +1600,38 @@ export default function HomePage() {
 
         {/* Mobile App & APK Download Section with English Q&A */}
         <section className="mt-20 pt-12 border-t border-gray-200 dark:border-slate-800">
-          <div className="bg-gradient-to-br from-[#002f34] to-[#004a52] dark:from-slate-900 dark:to-slate-800 rounded-3xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden border dark:border-slate-800">
+          <div className="bg-gradient-to-br from-[#002f34] to-[#004a52] dark:from-slate-900 dark:to-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-10 md:p-12 text-white shadow-xl relative overflow-hidden border dark:border-slate-800">
             {/* Background glow decoration */}
             <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="max-w-3xl space-y-6 relative z-10">
+            <div className="max-w-3xl space-y-5 sm:space-y-6 relative z-10">
               <div className="flex items-center gap-3">
                 <img
                   src="/logo.png"
                   alt="Deally Logo"
-                  className="w-12 h-12 rounded-2xl shadow-md object-cover border border-teal-400/30"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl shadow-md object-cover border border-teal-400/30 shrink-0"
                 />
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold tracking-wide uppercase border border-teal-500/30">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold tracking-wide uppercase border border-teal-500/30">
                   <Smartphone className="w-4 h-4" />
                   <span>{t("apk.badge")}</span>
                 </div>
               </div>
 
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
                 {t("apk.title")}
               </h2>
 
-              <p className="text-sm sm:text-base text-gray-200 leading-relaxed">
+              <p className="text-xs sm:text-base text-gray-200 leading-relaxed">
                 {t("apk.subtitle")}
               </p>
 
               {/* Download Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2 w-full">
                 <a
                   href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest/download/Deally.apk"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-[#002f34] px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all duration-300 ease-out shadow-lg hover:shadow-2xl hover:shadow-teal-400/40 hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0 flex items-center gap-2.5 cursor-pointer"
+                  className="group bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-[#002f34] px-6 py-3.5 rounded-xl font-extrabold text-sm transition-all duration-300 ease-out shadow-lg hover:shadow-2xl hover:shadow-teal-400/40 hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0 flex items-center justify-center gap-2.5 cursor-pointer w-full sm:w-auto"
                 >
                   <Download className="w-5 h-5 transition-transform duration-300 group-hover:translate-y-0.5" />
                   <span>{t("apk.downloadBtn")} (v1.0.0)</span>
@@ -1634,14 +1641,14 @@ export default function HomePage() {
                   href="https://github.com/aucikkosmonaucik-boop/deallyhub/releases/latest"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white/10 hover:bg-white/20 text-white px-5 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ease-out border border-white/20 hover:border-white/40 shadow-md hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0 flex items-center gap-2 cursor-pointer"
+                  className="group bg-white/10 hover:bg-white/20 text-white px-5 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ease-out border border-white/20 hover:border-white/40 shadow-md hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
                 >
                   <span>GitHub Release</span>
                   <ExternalLink className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-gray-300 group-hover:text-white" />
                 </a>
               </div>
 
-              <div className="flex items-center gap-4 text-xs text-gray-300 pt-1">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-300 pt-1">
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-teal-400" />
                   <span>{t("apk.safeBadge")}</span>
@@ -1655,10 +1662,10 @@ export default function HomePage() {
           </div>
 
           {/* Installation Guide & Q&A */}
-          <div className="mt-12">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-[#002f34] dark:text-white flex items-center justify-center gap-2">
-                <HelpCircle className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+          <div className="mt-10 sm:mt-12">
+            <div className="text-center mb-6 sm:mb-8">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#002f34] dark:text-white flex items-center justify-center gap-2">
+                <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 dark:text-teal-400 shrink-0" />
                 <span>{t("faq.title")}</span>
               </h3>
               <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
@@ -1666,10 +1673,10 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Q1 */}
-              <div className="p-6 bg-gray-50 dark:bg-slate-800/60 rounded-2xl border border-gray-200 dark:border-slate-700">
-                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-base mb-2">
+              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-700">
+                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-sm sm:text-base mb-2">
                   {t("faq.q1")}
                 </h4>
                 <div className="text-xs text-gray-600 dark:text-slate-300 space-y-1.5 leading-relaxed">
@@ -1681,8 +1688,8 @@ export default function HomePage() {
               </div>
 
               {/* Q2 */}
-              <div className="p-6 bg-gray-50 dark:bg-slate-800/60 rounded-2xl border border-gray-200 dark:border-slate-700">
-                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-base mb-2">
+              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-700">
+                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-sm sm:text-base mb-2">
                   {t("faq.q2")}
                 </h4>
                 <p className="text-xs text-gray-600 dark:text-slate-300 leading-relaxed">
@@ -1691,8 +1698,8 @@ export default function HomePage() {
               </div>
 
               {/* Q3 */}
-              <div className="p-6 bg-gray-50 dark:bg-slate-800/60 rounded-2xl border border-gray-200 dark:border-slate-700">
-                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-base mb-2">
+              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-700">
+                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-sm sm:text-base mb-2">
                   {t("faq.q3")}
                 </h4>
                 <p className="text-xs text-gray-600 dark:text-slate-300 leading-relaxed">
@@ -1701,8 +1708,8 @@ export default function HomePage() {
               </div>
 
               {/* Q4 */}
-              <div className="p-6 bg-gray-50 dark:bg-slate-800/60 rounded-2xl border border-gray-200 dark:border-slate-700">
-                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-base mb-2">
+              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-700">
+                <h4 className="font-bold text-[#002f34] dark:text-slate-100 text-sm sm:text-base mb-2">
                   {t("faq.q4")}
                 </h4>
                 <p className="text-xs text-gray-600 dark:text-slate-300 leading-relaxed">

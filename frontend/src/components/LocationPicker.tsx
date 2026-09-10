@@ -203,21 +203,34 @@ export default function LocationPicker({
       style={{ maxHeight: "540px" }}
     >
       {/* 1. Light Mint/Teal Header with 7 Countries Flags */}
-      <div className="bg-[#E8F6F7] dark:bg-slate-950 border-b border-[#D2ECEF] dark:border-slate-800 px-3.5 py-2.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-full bg-[#002f34] dark:bg-teal-600 flex items-center justify-center text-white shrink-0 shadow-2xs">
-            <MapPin className="w-4 h-4 text-teal-300 dark:text-teal-100" />
+      <div className="bg-[#E8F6F7] dark:bg-slate-950 border-b border-[#D2ECEF] dark:border-slate-800 px-3 sm:px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-full bg-[#002f34] dark:bg-teal-600 flex items-center justify-center text-white shrink-0 shadow-2xs">
+              <MapPin className="w-4 h-4 text-teal-300 dark:text-teal-100" />
+            </div>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <CountryFlag code={currentCountry.code} className="w-4 h-3 shrink-0" />
+              <span className="text-xs font-black text-[#002f34] dark:text-white tracking-tight truncate">
+                {countryDisplayName}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 min-w-0">
-            <CountryFlag code={currentCountry.code} className="w-4 h-3 shrink-0" />
-            <span className="text-xs font-black text-[#002f34] dark:text-white tracking-tight truncate">
-              {countryDisplayName}
-            </span>
-          </div>
+
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="sm:hidden p-1.5 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-teal-100/60 dark:hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4 text-[#002f34] dark:text-slate-300" />
+            </button>
+          )}
         </div>
 
         {/* 7 Countries Pills Selector with vector flags */}
-        <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-[#C5E5E9] dark:border-slate-700 shadow-2xs overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-[#C5E5E9] dark:border-slate-700 shadow-2xs overflow-x-auto no-scrollbar max-w-full">
           {COUNTRIES_DATA.map((c) => {
             const isSelected = c.code === selectedCountryCode;
             const cName = t(`country.${c.code}`, c.nativeName);
@@ -232,7 +245,7 @@ export default function LocationPicker({
                   setCitySearchQuery("");
                 }}
                 title={cName}
-                className={`px-2 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 transition-all duration-150 cursor-pointer ${
+                className={`px-2 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 transition-all duration-150 cursor-pointer shrink-0 ${
                   isSelected
                     ? "bg-[#002f34] dark:bg-teal-600 text-white shadow-xs scale-105"
                     : "text-[#002f34] dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-slate-800 hover:text-teal-950 dark:hover:text-teal-300 hover:scale-105"
@@ -249,7 +262,7 @@ export default function LocationPicker({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-teal-100/60 dark:hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="hidden sm:inline-flex p-1.5 rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-teal-100/60 dark:hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
             aria-label="Close"
           >
             <X className="w-4 h-4 text-[#002f34] dark:text-slate-300" />

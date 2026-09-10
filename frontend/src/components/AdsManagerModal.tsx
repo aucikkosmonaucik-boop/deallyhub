@@ -526,7 +526,7 @@ export default function AdsManagerModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6 pb-[max(2rem,calc(env(safe-area-inset-bottom)+1.5rem))]">
           {/* TAB 1: MY ADS */}
           {activeTab === "my-ads" && (
             <div>
