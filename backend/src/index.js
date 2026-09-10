@@ -1267,21 +1267,35 @@ app.post("/api/notifications/register-device", authenticateTokenOptional, async 
   }
 });
 
-// 2. Mark single notification as read
-app.post("/api/notifications/:id/read", authenticateToken, async (req, res) => {
+// 2. Mark single notification as read (supports guest users)
+app.post("/api/notifications/:id/read", authenticateTokenOptional, async (req, res) => {
   try {
-    const success = await markNotificationRead(req.user.userId, parseInt(req.params.id, 10));
-    res.json({ success });
+    const notifId = parseInt(req.params.id, 10);
+    if (isNaN(notifId)) {
+      return res.status(400).json({ success: false, error: "Invalid notification ID." });
+    }
+    const userId = req.user ? req.user.userId : null;
+    if (userId) {
+      const success = await markNotificationRead(userId, notifId);
+      return res.json({ success });
+    }
+    // Guest user: state is handled in browser localStorage
+    res.json({ success: true, guest: true });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to mark notification as read." });
   }
 });
 
-// 3. Mark all notifications as read
-app.post("/api/notifications/read-all", authenticateToken, async (req, res) => {
+// 3. Mark all notifications as read (supports guest users)
+app.post("/api/notifications/read-all", authenticateTokenOptional, async (req, res) => {
   try {
-    const success = await markAllNotificationsRead(req.user.userId);
-    res.json({ success });
+    const userId = req.user ? req.user.userId : null;
+    if (userId) {
+      const success = await markAllNotificationsRead(userId);
+      return res.json({ success });
+    }
+    // Guest user: state is handled in browser localStorage
+    res.json({ success: true, guest: true });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to mark all notifications as read." });
   }

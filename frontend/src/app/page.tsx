@@ -522,6 +522,29 @@ export default function HomePage() {
     setToken(receivedToken);
     localStorage.setItem("deallyhub_user", JSON.stringify(user));
     localStorage.setItem("deallyhub_token", receivedToken);
+
+    // Sync guest read notifications and dismissals to server
+    try {
+      const apiUrl = getApiUrl();
+      const guestReads = getGuestReadIds();
+      if (guestReads.length > 0) {
+        for (const rId of guestReads) {
+          fetch(`${apiUrl}/api/notifications/${rId}/read`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${receivedToken}` }
+          }).catch(() => {});
+        }
+      }
+      const guestDismissed = getGuestDismissedIds();
+      if (guestDismissed.length > 0) {
+        for (const dId of guestDismissed) {
+          fetch(`${apiUrl}/api/notifications/${dId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${receivedToken}` }
+          }).catch(() => {});
+        }
+      }
+    } catch {}
   };
 
   const handleLogout = () => {
@@ -567,7 +590,7 @@ export default function HomePage() {
   const getGuestReadIds = (): number[] => {
     try {
       const val = typeof window !== "undefined" ? localStorage.getItem("deallyhub_guest_read_notifs") : null;
-      return val ? JSON.parse(val) : [];
+      return val ? JSON.parse(val).map(Number) : [];
     } catch {
       return [];
     }
@@ -576,7 +599,17 @@ export default function HomePage() {
   const getGuestDismissedIds = (): number[] => {
     try {
       const val = typeof window !== "undefined" ? localStorage.getItem("deallyhub_guest_dismissed_notifs") : null;
-      return val ? JSON.parse(val) : [];
+      return val ? JSON.parse(val).map(Number) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getUserDismissedIds = (userId?: number | null): number[] => {
+    try {
+      const key = userId ? `deallyhub_user_${userId}_dismissed_notifs` : "deallyhub_guest_dismissed_notifs";
+      const val = typeof window !== "undefined" ? localStorage.getItem(key) : null;
+      return val ? JSON.parse(val).map(Number) : [];
     } catch {
       return [];
     }
@@ -594,26 +627,29 @@ export default function HomePage() {
       const data = await res.json();
       if (data.success && Array.isArray(data.notifications)) {
         let items: NotificationItem[] = data.notifications;
+        const guestDismissed = getGuestDismissedIds();
+        const userDismissed = currentUser?.id ? getUserDismissedIds(currentUser.id) : [];
+        const allDismissed = new Set([...guestDismissed, ...userDismissed]);
+
         if (!token) {
-          const dismissed = getGuestDismissedIds();
           const readIds = getGuestReadIds();
           items = items
-            .filter((n) => !dismissed.includes(n.id))
+            .filter((n) => !allDismissed.has(Number(n.id)))
             .map((n) => ({
               ...n,
-              is_read: readIds.includes(n.id) || n.is_read
+              is_read: readIds.includes(Number(n.id)) || Boolean(n.is_read)
             }));
-          setNotifications(items);
-          setUnreadNotificationsCount(items.filter((n) => !n.is_read).length);
         } else {
-          setNotifications(items);
-          setUnreadNotificationsCount(data.unreadCount || 0);
+          items = items.filter((n) => !allDismissed.has(Number(n.id)));
         }
+
+        setNotifications(items);
+        setUnreadNotificationsCount(items.filter((n) => !n.is_read).length);
       }
     } catch (err) {
       console.warn("Failed to fetch notifications:", err);
     }
-  }, [token]);
+  }, [token, currentUser?.id]);
 
   useEffect(() => {
     fetchNotifications();
@@ -622,27 +658,28 @@ export default function HomePage() {
   }, [fetchNotifications]);
 
   const handleMarkNotificationRead = async (id: number) => {
+    const numericId = Number(id);
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      prev.map((n) => (Number(n.id) === numericId ? { ...n, is_read: true } : n))
     );
     setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
 
-    if (!token) {
-      try {
-        const readIds = getGuestReadIds();
-        if (!readIds.includes(id)) {
-          readIds.push(id);
-          localStorage.setItem("deallyhub_guest_read_notifs", JSON.stringify(readIds));
-        }
-      } catch {}
-      return;
-    }
+    // Persist read state in localStorage for guest and quick reload cache
+    try {
+      const readIds = getGuestReadIds();
+      if (!readIds.includes(numericId)) {
+        readIds.push(numericId);
+        localStorage.setItem("deallyhub_guest_read_notifs", JSON.stringify(readIds));
+      }
+    } catch {}
 
     try {
       const apiUrl = getApiUrl();
-      await fetch(`${apiUrl}/api/notifications/${id}/read`, {
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      await fetch(`${apiUrl}/api/notifications/${numericId}/read`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` }
+        headers
       });
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -653,20 +690,19 @@ export default function HomePage() {
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     setUnreadNotificationsCount(0);
 
-    if (!token) {
-      try {
-        const allIds = notifications.map((n) => n.id);
-        const readIds = Array.from(new Set([...getGuestReadIds(), ...allIds]));
-        localStorage.setItem("deallyhub_guest_read_notifs", JSON.stringify(readIds));
-      } catch {}
-      return;
-    }
+    try {
+      const allIds = notifications.map((n) => Number(n.id));
+      const readIds = Array.from(new Set([...getGuestReadIds(), ...allIds]));
+      localStorage.setItem("deallyhub_guest_read_notifs", JSON.stringify(readIds));
+    } catch {}
 
     try {
       const apiUrl = getApiUrl();
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
       await fetch(`${apiUrl}/api/notifications/read-all`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` }
+        headers
       });
     } catch (err) {
       console.error("Failed to mark all notifications read:", err);
@@ -674,28 +710,36 @@ export default function HomePage() {
   };
 
   const handleDeleteNotification = async (id: number) => {
-    const itemToDelete = notifications.find((n) => n.id === id);
+    const numericId = Number(id);
+    const itemToDelete = notifications.find((n) => Number(n.id) === numericId);
     if (itemToDelete && !itemToDelete.is_read) {
       setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
     }
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setNotifications((prev) => prev.filter((n) => Number(n.id) !== numericId));
 
-    if (!token) {
-      try {
+    try {
+      if (!token) {
         const dismissed = getGuestDismissedIds();
-        if (!dismissed.includes(id)) {
-          dismissed.push(id);
+        if (!dismissed.includes(numericId)) {
+          dismissed.push(numericId);
           localStorage.setItem("deallyhub_guest_dismissed_notifs", JSON.stringify(dismissed));
         }
-      } catch {}
-      return;
-    }
+      } else if (currentUser?.id) {
+        const dismissed = getUserDismissedIds(currentUser.id);
+        if (!dismissed.includes(numericId)) {
+          dismissed.push(numericId);
+          localStorage.setItem(`deallyhub_user_${currentUser.id}_dismissed_notifs`, JSON.stringify(dismissed));
+        }
+      }
+    } catch {}
 
     try {
       const apiUrl = getApiUrl();
-      await fetch(`${apiUrl}/api/notifications/${id}`, {
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      await fetch(`${apiUrl}/api/notifications/${numericId}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
+        headers
       });
     } catch (err) {
       console.error("Failed to delete notification:", err);

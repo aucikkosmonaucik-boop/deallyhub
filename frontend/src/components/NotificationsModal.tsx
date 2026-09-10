@@ -2,6 +2,7 @@ import React from "react";
 import {
   X,
   Bell,
+  Check,
   CheckCheck,
   AlertTriangle,
   Sparkles,
@@ -94,13 +95,26 @@ export default function NotificationsModal({
                 {n.title}
               </h4>
               <div className="flex items-center gap-1.5 shrink-0">
-                {!n.is_read && (
-                  <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider bg-teal-100/80 dark:bg-teal-900/60 px-1.5 py-0.5 rounded-md">
-                    {t("notifications.tabUnread", "New")}
-                  </span>
-                )}
-                {n.is_read && (
-                  <span className="text-[11px] text-gray-400 dark:text-slate-500" title={t("notifications.tabRead", "Read")}>
+                {!n.is_read ? (
+                  <>
+                    <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider bg-teal-100/80 dark:bg-teal-900/60 px-1.5 py-0.5 rounded-md">
+                      {t("notifications.tabUnread", "New")}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMarkAsRead(n.id);
+                      }}
+                      className="p-1 rounded-md text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-200 hover:bg-teal-100/70 dark:hover:bg-teal-900/60 transition-colors cursor-pointer"
+                      title={t("notifications.markAsRead", "Oznacz jako przeczytane")}
+                      aria-label={t("notifications.markAsRead", "Oznacz jako przeczytane")}
+                    >
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-[11px] text-gray-400 dark:text-slate-500 flex items-center gap-0.5" title={t("notifications.tabRead", "Read")}>
                     <CheckCheck className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" />
                   </span>
                 )}
@@ -114,7 +128,7 @@ export default function NotificationsModal({
                   }}
                   className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                   title={t("common.delete", "Usuń")}
-                  aria-label="Remove notification"
+                  aria-label={t("common.delete", "Usuń")}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -171,11 +185,11 @@ export default function NotificationsModal({
             {unreadCount > 0 && (
               <button
                 onClick={onMarkAllAsRead}
-                className="text-xs font-semibold text-teal-700 dark:text-teal-300 hover:text-teal-900 dark:hover:text-white bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900 px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer active:scale-95 border border-transparent dark:border-teal-800/60"
+                className="text-xs font-semibold text-teal-700 dark:text-teal-300 hover:text-teal-900 dark:hover:text-white bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900 px-2 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95 border border-teal-200/60 dark:border-teal-800/60 shadow-2xs"
                 title={t("notifications.markAllRead")}
               >
-                <CheckCheck className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{t("notifications.markAllRead")}</span>
+                <CheckCheck className="w-3.5 h-3.5 shrink-0 text-teal-600 dark:text-teal-400" />
+                <span className="text-[11px] sm:text-xs font-semibold whitespace-nowrap">{t("notifications.markAllRead")}</span>
               </button>
             )}
             <button

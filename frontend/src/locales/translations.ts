@@ -369,7 +369,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyUnreadDesc": "You're all caught up! All notifications have been read.",
     "notifications.emptyRead": "No read notifications",
     "notifications.emptyReadDesc": "Your read notifications history will appear here.",
-    "notifications.markAsRead": "Mark as read (move to read)",
+    "notifications.markAsRead": "Mark as read",
 
     "settings.title": "Account Settings",
     "settings.subtitle": "Manage your profile, password and account settings",
@@ -767,7 +767,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyUnreadDesc": "Alles erledigt! Du hast alle Benachrichtigungen gelesen.",
     "notifications.emptyRead": "Keine gelesenen Benachrichtigungen",
     "notifications.emptyReadDesc": "Gelesene Benachrichtigungen erscheinen hier.",
-    "notifications.markAsRead": "Als gelesen markieren (verschieben)",
+    "notifications.markAsRead": "Als gelesen markieren",
 
     "settings.title": "Kontoeinstellungen",
     "settings.subtitle": "Verwalten Sie Ihr Profil, Passwort und Ihre Kontoeinstellungen",
@@ -1165,7 +1165,7 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> 
     "notifications.emptyUnreadDesc": "Świetnie! Wszystkie powiadomienia zostały przeczytane.",
     "notifications.emptyRead": "Brak przeczytanych powiadomień",
     "notifications.emptyReadDesc": "Tutaj pojawi się historia przeczytanych powiadomień.",
-    "notifications.markAsRead": "Oznacz jako przeczytane (przenieś)",
+    "notifications.markAsRead": "Oznacz jako przeczytane",
 
     "settings.title": "Ustawienia Konta",
     "settings.subtitle": "Zarządzaj profilem, hasłem i preferencjami konta",

@@ -1149,7 +1149,7 @@ export async function deleteNotification(userId, notificationId) {
   if (!pool) {
     const notif = inMemoryNotifications.find(n => n.id === notificationId);
     if (!notif) return true;
-    if (notif.user_id === userId) {
+    if (userId && notif.user_id === userId) {
       const idx = inMemoryNotifications.findIndex(n => n.id === notificationId);
       if (idx !== -1) inMemoryNotifications.splice(idx, 1);
     } else if (notif.user_id === null) {
@@ -1169,7 +1169,7 @@ export async function deleteNotification(userId, notificationId) {
     if (rows.length === 0) return true;
     const notif = rows[0];
 
-    if (notif.user_id === userId) {
+    if (userId && notif.user_id === userId) {
       // User-specific notification: permanently delete for this user
       await pool.query("DELETE FROM notifications WHERE id = $1 AND user_id = $2", [notificationId, userId]);
     } else if (notif.user_id === null) {
